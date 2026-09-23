@@ -1,0 +1,25 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { Logo, SiteFooter } from '@/components/Chrome';
+
+export const metadata: Metadata = { title: 'KVKK Aydınlatma Metni — SınavOku', robots: { index: false } };
+
+export default function Page() {
+  return <>
+    <header className="site-head"><div className="wrap"><Logo /><Link href="/">Ana sayfa</Link></div></header>
+    <main><article className="wrap legal-copy">
+      <h1>KVKK Aydınlatma Metni</h1>
+      <p className="small muted" style={{ marginTop: 16 }}>Taslak · Son güncelleme: 22 Eylül 2026</p>
+      <div className="notice" style={{ marginTop: 20 }}><p>Veri sorumlusunun tam yasal kimliği, başvuru adresi ve altyapı bilgileri tamamlanmalıdır. Bu metin tek başına mevzuata uygunluk garantisi oluşturmaz.</p></div>
+      <section><h2>Veri sorumlusu ve iletişim</h2><p>SınavOku, Zakrom adıyla sunulan bir erken erişim hizmetidir. İletişim: admin@zakrom.com. Zakrom’un veri sorumlusu olan gerçek kişi/tüzel kişi kimliği, tam yasal unvanı ve başvuru adresi henüz doğrulanmamıştır. Bu bilgiler tamamlanmadan bu taslak, nihai aydınlatma metni olarak kullanılamaz.</p></section>
+      <section><h2>Kullanılan veriler</h2><p>Dosya adı, sayısı, sınav türü, seçilen paket ve yükleme doğrulama kodu tarayıcının oturum alanında tutulur. Görseller tür ve boyut doğrulaması için uygulama sunucusunun belleğine gönderilir; dosyaya veya veritabanına yazılmaz ve yanıt tamamlandığında bırakılır. Yapay zekâ ile değerlendirme yapılmaz. Kart numarası, son kullanma tarihi ve güvenlik kodu doğrudan Stripe tarafından sunulan güvenli alanda işlenir; SınavOku bu değerlere erişemez. Ödeme, provizyon, kart kaydı veya ödeme yöntemi kaydı oluşturulmaz.</p></section>
+      <section><h2>Amaç, toplama yöntemi ve hukuki sebep</h2><p>Veriler, web arayüzündeki seçimler ve yükleme istekleriyle otomatik olarak elde edilir. Paket, dosya adı ve doğrulama kodu adımlar arasındaki sürekliliği sağlar; görsel baytları yalnızca dosya türü ve boyutunu doğrulamak için geçici olarak işlenir. Bu işlemenin hukuki sebebi, hizmetin niteliği ve veri sorumlusunun kimliği doğrulandıktan sonra nihai metinde ilgili KVKK işleme şartıyla eşleştirilecektir. İsteğe bağlı kullanım analitiği, izin verilirse KVKK madde 5/1 kapsamındaki açık rızaya dayanarak arayüz kullanımını değerlendirmek amacıyla çalışır. Rıza reddedilebilir veya sayfanın altındaki Gizlilik tercihleri üzerinden geri alınabilir. Aydınlatma, açık rıza talebinden ayrıdır.</p></section>
+      <section><h2>Alıcılar ve yurt dışı aktarım</h2><p>Analitik izni verilirse olay adı, sayfa, tıklanan öğe/paket, ekran genişliği, tarayıcı bilgisi, zaman ve rastgele ziyaretçi/oturum kimliği uygulama sunucusuna gönderilir. Yapılandırılmış bir veri saklama hizmeti varsa bu hizmete de kaydedilir. Barındırma ve veri saklama sağlayıcıları, ülkeleri, alıcı grupları ve varsa yurt dışı aktarım mekanizması işletmeci tarafından henüz bildirilmemiştir. Bu bölüm doğrulanmadan yurt dışına aktarım yapıldığı veya yapılmadığı taahhüt edilmez.</p></section>
+      <section><h2>Saklama ve silme</h2><p>Görsel baytları kalıcı depoya yazılmaz. Dosya adı, sayı, doğrulama kodu ve paket seçimi oturum depolamasında tutulur; tarayıcı oturumu geri yükleyebilir. Tarayıcının site verilerini temizleyerek bunları silebilirsiniz. Analitik kimlikler, izin geri alındığında tarayıcıdan kaldırılır; bu işlem daha önce sunucuya gönderilen kayıtları kendiliğinden silmez. Sunucuda olay sayısı sınırı bulunur, ancak süreye bağlı otomatik imha politikası henüz tanımlanmamıştır. Nihai saklama süreleri ve silme süreci yayından önce belirlenmelidir.</p></section>
+      <section><h2>Haklarınız ve başvuru</h2><p>KVKK madde 11 kapsamında verilerinizin işlenip işlenmediğini öğrenme, işlenmişse bilgi isteme, amacı ve amaca uygun kullanımını öğrenme, yurt içi/yurt dışı alıcıları öğrenme, eksik veya yanlış verileri düzelttirme, şartları oluştuğunda silme veya yok etme isteme, bu işlemlerin alıcılara bildirilmesini isteme, yalnızca otomatik analiz sonucu aleyhinize çıkan sonuca itiraz etme ve hukuka aykırı işleme nedeniyle zararın giderilmesini talep etme haklarınız vardır. Sorularınız için admin@zakrom.com adresine yazabilirsiniz; normal e-posta başvurusu mevzuattaki kimlik ve başvuru koşullarına tabidir. Başvuru kanalları tam kimlik/adres bilgileriyle tamamlanmalı; usulüne uygun başvurular en geç 30 gün içinde yanıtlanmalıdır.</p></section>
+      <p className="small">İletişim: <a href="mailto:admin@zakrom.com">admin@zakrom.com</a></p>
+      <section><h2>Resmî kaynaklar</h2><p><a href="https://www.kvkk.gov.tr/Icerik/6765/AYDINLATMA-YUKUMLULUGUNUN-YERINE-GETIRILMESI-HAKKINDA-KAMUOYU-DUYURUSU">KVKK aydınlatma yükümlülüğü</a></p><p><a href="https://www.kvkk.gov.tr/Icerik/8710/veri-sorumlulari-tarafindan-acik-riza-ve-aydinlatma-metinlerinin-ayri-ayri-duzenlenmesi-gerektigi-hakkinda-kisisel-verileri-koruma-kurulunun-18-02-2026-tarihli-ve-2026-347-sayili-ilke-kararina-iliskin-kamuoyu-duyurusu">Aydınlatma ve açık rızanın ayrı düzenlenmesi</a></p></section>
+    </article></main>
+    <SiteFooter />
+  </>;
+}
