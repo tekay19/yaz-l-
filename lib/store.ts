@@ -160,6 +160,42 @@ export function noteAttempt(ip: string, ok: boolean) {
   else rec.count += 1;
 }
 
+// ── Public endpoint rate limit ───────────────────────────────────────────
+// Fixed window per IP. With KV the counter is shared by every instance, so
+// spam cannot flush real events out of the ring buffer; without KV it falls
+// back to per-process memory. The IP is only ever stored hashed, with a TTL.
+const buckets = new Map<string, { count: number; resetAt: number }>();
+
+export async function rateLimited(
+  scope: string,
+  req: Request,
+  max: number,
+  windowSec: number,
+): Promise<boolean> {
+  const id = crypto.createHash('sha256').update(clientIp(req)).digest('base64url').slice(0, 22);
+  const key = `sinavoku:rl:${scope}:${id}`;
+
+  if (hasKV()) {
+    try {
+      const count = await kv<number>(['INCR', key]);
+      if (count === 1) await kv(['EXPIRE', key, windowSec]);
+      return count > max;
+    } catch {
+      // fall through to the in-memory limiter if KV is unreachable
+    }
+  }
+
+  const now = Date.now();
+  const rec = buckets.get(key);
+  if (!rec || rec.resetAt <= now) {
+    if (buckets.size > 10_000) buckets.clear();
+    buckets.set(key, { count: 1, resetAt: now + windowSec * 1000 });
+    return false;
+  }
+  rec.count += 1;
+  return rec.count > max;
+}
+
 export function clientIp(req: Request): string {
   const fwd = req.headers.get('x-forwarded-for') || '';
   return fwd.split(',')[0].trim() || req.headers.get('x-real-ip') || 'unknown';

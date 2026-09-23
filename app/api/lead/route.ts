@@ -4,7 +4,7 @@
 // Leads are appended to the same store as the funnel events, so the panel can
 // show them, and are echoed to the server log as a fallback.
 
-import { pushEvents } from '@/lib/store';
+import { pushEvents, rateLimited } from '@/lib/store';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -12,6 +12,11 @@ export const dynamic = 'force-dynamic';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(req: Request) {
+  // a person joins a waitlist a couple of times at most
+  if (await rateLimited('lead', req, 5, 600)) {
+    return Response.json({ error: 'too_many_requests' }, { status: 429 });
+  }
+
   let body: any = {};
   try {
     body = await req.json();

@@ -147,9 +147,13 @@ export default function Panel() {
     rows.push([], ['e-posta', 'kaynak', 'zaman']);
     data.leads.forEach((l) => rows.push([l.email, l.source, l.ts]));
 
-    const csv = rows
-      .map((r) => r.map((c) => `"${String(c ?? '').replace(/"/g, '""')}"`).join(','))
-      .join('\n');
+    // visitor-supplied text must not run as a formula when opened in Excel
+    const cell = (c: string | number | null | undefined) => {
+      let s = String(c ?? '');
+      if (typeof c === 'string' && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+      return `"${s.replace(/"/g, '""')}"`;
+    };
+    const csv = rows.map((r) => r.map(cell).join(',')).join('\n');
     const url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
     const a = document.createElement('a');
     a.href = url;

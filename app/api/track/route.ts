@@ -6,7 +6,7 @@
 // visitor id is a random value generated in the browser — no cookies, no IP
 // storage, no fingerprinting.
 
-import { pushEvents, type TrackEvent } from '@/lib/store';
+import { pushEvents, rateLimited, type TrackEvent } from '@/lib/store';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -27,6 +27,9 @@ const str = (v: unknown, max: number) => (typeof v === 'string' ? v.slice(0, max
 const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 
 export async function POST(req: Request) {
+  // a real visitor sends a handful of batches a minute; drop floods silently
+  if (await rateLimited('track', req, 60, 60)) return new Response(null, { status: 204 });
+
   let body: any = {};
   try {
     body = await req.json();
