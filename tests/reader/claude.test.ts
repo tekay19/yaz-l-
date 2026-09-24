@@ -34,6 +34,19 @@ describe('claude reader', () => {
     await expect(createClaudeReader(client).readKey(Buffer.from('jpg'))).rejects.toBeInstanceOf(ReadRefused);
   });
 
+  // A key read that yields no question count must not reach the model as
+  // "the exam has 0 questions": it would answer with an empty list and every
+  // student would silently score 0.
+  it('does not tell the model an exam has zero questions', async () => {
+    const client = fakeClient([reply({
+      isBackSide: false, studentName: null, nameConfidence: 'low', unreadable: false, answers: [],
+    })]);
+    await createClaudeReader(client).readStudent(Buffer.from('jpg'), 0);
+    const userText = client.calls[0].messages[0].content[1].text;
+    expect(userText).not.toMatch(/\b0 questions/);
+    expect(userText).toMatch(/every question number/);
+  });
+
   it('rejects output that breaks the schema', async () => {
     const client = fakeClient([reply({ questionCount: 'ten', answers: [] })]);
     await expect(createClaudeReader(client).readKey(Buffer.from('jpg'))).rejects.toThrow();
