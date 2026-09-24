@@ -4,7 +4,7 @@ import { testDb, makeUser } from './helpers/db';
 import { memoryStorage } from './helpers/storage';
 import { addPage, createJob } from '@/lib/jobs/pages';
 import { submitJob } from '@/lib/jobs/submit';
-import { claimPages, completePage, failPage, sweepExhausted, MAX_ATTEMPTS, LEASE_MS } from '@/lib/queue';
+import { claimPages, completePage, failPage, sweepExhausted, MAX_ATTEMPTS, LEASE_MS, RETRY_BACKOFF_MS } from '@/lib/queue';
 import { jobs, pages } from '@/db/schema';
 
 const keyRow = async (db: any) => (await db.select().from(pages).where(eq(pages.kind, 'key')))[0];
@@ -42,13 +42,27 @@ describe('queue', () => {
 
   it('requeues on retryable failure and gives up after MAX_ATTEMPTS', async () => {
     const { db } = await queued(1);
+    let t = Date.now();
     for (let i = 0; i < MAX_ATTEMPTS; i++) {
-      const [p] = await claimPages(db, 1);
-      await failPage(db, p.id, 'boom', true);
+      const [p] = await claimPages(db, 1, new Date(t));
+      await failPage(db, p.id, 'boom', true, new Date(t));
+      t += RETRY_BACKOFF_MS + 1000;
     }
     const row = await keyRow(db);
     expect(row.status).toBe('failed');
     expect(row.error).toBe('boom');
+  });
+
+  // A retryable failure (API timeout, overloaded API) must not be retried at
+  // once: three back-to-back attempts fail every job during a short outage and
+  // mail the teacher that their key photo was unreadable.
+  it('waits out a backoff before offering a retryable failure again', async () => {
+    const { db } = await queued(1);
+    const t0 = Date.now();
+    const [p] = await claimPages(db, 1, new Date(t0));
+    await failPage(db, p.id, 'overloaded', true, new Date(t0));
+    expect(await claimPages(db, 1, new Date(t0 + 1000))).toHaveLength(0);
+    expect((await claimPages(db, 1, new Date(t0 + RETRY_BACKOFF_MS + 1000))).map((x) => x.id)).toEqual([p.id]);
   });
 
   it('fails pages stuck in reading after the last attempt', async () => {

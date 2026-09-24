@@ -6,6 +6,9 @@ import type { Usage } from '@/lib/reader/claude';
 
 export const MAX_ATTEMPTS = 3;
 export const LEASE_MS = 5 * 60 * 1000;
+// Pause before a retryable failure is read again: three attempts spread over
+// ~6 minutes outlast a short API outage instead of failing in seconds.
+export const RETRY_BACKOFF_MS = 3 * 60 * 1000;
 
 export type ClaimedPage = { id: string; jobId: string; kind: 'key' | 'student'; filePath: string | null; attempts: number };
 
@@ -48,10 +51,13 @@ export async function completePage(db: Db, pageId: string, result: PageResult, u
   }).where(eq(pages.id, pageId));
 }
 
-export async function failPage(db: Db, pageId: string, message: string, retry: boolean) {
+export async function failPage(db: Db, pageId: string, message: string, retry: boolean, now = new Date()) {
   const error = message.slice(0, 500);
   if (retry) {
-    const requeued = await db.update(pages).set({ status: 'queued', error, leaseUntil: null })
+    // parked as a lease that runs out after the backoff: claimPages offers an
+    // expired 'reading' page again, exactly as after a worker crash
+    const requeued = await db.update(pages)
+      .set({ status: 'reading', error, leaseUntil: new Date(now.getTime() + RETRY_BACKOFF_MS) })
       .where(and(eq(pages.id, pageId), lt(pages.attempts, MAX_ATTEMPTS)))
       .returning({ id: pages.id });
     if (requeued.length) return;
