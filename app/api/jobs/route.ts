@@ -1,9 +1,16 @@
 import { getDb } from '@/db/client';
 import { currentUserId, unauthorized } from '@/lib/auth/current';
 import { createJob } from '@/lib/jobs/pages';
+import { listJobs } from '@/lib/jobs/status';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+export async function GET() {
+  const userId = await currentUserId();
+  if (!userId) return unauthorized();
+  return Response.json(await listJobs(getDb(), userId), { headers: { 'Cache-Control': 'no-store' } });
+}
 
 export async function POST(req: Request) {
   const userId = await currentUserId();
