@@ -177,7 +177,7 @@ export default function EvalScreen() {
       <div className="panel-login">
         <div className="card panel-login-card">
           <h1>Ölçüm ekranı</h1>
-          <p className="small muted">Bu sayfa yönetici oturumu ister. Önce paneldan giriş yapın, sonra buraya dönün.</p>
+          <p className="small muted">Bu sayfa yönetici oturumu ister. Önce panelden giriş yapın, sonra buraya dönün.</p>
           <a href="/panel" className="btn btn-primary btn-block" style={{ marginTop: 18 }}>Panele git</a>
         </div>
       </div>
