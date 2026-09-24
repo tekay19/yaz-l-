@@ -1,0 +1,9 @@
+node_modules
+.next
+dist
+.env*
+eval/data
+.git
+# database dumps written by scripts/backup.sh hold personal data: never bake them into an image
+backups
+.superpowers

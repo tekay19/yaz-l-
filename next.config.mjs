@@ -1,7 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // self-hosting: `next build` emits a minimal server bundle in .next/standalone
-  output: 'standalone',
   poweredByHeader: false,
   async headers() {
     return [
