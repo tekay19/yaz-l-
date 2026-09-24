@@ -1396,3 +1396,54 @@ section { padding: clamp(56px, 8vw, 104px) 0; }
   background: var(--line-soft);
   color: var(--ink-faint);
 }
+
+/* ── Backend test panel (/hesap) — reuses the admin panel chrome ────── */
+.console-banner { margin-top: 12px; padding: 11px 14px; border-radius: var(--r-sm); font-size: 14.5px; }
+.console-banner.ok { background: var(--tint); color: var(--board); border: 1px solid rgba(20,81,60,.18); }
+.console-banner.err { background: #FFF6F5; color: var(--mark); border: 1px solid #F3C9C4; }
+.console-err { color: var(--mark); }
+.console-narrow { max-width: 520px; }
+.console-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
+.console-row.between { justify-content: space-between; margin-top: 0; }
+.console-grow { flex: 1 1 260px; }
+.console-end { align-self: flex-end; }
+.console-sub { font-size: 15px; margin-top: 22px; }
+.console-balance { text-align: right; }
+.console-balance .k { display: block; font-size: 13px; color: var(--ink-soft); }
+.console-balance .v { font-size: 30px; font-weight: 800; color: var(--board); line-height: 1.1; }
+.console-status {
+  display: inline-block; padding: 5px 11px; border-radius: 999px;
+  background: var(--tint); color: var(--board); font-size: 13px; font-weight: 700;
+}
+.console-danger { color: var(--mark); border-color: #F3C9C4; }
+.console-text {
+  display: block; width: 100%; min-height: 96px; margin-top: 8px; padding: 10px 12px;
+  border: 1.5px solid var(--line); border-radius: var(--r-sm); background: #fff;
+  font: inherit; font-size: 15px; resize: vertical;
+}
+.console-text:focus, .console-qno:focus { outline: none; border-color: var(--board); box-shadow: 0 0 0 3px rgba(20,81,60,.13); }
+.console-qno { width: 96px; height: 42px; padding: 0 10px; border: 1.5px solid var(--line); border-radius: 7px; font: inherit; font-size: 15px; }
+.console-files { display: grid; gap: 6px; margin-top: 12px; font-size: 14px; }
+.console-file {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 8px 11px; border: 1px solid var(--line-soft); border-radius: var(--r-sm);
+}
+.console-file.err { color: var(--mark); border-color: #F3C9C4; }
+.console-link { color: var(--board); font-weight: 600; text-decoration: underline; margin-left: 8px; }
+.console-check { display: flex; gap: 10px; align-items: flex-start; margin-top: 10px; font-size: 14.5px; }
+.console-check input { margin-top: 3px; }
+.console-list { margin: 8px 0 0 18px; list-style: disc; }
+.console-review {
+  display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 18px;
+  padding-block: 18px; margin-top: 16px; border-top: 1px solid var(--line-soft);
+}
+.console-thumb { display: block; width: 170px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--canvas); }
+.console-opts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; }
+.console-opts label {
+  display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px;
+  border: 1px solid var(--line); border-radius: 7px; font-size: 14px; cursor: pointer; background: #fff;
+}
+@media (max-width: 640px) {
+  .console-review { grid-template-columns: 1fr; }
+  .console-thumb { width: 100%; }
+}
