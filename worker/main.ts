@@ -5,6 +5,7 @@ import { claimPages, sweepExhausted } from '@/lib/queue';
 import { maybeCompleteJob } from '@/lib/jobs/progress';
 import { getMailer } from '@/lib/mail';
 import { deliverPending } from '@/lib/jobs/deliver';
+import { runRetention } from '@/lib/retention';
 import { processPage, type WorkerDeps } from './process';
 
 const CONCURRENCY = Number(process.env.WORKER_CONCURRENCY || 4);
@@ -18,8 +19,13 @@ const deps: WorkerDeps = { db: getDb(), storage: getStorage(), reader: createCla
 const mailer = getMailer();
 console.log('[worker] started', { concurrency: CONCURRENCY });
 
+let lastRetention = 0;
 while (!stopping) {
   try {
+    if (Date.now() - lastRetention > 3_600_000) {
+      lastRetention = Date.now();
+      console.log('[worker] retention', await runRetention(deps.db, deps.storage));
+    }
     for (const jobId of await sweepExhausted(deps.db)) await maybeCompleteJob(deps.db, jobId);
     await deliverPending({ db: deps.db, storage: deps.storage, mailer });
     const batch = await claimPages(deps.db, CONCURRENCY);
