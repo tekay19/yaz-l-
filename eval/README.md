@@ -1,0 +1,54 @@
+# Okuma doğruluğu ve maliyet ölçümü (karar kapısı)
+
+**Durum: HENÜZ ÖLÇÜLMEDİ — kapı kapalı.** Bu ölçüm gerçek kâğıtlarla yapılıp aşağıdaki kabul ölçütleri tutmadan müşteriye rapor gönderilmez.
+
+Neden: not, öğrencinin notudur. Bu ölçümün asıl baktığı hata, **işaretlenmeden** yanlış okunan sorudur ("sessiz yanlış"). Düşük güvenle işaretlenen okumalar öğretmenin zamanını alır ama güveni zedelemez; sessiz yanlış ise doğrudan yanlış puan demektir.
+
+## 1. Veri setini hazırla (insan işi)
+
+En az **1 cevap anahtarı + 40 öğrenci kâğıdı**. Setin içinde şunlar mutlaka olmalı: farklı ışık, farklı açı, silinmiş işaret, çift işaret, boş bırakılmış soru. Kâğıtlar izinli olmalı ve isimler gerçek kişilere ait olmamalı (öğretmenin kendi doldurduğu örnekler).
+
+Her fotoğraf `eval/data/<ad>.jpg`, doğru cevabı elle yazılmış hali `eval/data/<ad>.json` olarak konur. `eval/data/` git'e **eklenmez**; `.gitignore`'da.
+
+Öğrenci kâğıdı:
+
+```json
+{ "kind": "student", "questionCount": 20, "studentName": "Test Öğrenci 01",
+  "answers": [{ "q": 1, "marked": ["A"] }, { "q": 2, "marked": [] }] }
+```
+
+Cevap anahtarı:
+
+```json
+{ "kind": "key", "questionCount": 20, "answers": [{ "q": 1, "option": "A" }] }
+```
+
+## 2. Çalıştır (gerçek API, gerçek maliyet — önce ürün sahibinin onayı)
+
+```bash
+ANTHROPIC_API_KEY=... npx tsx --tsconfig tsconfig.json scripts/eval-reader.ts eval/data
+```
+
+Fiyat varsayılanları Claude Opus 5'e göredir (girdi $5, çıktı $25 / 1M token). Başka bir model ölçülüyorsa `PRICE_IN_PER_M` ve `PRICE_OUT_PER_M` ile verilir. Model `GRADER_MODEL`, efor `GRADER_EFFORT` ile seçilir.
+
+## 3. Kabul ölçütleri (ürün sahibi değiştirebilir)
+
+| Ölçüt | Eşik | Anlamı |
+|---|---|---|
+| `silentWrongRate` | ≤ %0,2 | 500 soruda en fazla 1 işaretlenmemiş yanlış |
+| `flaggedRate` | ≤ %5 | Öğretmene sorulan soru oranı |
+| `nameAccuracy` | ≥ %90 | Kalanlar zaten "Kontrol edilecekler"e düşer |
+| `usdPerPage` × kur | ≤ ₺0,165 | Başlangıç paketinin sayfa fiyatının (₺0,33) yarısı |
+| `secondsPerPage` × 30 / `WORKER_CONCURRENCY` | ≤ 300 sn | Sitedeki "birkaç dakika" vaadi, 30 kâğıtlık sınıf için |
+
+Süre tutmuyorsa önce `WORKER_CONCURRENCY` artırılır (Anthropic hesabının istek sınırının izin verdiği kadar), sonra efor düşürülür.
+
+Diğer ölçütler tutmuyorsa sıra şudur: önce prompt düzeltilip tekrar ölçülür, sonra `GRADER_EFFORT` değiştirilir. Model değişikliği ürün sahibinin kararıdır. Maliyet tutmuyorsa paket fiyatları gözden geçirilir.
+
+## 4. Sonuçlar
+
+| Tarih | Veri seti | `GRADER_MODEL` | `GRADER_EFFORT` | silentWrongRate | flaggedRate | nameAccuracy | usdPerPage | secondsPerPage | Karar |
+|---|---|---|---|---|---|---|---|---|---|
+| — | — | — | — | — | — | — | — | — | Henüz ölçülmedi |
+
+Ölçüm yapılınca bu tabloya bir satır eklenir ve en üstteki **Durum** satırı güncellenir.
