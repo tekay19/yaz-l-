@@ -70,4 +70,11 @@ describe('checkCriteria', () => {
     expect(pass({ silentWrongRate: null, flaggedRate: null, nameAccuracy: null, usdPerPage: null, secondsPerPage: null }))
       .toEqual({ silentWrongRate: null, flaggedRate: null, nameAccuracy: null, costTry: null, classSeconds: null });
   });
+  it('leaves cost undecided without an exchange rate instead of assuming one', () => {
+    const cost = checkCriteria(
+      { silentWrongRate: 0, flaggedRate: 0, nameAccuracy: 100, usdPerPage: 0.004, secondsPerPage: 10 },
+      { ...gate, tryPerUsd: null },
+    ).find((c) => c.key === 'costTry');
+    expect(cost).toMatchObject({ value: null, pass: null });
+  });
 });

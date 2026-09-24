@@ -97,13 +97,14 @@ export function summarize(t: Totals, prices: Prices): Summary {
   };
 }
 
-// pagePriceTry: the cheapest per-page price a teacher pays (Başlangıç: ₺50 / 150)
-export type Gate = { tryPerUsd: number; pagePriceTry: number; concurrency: number; classSize?: number };
+// pagePriceTry: the cheapest per-page price a teacher pays (Başlangıç: ₺50 / 150).
+// tryPerUsd null: no exchange rate given, so cost stays undecided rather than guessed.
+export type Gate = { tryPerUsd: number | null; pagePriceTry: number; concurrency: number; classSize?: number };
 export type Check = { key: string; label: string; value: number | null; limit: string; pass: boolean | null };
 
 export function checkCriteria(s: Summary, g: Gate): Check[] {
   const classSize = g.classSize ?? 30;
-  const costTry = s.usdPerPage === null ? null : s.usdPerPage * g.tryPerUsd;
+  const costTry = s.usdPerPage === null || g.tryPerUsd === null ? null : s.usdPerPage * g.tryPerUsd;
   const classSeconds = s.secondsPerPage === null ? null : (s.secondsPerPage * classSize) / g.concurrency;
   const judge = (v: number | null, ok: (v: number) => boolean) => (v === null ? null : ok(v));
   const maxCost = g.pagePriceTry / 2;

@@ -1447,3 +1447,53 @@ section { padding: clamp(56px, 8vw, 104px) 0; }
   .console-review { grid-template-columns: 1fr; }
   .console-thumb { width: 100%; }
 }
+
+/* ── Measurement screen (/panel/olcum) — reuses the panel chrome ────── */
+.eval-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; margin-top: 14px; }
+.eval-photo-item {
+  display: flex; align-items: stretch; border: 1px solid var(--line); border-radius: var(--r-sm); background: #fff;
+}
+.eval-photo-item.on { border-color: var(--board); box-shadow: 0 0 0 2px rgba(20,81,60,.15); }
+.eval-photo-item .n {
+  flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 8px 10px;
+  text-align: left; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.eval-photo-item .s { font-size: 12.5px; color: var(--ink-soft); }
+.eval-photo-item .s.ok { color: var(--board); font-weight: 600; }
+.eval-photo-item .s.err { color: var(--mark); font-weight: 600; }
+.eval-photo-item .x { width: 36px; flex: none; color: var(--ink-faint); font-size: 18px; border-left: 1px solid var(--line-soft); }
+.eval-photo-item .x:hover:not(:disabled) { color: var(--mark); }
+.eval-label { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; margin-top: 16px; }
+.eval-photo { position: sticky; top: 84px; align-self: start; }
+.eval-photo img {
+  display: block; width: 100%; max-height: calc(100dvh - 130px); object-fit: contain;
+  border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--canvas);
+}
+.eval-filename { margin-top: 6px; overflow-wrap: anywhere; }
+.eval-form { border: 0; padding: 0; margin: 0; min-width: 0; }
+.eval-inline { display: inline-flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 600; }
+.eval-quick { height: 42px; min-width: 0; padding: 0 12px; border: 1.5px solid var(--line); border-radius: 7px; font: inherit; font-size: 15px; }
+.eval-quick:focus { outline: none; border-color: var(--board); box-shadow: 0 0 0 3px rgba(20,81,60,.13); }
+.eval-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(262px, 1fr)); gap: 6px 16px; margin-top: 14px; }
+.eval-q { display: flex; align-items: center; gap: 4px; }
+.eval-qno { width: 30px; flex: none; font-size: 13px; font-weight: 700; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.eval-q.missing .eval-qno { color: var(--mark); }
+.eval-q button {
+  min-width: 34px; height: 34px; padding: 0 7px; border: 1px solid var(--line); border-radius: 6px;
+  background: #fff; font-size: 13.5px; font-weight: 700; color: var(--ink-soft);
+}
+.eval-q button.on { background: var(--board); border-color: var(--board); color: #fff; }
+.eval-q button.blank { font-weight: 600; }
+.eval-form:disabled .eval-q button, .eval-form:disabled .seg button { opacity: .6; cursor: default; }
+.eval-settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-top: 14px; }
+.eval-settings .field + .field { margin-top: 0; }
+.eval-settings .seg { align-self: flex-start; }
+.eval-pass { color: var(--board); font-weight: 700; }
+.eval-fail { color: var(--mark); font-weight: 700; }
+.eval-na { color: var(--ink-faint); }
+.eval-mistakes { font-size: 13px; color: var(--ink-soft); }
+@media (max-width: 760px) {
+  .eval-label { grid-template-columns: 1fr; }
+  .eval-photo { position: static; }
+  .eval-photo img { max-height: 70vh; }
+}

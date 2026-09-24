@@ -7,8 +7,8 @@ const nextConfig = {
   async headers() {
     return [
       {
-        // the panel must never be indexed or framed
-        source: '/panel',
+        // the panel and its measurement screen must never be indexed or framed
+        source: '/panel/:path*',
         headers: [
           { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
           { key: 'X-Frame-Options', value: 'DENY' },
