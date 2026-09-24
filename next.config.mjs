@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  // heic-convert loads libheif as WASM through a dynamic require that the
+  // bundler cannot follow; load it from node_modules at runtime like sharp.
+  serverExternalPackages: ['heic-convert'],
   async headers() {
     return [
       {
