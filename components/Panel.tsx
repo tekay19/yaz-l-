@@ -278,7 +278,7 @@ export default function Panel() {
         {data?.storage === 'memory' && (
           <p className="panel-note">
             Kalıcı depolama bağlı değil: kayıtlar yalnızca sunucu ayakta kaldığı sürece tutulur.
-            KV_REST_API_URL ve KV_REST_API_TOKEN tanımlayın.
+            DATABASE_URL tanımlayın.
           </p>
         )}
         {data?.storeError && (

@@ -9,7 +9,7 @@ import { cookies } from 'next/headers';
 import {
   COOKIE,
   clientIp,
-  hasKV,
+  isPersistent,
   issueToken,
   noteAttempt,
   passwordMatches,
@@ -29,7 +29,7 @@ export async function GET(req: Request) {
   if (action !== 'session') return json({ error: 'not_found' }, 404);
 
   const jar = await cookies();
-  return json({ authed: verifyToken(jar.get(COOKIE)?.value), kv: hasKV() });
+  return json({ authed: verifyToken(jar.get(COOKIE)?.value), kv: isPersistent() });
 }
 
 export async function POST(req: Request) {
@@ -69,5 +69,5 @@ export async function POST(req: Request) {
   }
 
   jar.set(sessionCookie(token));
-  return json({ ok: true, kv: hasKV() });
+  return json({ ok: true, kv: isPersistent() });
 }

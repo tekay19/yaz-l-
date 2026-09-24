@@ -1,18 +1,14 @@
 // Event storage + admin session helpers.
 //
-// Events go to an Upstash-compatible Redis REST API (Upstash, Vercel KV, or a
-// self-hosted equivalent) over plain fetch, so the app needs no extra
-// dependency. Without one configured, events are kept in the running
-// process's memory and the panel says so rather than showing numbers that
-// silently lost data.
+// Funnel events are rows in the Postgres `events` table on our own server,
+// so they survive restarts without an external KV service.
 
 import crypto from 'node:crypto';
+import { desc } from 'drizzle-orm';
+import { getDb, type Db } from '@/db/client';
+import { events as eventsTable } from '@/db/schema';
 
-const KV_URL = process.env.KV_REST_API_URL || '';
-const KV_TOKEN = process.env.KV_REST_API_TOKEN || '';
-
-const EVENT_KEY = 'sinavoku:events';
-const MAX_EVENTS = 20_000; // ring buffer
+const MAX_READ = 20_000;
 const SESSION_TTL = 8 * 3600; // seconds — one working day
 export const COOKIE = 'so_admin';
 
@@ -30,58 +26,24 @@ export type TrackEvent = {
   ua: string;
 };
 
-export const hasKV = () => Boolean(KV_URL && KV_TOKEN);
+// Events live in Postgres on our own server, so they always persist.
+export const isPersistent = () => true;
 
-// module-scope fallback; survives between requests in one process
-const memory: TrackEvent[] = [];
-
-async function kv<T = unknown>(command: (string | number)[]): Promise<T> {
-  const res = await fetch(KV_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${KV_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(command),
-    cache: 'no-store',
-  });
-  if (!res.ok) throw new Error(`kv_${res.status}`);
-  const json = (await res.json()) as { result: T };
-  return json.result;
+export async function pushEvents(list: TrackEvent[], db: Db = getDb()) {
+  if (!list.length) return;
+  await db.insert(eventsTable).values(
+    list.map((e) => ({ ...e, ts: new Date(e.ts) })),
+  );
 }
 
-export async function pushEvents(events: TrackEvent[]) {
-  if (!events.length) return;
-  if (!hasKV()) {
-    memory.push(...events);
-    if (memory.length > MAX_EVENTS) memory.splice(0, memory.length - MAX_EVENTS);
-    return;
-  }
-  await kv(['LPUSH', EVENT_KEY, ...events.map((e) => JSON.stringify(e))]);
-  await kv(['LTRIM', EVENT_KEY, 0, MAX_EVENTS - 1]);
+export async function readEvents(limit = MAX_READ, db: Db = getDb()): Promise<TrackEvent[]> {
+  const rows = await db.select().from(eventsTable)
+    .orderBy(desc(eventsTable.ts)).limit(Math.min(limit, MAX_READ));
+  return rows.map(({ id: _id, ts, ...rest }) => ({ ...rest, ts: ts.toISOString() }));
 }
 
-export async function readEvents(limit = MAX_EVENTS): Promise<TrackEvent[]> {
-  const n = Math.min(limit, MAX_EVENTS);
-  if (!hasKV()) return memory.slice(-n).reverse();
-  const rows = await kv<string[]>(['LRANGE', EVENT_KEY, 0, n - 1]);
-  return (rows || [])
-    .map((r) => {
-      try {
-        return JSON.parse(r) as TrackEvent;
-      } catch {
-        return null;
-      }
-    })
-    .filter((e): e is TrackEvent => Boolean(e));
-}
-
-export async function clearEvents() {
-  if (!hasKV()) {
-    memory.length = 0;
-    return;
-  }
-  await kv(['DEL', EVENT_KEY]);
+export async function clearEvents(db: Db = getDb()) {
+  await db.delete(eventsTable);
 }
 
 // ── Session cookie ───────────────────────────────────────────────────────
@@ -161,9 +123,8 @@ export function noteAttempt(ip: string, ok: boolean) {
 }
 
 // ── Public endpoint rate limit ───────────────────────────────────────────
-// Fixed window per IP. With KV the counter is shared by every instance, so
-// spam cannot flush real events out of the ring buffer; without KV it falls
-// back to per-process memory. The IP is only ever stored hashed, with a TTL.
+// Fixed window per IP. Single app process: an in-memory window is enough.
+// The IP is only ever stored hashed, with a TTL.
 const buckets = new Map<string, { count: number; resetAt: number }>();
 
 export async function rateLimited(
@@ -174,16 +135,6 @@ export async function rateLimited(
 ): Promise<boolean> {
   const id = crypto.createHash('sha256').update(clientIp(req)).digest('base64url').slice(0, 22);
   const key = `sinavoku:rl:${scope}:${id}`;
-
-  if (hasKV()) {
-    try {
-      const count = await kv<number>(['INCR', key]);
-      if (count === 1) await kv(['EXPIRE', key, windowSec]);
-      return count > max;
-    } catch {
-      // fall through to the in-memory limiter if KV is unreachable
-    }
-  }
 
   const now = Date.now();
   const rec = buckets.get(key);

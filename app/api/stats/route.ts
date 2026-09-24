@@ -2,7 +2,7 @@
 // cookie — without one it answers 401 and reveals nothing about the data.
 
 import { cookies } from 'next/headers';
-import { COOKIE, clearEvents, hasKV, readEvents, verifyToken, type TrackEvent } from '@/lib/store';
+import { COOKIE, clearEvents, isPersistent, readEvents, verifyToken, type TrackEvent } from '@/lib/store';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -145,7 +145,7 @@ export async function GET(req: Request) {
 
   return json({
     range,
-    storage: hasKV() ? 'kv' : 'memory',
+    storage: isPersistent() ? 'kv' : 'memory',
     storeError,
     totals: { events: events.length, visitors: visitors.size, sessions: sessions.size, ...counts },
     pageViews: toSorted(pageViews),
