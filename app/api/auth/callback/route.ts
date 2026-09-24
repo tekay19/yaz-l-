@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { getDb } from '@/db/client';
 import { consumeLogin } from '@/lib/auth/login';
+import { fromOwnOrigin } from '@/lib/auth/origin';
 import { SESSION_COOKIE, SESSION_TTL_DAYS, issueSession } from '@/lib/auth/session';
 
 export const runtime = 'nodejs';
@@ -21,10 +22,12 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const base = process.env.APP_URL!;
+  // checked before the token is touched, so a cross-site post cannot spend it
+  if (!fromOwnOrigin(req, base)) return Response.redirect(`${base}/giris?hata=baglanti`, 303);
   const form = await req.formData();
   const token = String(form.get('token') || '');
   const userId = await consumeLogin(getDb(), token);
-  const base = process.env.APP_URL!;
   if (!userId) return Response.redirect(`${base}/giris?hata=baglanti`, 303);
   const jar = await cookies();
   jar.set(SESSION_COOKIE, issueSession(userId), {
