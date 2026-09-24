@@ -47,6 +47,13 @@ describe('claude reader', () => {
     expect(userText).toMatch(/every question number/);
   });
 
+  // The measurement screen compares effort levels on the same labelled sheets.
+  it('reads at the effort the caller asks for', async () => {
+    const client = fakeClient([reply({ questionCount: 1, answers: [{ q: 1, option: 'A' }] })]);
+    await createClaudeReader(client, { effort: 'low' }).readKey(Buffer.from('jpg'));
+    expect(client.calls[0].output_config.effort).toBe('low');
+  });
+
   it('rejects output that breaks the schema', async () => {
     const client = fakeClient([reply({ questionCount: 'ten', answers: [] })]);
     await expect(createClaudeReader(client).readKey(Buffer.from('jpg'))).rejects.toThrow();

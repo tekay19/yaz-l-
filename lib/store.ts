@@ -79,6 +79,16 @@ export function verifyToken(token: string | undefined): boolean {
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
+// Same check, reading the cookie from the request itself rather than
+// next/headers, so a route can be exercised outside Next's request scope.
+export function adminRequest(req: Request): boolean {
+  const pair = (req.headers.get('cookie') ?? '')
+    .split(';')
+    .map((c) => c.trim())
+    .find((c) => c.startsWith(`${COOKIE}=`));
+  return verifyToken(pair ? decodeURIComponent(pair.slice(COOKIE.length + 1)) : undefined);
+}
+
 export const sessionCookie = (token: string) => ({
   name: COOKIE,
   value: token,

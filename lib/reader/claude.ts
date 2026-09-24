@@ -15,8 +15,9 @@ export class ReadRefused extends Error {}
 // The slice of the SDK we use, so tests can hand in a fake.
 export type MessagesClient = { beta: { messages: { create(params: any): Promise<any> } } };
 
-const MODEL = () => process.env.GRADER_MODEL || 'claude-opus-5';
-const EFFORT = () => (process.env.GRADER_EFFORT || 'medium') as 'low' | 'medium' | 'high';
+export type Effort = 'low' | 'medium' | 'high';
+export const graderModel = () => process.env.GRADER_MODEL || 'claude-opus-5';
+const EFFORT = () => (process.env.GRADER_EFFORT || 'medium') as Effort;
 
 async function read<T>(
   client: MessagesClient,
@@ -24,12 +25,13 @@ async function read<T>(
   userText: string,
   image: Buffer,
   schema: z.ZodType<T>,
+  effort: Effort,
 ): Promise<{ read: T; usage: Usage }> {
   const res = await client.beta.messages.create({
-    model: MODEL(),
+    model: graderModel(),
     max_tokens: 16000,
     thinking: { type: 'adaptive' },
-    output_config: { effort: EFFORT(), format: betaZodOutputFormat(schema) },
+    output_config: { effort, format: betaZodOutputFormat(schema) },
     // on a policy decline the API retries on a fallback model in the same call
     betas: ['server-side-fallback-2026-07-01'],
     fallbacks: 'default',
@@ -51,10 +53,16 @@ async function read<T>(
   };
 }
 
-export function createClaudeReader(client: MessagesClient = new Anthropic() as unknown as MessagesClient): Reader {
+// opts.effort overrides GRADER_EFFORT, so the measurement screen can compare
+// effort levels on the same sheets without restarting the server.
+export function createClaudeReader(
+  client: MessagesClient = new Anthropic() as unknown as MessagesClient,
+  opts: { effort?: Effort } = {},
+): Reader {
+  const effort = () => opts.effort ?? EFFORT();
   return {
-    readKey: (image) => read(client, KEY_SYSTEM, KEY_USER, image, KeyReadSchema),
+    readKey: (image) => read(client, KEY_SYSTEM, KEY_USER, image, KeyReadSchema, effort()),
     readStudent: (image, questionCount) =>
-      read(client, STUDENT_SYSTEM, studentUser(questionCount), image, StudentReadSchema),
+      read(client, STUDENT_SYSTEM, studentUser(questionCount), image, StudentReadSchema, effort()),
   };
 }
