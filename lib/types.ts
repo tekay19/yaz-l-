@@ -25,4 +25,5 @@ export type PageResult =
 export type PageOverride = {
   studentName?: string;
   answers?: { q: number; marked: Option[] }[];
+  points?: { q: number; points: number }[];
 };

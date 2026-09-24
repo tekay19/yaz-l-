@@ -14,6 +14,11 @@ Tüm uçlar JSON döner; hata gövdesi `{ "error": "<Türkçe mesaj>" }`. Oturum
 | DELETE /api/jobs/:id/pages/:pageId | — | 204 | 404, 409 |
 | POST /api/jobs/:id/submit | `{ consent: true }` | 202 `{ ok, reserved }` | 400, 402 `{ need, have }`, 409 |
 | POST /api/pay/checkout | `{ pack }` | `{ paymentPageUrl }` | 400, 401 |
+| PUT /api/jobs/:id/roster | `{ roster: "Ad Soyad\nAd Soyad" }` | `{ count }` | 404, 409 |
+| GET /api/jobs/:id/review | — | `{ roster, key, rows[{…, flags, imageUrl}], failed }` | 404 |
+| GET /api/jobs/:id/pages/:pageId | — | image/jpeg | 404 |
+| PATCH /api/jobs/:id/pages/:pageId | `{ studentName?, answers?: [{q, marked[]}], points?: [{q, points}] }` | `{ ok }` | 400, 409 |
+| POST /api/jobs/:id/approve | — | 202 | 404, 409 |
 
 İlerleme: gönderimden sonra `GET /api/jobs/:id` 5 saniyede bir sorgulanır; `status` `done` olunca "Rapor e-postanıza gönderildi" gösterilir, `review` olunca kontrol ekranına yönlendirilir (Task 14), `failed` olunca "Cevap anahtarı okunamadı, hakkınız iade edildi" gösterilir.
 

@@ -32,7 +32,25 @@ export async function buildReportInput(db: Db, jobId: string): Promise<ReportInp
   const rows: ReportRow[] = [];
   const failed: ReportInput['failed'] = [];
   const sheets = [];
+
+  // A back-side photo carries no name; its answers belong to the sheet
+  // photographed just before it (teachers shoot front, flip, shoot back).
+  type StudentPage = (typeof all)[number];
+  const merged: StudentPage[] = [];
   for (const p of all.filter((x) => x.kind === 'student')) {
+    const prev = merged[merged.length - 1];
+    if (p.result?.type === 'student' && p.result.read.isBackSide && prev?.result?.type === 'student') {
+      const seen = new Set(prev.result.read.answers.map((a) => a.q));
+      prev.result = {
+        type: 'student',
+        read: { ...prev.result.read, answers: [...prev.result.read.answers, ...p.result.read.answers.filter((a) => !seen.has(a.q))] },
+      };
+      continue;
+    }
+    merged.push({ ...p });
+  }
+
+  for (const p of merged) {
     if (p.status !== 'read' || p.result?.type !== 'student') {
       failed.push({ seq: p.seq, reason: REASONS[p.error ?? ''] ?? 'Fotoğraf okunamadı' });
       continue;

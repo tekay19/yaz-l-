@@ -1,12 +1,48 @@
+import { and, eq } from 'drizzle-orm';
 import { getDb } from '@/db/client';
+import { pages } from '@/db/schema';
 import { currentUserId, unauthorized } from '@/lib/auth/current';
 import { getOwnedJob, removePage } from '@/lib/jobs/pages';
+import { savePageOverride } from '@/lib/jobs/review';
 import { getStorage } from '@/lib/storage';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string; pageId: string }> }) {
+type Ctx = { params: Promise<{ id: string; pageId: string }> };
+
+// the page photo, for the review screen; only the owner, only while it exists
+export async function GET(_req: Request, { params }: Ctx) {
+  const userId = await currentUserId();
+  if (!userId) return unauthorized();
+  const { id, pageId } = await params;
+  const db = getDb();
+  if (!(await getOwnedJob(db, id, userId))) return new Response(null, { status: 404 });
+  const [p] = await db.select({ filePath: pages.filePath }).from(pages).where(and(eq(pages.id, pageId), eq(pages.jobId, id)));
+  if (!p?.filePath) return new Response(null, { status: 404 });
+  const body = await getStorage().read(p.filePath);
+  return new Response(new Uint8Array(body), {
+    headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': 'private, no-store' },
+  });
+}
+
+export async function PATCH(req: Request, { params }: Ctx) {
+  const userId = await currentUserId();
+  if (!userId) return unauthorized();
+  const { id, pageId } = await params;
+  const db = getDb();
+  const job = await getOwnedJob(db, id, userId);
+  if (!job || job.status !== 'review') return Response.json({ error: 'Sınav kontrol aşamasında değil.' }, { status: 409 });
+  const body = await req.json().catch(() => ({}));
+  const ok = await savePageOverride(db, id, pageId, {
+    studentName: typeof body.studentName === 'string' ? body.studentName : undefined,
+    answers: Array.isArray(body.answers) ? body.answers : undefined,
+    points: Array.isArray(body.points) ? body.points : undefined,
+  });
+  return ok ? Response.json({ ok: true }) : Response.json({ error: 'Düzeltme geçersiz.' }, { status: 400 });
+}
+
+export async function DELETE(_req: Request, { params }: Ctx) {
   const userId = await currentUserId();
   if (!userId) return unauthorized();
   const { id, pageId } = await params;
