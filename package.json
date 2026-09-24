@@ -7,20 +7,41 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate",
+    "build:worker": "esbuild worker/main.ts scripts/migrate.ts --bundle --platform=node --target=node24 --format=esm --packages=external --outdir=dist --entry-names=[name] --out-extension:.js=.mjs",
+    "worker": "node dist/main.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
+    "@pdf-lib/fontkit": "^1.1.1",
     "@stripe/react-stripe-js": "^6.11.0",
     "@stripe/stripe-js": "^9.17.0",
+    "drizzle-orm": "^0.45.3",
+    "exceljs": "^4.4.0",
+    "heic-convert": "^2.1.0",
+    "iyzipay": "^2.0.69",
     "next": "^15.1.0",
+    "nodemailer": "^10.0.10",
+    "pdf-lib": "^1.17.1",
+    "postgres": "^3.4.9",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "sharp": "^0.35.4",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@types/node": "^22.10.0",
+    "@types/nodemailer": "^8.0.2",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "typescript": "^5.7.0"
+    "drizzle-kit": "^0.31.11",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15",
+    "typescript": "^5.7.0",
+    "vitest": "^5.0.1"
   },
   "engines": {
     "node": ">=20"
