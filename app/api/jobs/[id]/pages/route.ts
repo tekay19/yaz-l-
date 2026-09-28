@@ -2,7 +2,7 @@ import { and, count, eq } from 'drizzle-orm';
 import { getDb } from '@/db/client';
 import { pages } from '@/db/schema';
 import { currentUserId, unauthorized } from '@/lib/auth/current';
-import { ImageError, normalizeImage } from '@/lib/images';
+import { ImageError, checkPhoto, normalizeImage } from '@/lib/images';
 import { JobLockedError, MAX_STUDENT_PAGES, MAX_UPLOAD_BYTES, addPage, getOwnedJob } from '@/lib/jobs/pages';
 import { getStorage } from '@/lib/storage';
 import { rateLimited } from '@/lib/store';
@@ -37,6 +37,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   try {
     const image = await normalizeImage(Buffer.from(await file.arrayBuffer()));
+    await checkPhoto(image);
     const page = await addPage(db, getStorage(), { jobId: id, kind, image });
     return Response.json(page, { status: 201 });
   } catch (e) {

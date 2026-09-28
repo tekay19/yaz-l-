@@ -6,9 +6,13 @@ import type { Usage } from '@/lib/reader/claude';
 
 export const MAX_ATTEMPTS = 3;
 export const LEASE_MS = 5 * 60 * 1000;
-// Pause before a retryable failure is read again: three attempts spread over
-// ~6 minutes outlast a short API outage instead of failing in seconds.
-export const RETRY_BACKOFF_MS = 3 * 60 * 1000;
+// Pause before a retryable failure is read again. Most failures are a single
+// dropped connection, so the first retry comes quickly: the whole class waits
+// for its slowest page. A second failure looks like an outage and backs off
+// longer, so three attempts still outlast a short one.
+export const FIRST_RETRY_MS = 20 * 1000;
+export const RETRY_BACKOFF_MS = 2 * 60 * 1000;
+export const retryBackoffMs = (attempts: number) => (attempts <= 1 ? FIRST_RETRY_MS : RETRY_BACKOFF_MS);
 
 export type ClaimedPage = { id: string; jobId: string; kind: 'key' | 'student'; filePath: string | null; attempts: number };
 
@@ -56,8 +60,9 @@ export async function failPage(db: Db, pageId: string, message: string, retry: b
   if (retry) {
     // parked as a lease that runs out after the backoff: claimPages offers an
     // expired 'reading' page again, exactly as after a worker crash
+    const [row] = await db.select({ attempts: pages.attempts }).from(pages).where(eq(pages.id, pageId));
     const requeued = await db.update(pages)
-      .set({ status: 'reading', error, leaseUntil: new Date(now.getTime() + RETRY_BACKOFF_MS) })
+      .set({ status: 'reading', error, leaseUntil: new Date(now.getTime() + retryBackoffMs(row?.attempts ?? MAX_ATTEMPTS)) })
       .where(and(eq(pages.id, pageId), lt(pages.attempts, MAX_ATTEMPTS)))
       .returning({ id: pages.id });
     if (requeued.length) return;

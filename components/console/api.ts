@@ -64,7 +64,8 @@ export function createApi(fetchImpl: typeof fetch = (input, init) => fetch(input
     },
     removePage: (id: string, pageId: string) => call<null>(`/api/jobs/${id}/pages/${pageId}`, { method: 'DELETE' }),
     setRoster: (id: string, roster: string) => call<{ count: number }>(`/api/jobs/${id}/roster`, withJson('PUT', { roster })),
-    submit: (id: string) => call<{ ok: true; reserved: number }>(`/api/jobs/${id}/submit`, withJson('POST', { consent: true })),
+    submit: (id: string, noRoster = false) =>
+      call<{ ok: true; reserved: number }>(`/api/jobs/${id}/submit`, withJson('POST', noRoster ? { consent: true, noRoster: true } : { consent: true })),
     review: (id: string) => call<Review>(`/api/jobs/${id}/review`),
     correct: (id: string, pageId: string, patch: Correction) => call<{ ok: true }>(`/api/jobs/${id}/pages/${pageId}`, withJson('PATCH', patch)),
     approve: (id: string) => call<{ ok: true }>(`/api/jobs/${id}/approve`, { method: 'POST' }),

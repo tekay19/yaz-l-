@@ -30,6 +30,18 @@ describe('checkStudent', () => {
     expect(r).toMatchObject({ questions: 4, flagged: 1, silentWrong: 2, name: 'ok' });
     expect(r.mistakes).toEqual([{ q: 3, want: '—', got: '—' }, { q: 4, want: 'D', got: 'E' }]);
   });
+  it('counts a wrong multi-mark read as flagged, since scoring warns about it', () => {
+    const r = checkStudent(truth, {
+      isBackSide: false, studentName: 'Işıl Öztürk', nameConfidence: 'high', unreadable: false,
+      answers: [
+        { q: 1, marked: ['A', 'C'], confidence: 'high' },   // a cancelled C read as a mark → "birden fazla işaret"
+        { q: 2, marked: ['A', 'B'], confidence: 'high' },
+        { q: 3, marked: [], confidence: 'high' },
+        { q: 4, marked: ['D'], confidence: 'high' },
+      ],
+    });
+    expect(r).toMatchObject({ flagged: 1, silentWrong: 0 });
+  });
   it('a different name is a wrong name', () => {
     const r = checkStudent(truth, { isBackSide: false, studentName: 'Işıl Öztürkmen', nameConfidence: 'high', unreadable: false, answers: [] });
     expect(r.name).toBe('wrong');

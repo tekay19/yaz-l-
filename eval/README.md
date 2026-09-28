@@ -49,6 +49,7 @@ Diğer ölçütler tutmuyorsa sıra şudur: önce prompt düzeltilip tekrar öl�
 
 | Tarih | Veri seti | `GRADER_MODEL` | `GRADER_EFFORT` | silentWrongRate | flaggedRate | nameAccuracy | usdPerPage | secondsPerPage | Karar |
 |---|---|---|---|---|---|---|---|---|---|
-| — | — | — | — | — | — | — | — | — | Henüz ölçülmedi |
+| 2026-09-25 | Sentetik, 1 anahtar + 40 kâğıt (`scripts/synth-sheets.ts`) | `gpt-5.5` (`GRADER_PROVIDER=openai`) | `medium` | %1,46 | %4,51 | %95,0 | $0,0487 | 17,7 | Geçmedi: sessiz yanlış ve maliyet eşiğin üstünde. Sentetik veri, gerçek kâğıt ölçümünün yerini tutmaz. |
+| 2026-09-25 | Aynı sentetik set; 4 düşük çözünürlüklü kâğıt artık yüklemede reddediliyor (37 okundu) | `gpt-5.5` | `medium` | %0,54 | %4,32 | — | $0,0504 | 12,9 | Prompt düzeltildi; ölçüm çoklu işaretli yanlış okumayı artık "işaretli" sayıyor (puanlama zaten uyarıyor). Kalan 4 hata: 2 silik işaret "boş", eğik fotoğrafta 2 satır kayması. Geçmedi. |
 
 Ölçüm yapılınca bu tabloya bir satır eklenir ve en üstteki **Durum** satırı güncellenir.

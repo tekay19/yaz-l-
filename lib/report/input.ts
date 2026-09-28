@@ -4,7 +4,7 @@ import { jobs, pages } from '@/db/schema';
 import type { KeyRead, Option } from '@/lib/types';
 import { scoreSheet } from '@/lib/grading/score';
 import { classStats, type ClassStats } from '@/lib/grading/stats';
-import { matchRoster } from '@/lib/grading/names';
+import { looksLikeName, matchRoster } from '@/lib/grading/names';
 
 export type ReportRow = {
   pageId: string; seq: number; student: string;
@@ -70,7 +70,7 @@ export async function buildReportInput(db: Db, jobId: string): Promise<ReportInp
       student = matched ?? read.studentName;
       if (!read.studentName) flags.unshift('İsim okunamadı');
       else if (job.roster.length && !matched) flags.unshift('İsim sınıf listesinde yok');
-      else if (!job.roster.length && read.nameConfidence === 'low') flags.unshift('İsim net okunamadı');
+      else if (!job.roster.length && (read.nameConfidence === 'low' || !looksLikeName(read.studentName))) flags.unshift('İsim net okunamadı');
     }
     if (ov.answers?.length) {
       // corrected questions are no longer "unsure"

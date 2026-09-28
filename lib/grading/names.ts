@@ -19,6 +19,14 @@ function distance(a: string, b: string): number {
 
 const THRESHOLD = 0.8;
 
+// With no roster to check against, anything in the name field would go into
+// the report as a student. Real names are one to four words of letters; a
+// sentence, a number or a scribble is sent to the teacher instead.
+export function looksLikeName(name: string): boolean {
+  const words = name.trim().split(/\s+/);
+  return name.trim().length <= 40 && words.length <= 4 && words.every((w) => /^[\p{L}][\p{L}'.-]*$/u.test(w));
+}
+
 // Returns the roster entry the written name most likely is, or null when no
 // entry is close enough — an unsure match must go to the teacher, not be guessed.
 export function matchRoster(name: string | null, roster: string[]): string | null {

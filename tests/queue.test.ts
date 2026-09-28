@@ -4,7 +4,7 @@ import { testDb, makeUser } from './helpers/db';
 import { memoryStorage } from './helpers/storage';
 import { addPage, createJob } from '@/lib/jobs/pages';
 import { submitJob } from '@/lib/jobs/submit';
-import { claimPages, completePage, failPage, sweepExhausted, MAX_ATTEMPTS, LEASE_MS, RETRY_BACKOFF_MS } from '@/lib/queue';
+import { claimPages, completePage, failPage, sweepExhausted, MAX_ATTEMPTS, LEASE_MS, FIRST_RETRY_MS, RETRY_BACKOFF_MS } from '@/lib/queue';
 import { jobs, pages } from '@/db/schema';
 
 const keyRow = async (db: any) => (await db.select().from(pages).where(eq(pages.kind, 'key')))[0];
@@ -16,7 +16,7 @@ async function queued(students = 2) {
   const { id } = await createJob(db, u.id, { title: 't', mode: 'optik' });
   await addPage(db, st, { jobId: id, kind: 'key', image: Buffer.from('k') });
   for (let i = 0; i < students; i++) await addPage(db, st, { jobId: id, kind: 'student', image: Buffer.from('s') });
-  await submitJob(db, id, u.id, true);
+  await submitJob(db, id, u.id, true, true);
   return { db, id };
 }
 
@@ -62,7 +62,21 @@ describe('queue', () => {
     const [p] = await claimPages(db, 1, new Date(t0));
     await failPage(db, p.id, 'overloaded', true, new Date(t0));
     expect(await claimPages(db, 1, new Date(t0 + 1000))).toHaveLength(0);
-    expect((await claimPages(db, 1, new Date(t0 + RETRY_BACKOFF_MS + 1000))).map((x) => x.id)).toEqual([p.id]);
+    expect((await claimPages(db, 1, new Date(t0 + FIRST_RETRY_MS + 1000))).map((x) => x.id)).toEqual([p.id]);
+  });
+
+  // One dropped connection must not hold a whole class for minutes, but a
+  // second failure in a row looks like an outage and waits longer.
+  it('retries the first failure quickly and backs off on the second', async () => {
+    const { db } = await queued(1);
+    const t0 = Date.now();
+    const [p] = await claimPages(db, 1, new Date(t0));
+    await failPage(db, p.id, 'Connection error.', true, new Date(t0));
+    const t1 = t0 + FIRST_RETRY_MS + 1000;
+    expect(await claimPages(db, 1, new Date(t1))).toHaveLength(1);
+    await failPage(db, p.id, 'Connection error.', true, new Date(t1));
+    expect(await claimPages(db, 1, new Date(t1 + FIRST_RETRY_MS + 1000))).toHaveLength(0);
+    expect(await claimPages(db, 1, new Date(t1 + RETRY_BACKOFF_MS + 1000))).toHaveLength(1);
   });
 
   it('fails pages stuck in reading after the last attempt', async () => {

@@ -32,6 +32,10 @@ export function scoreSheet(
     if (outcome === 'multi') out.flags.push(`${k.q}. soruda birden fazla işaret`);
     out.questions.push({ q: k.q, outcome, marked });
   }
+  // A question the reader never reported is not a blank answer: the photo may
+  // be cut off or the back side missing. Scored as blank, but never silently.
+  const missing = key.answers.filter((k) => k.option !== null && !byQ.has(k.q)).map((k) => k.q).sort((a, b) => a - b);
+  if (missing.length) out.flags.push(`Kâğıtta bulunamayan sorular: ${missing.join(', ')}`);
   out.score = keyed ? Math.round((out.correct / keyed) * 100) : 0;
   return out;
 }

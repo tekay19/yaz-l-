@@ -1,10 +1,10 @@
 import { getDb } from '@/db/client';
 import { getStorage } from '@/lib/storage';
-import { createClaudeReader } from '@/lib/reader/claude';
+import { createReader } from '@/lib/reader';
 import { claimPages, sweepExhausted } from '@/lib/queue';
 import { maybeCompleteJob } from '@/lib/jobs/progress';
 import { getMailer } from '@/lib/mail';
-import { deliverPending } from '@/lib/jobs/deliver';
+import { autoDeliverStale, deliverPending, notifyReview } from '@/lib/jobs/deliver';
 import { runRetention } from '@/lib/retention';
 import { processPage, type WorkerDeps } from './process';
 
@@ -15,7 +15,7 @@ let stopping = false;
 for (const sig of ['SIGTERM', 'SIGINT'] as const) process.on(sig, () => { stopping = true; });
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-const deps: WorkerDeps = { db: getDb(), storage: getStorage(), reader: createClaudeReader() };
+const deps: WorkerDeps = { db: getDb(), storage: getStorage(), reader: createReader() };
 const mailer = getMailer();
 console.log('[worker] started', { concurrency: CONCURRENCY });
 
@@ -27,6 +27,8 @@ while (!stopping) {
       console.log('[worker] retention', await runRetention(deps.db, deps.storage));
     }
     for (const jobId of await sweepExhausted(deps.db)) await maybeCompleteJob(deps.db, jobId);
+    await autoDeliverStale(deps.db);
+    await notifyReview({ db: deps.db, storage: deps.storage, mailer });
     await deliverPending({ db: deps.db, storage: deps.storage, mailer });
     const batch = await claimPages(deps.db, CONCURRENCY);
     if (batch.length) await Promise.all(batch.map((p) => processPage(deps, p)));

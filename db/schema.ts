@@ -43,6 +43,10 @@ export const jobs = pgTable('jobs', {
   finishedAt: ts('finished_at'),
   deliveryAttemptAt: ts('delivery_attempt_at'),
   notifiedAt: ts('notified_at'),
+  // a job waiting in review: when the teacher was told, and whether the report
+  // later went out on its own because nobody approved it
+  reviewNotifiedAt: ts('review_notified_at'),
+  autoDeliveredAt: ts('auto_delivered_at'),
 }, (t) => [index('jobs_user').on(t.userId), index('jobs_status').on(t.status)]);
 
 export const pages = pgTable('pages', {

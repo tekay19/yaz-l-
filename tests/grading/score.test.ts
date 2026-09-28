@@ -25,6 +25,8 @@ describe('scoreSheet', () => {
     const s = scoreSheet(key, [{ q: 1, marked: ['A'], confidence: 'low' }]);
     expect(s.flags).toContain('1. soru net okunamadı');
     expect(s.blank).toBe(2); // q2 and q3 absent → blank
+    // ...but never silently: a cut-off photo must reach the teacher
+    expect(s.flags).toContain('Kâğıtta bulunamayan sorular: 2, 3');
   });
   it('scores 0 when nothing is keyed', () => {
     expect(scoreSheet({ questionCount: 1, answers: [{ q: 1, option: null }] }, []).score).toBe(0);

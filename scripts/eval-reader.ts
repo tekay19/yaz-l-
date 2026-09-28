@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { createClaudeReader } from '@/lib/reader/claude';
-import { normalizeImage } from '@/lib/images';
+import { createReader } from '@/lib/reader';
+import { ImageError, checkPhoto, normalizeImage } from '@/lib/images';
 import { addSheet, checkKey, checkStudent, emptyTotals, summarize, type Truth } from '@/lib/eval/metrics';
 
 // Runs the accuracy gate (eval/README.md) over a folder of <name>.jpg +
@@ -14,13 +14,21 @@ const prices = {
 
 // No top-level await: without "type": "module" tsx runs this file as CommonJS.
 async function main() {
-  const reader = createClaudeReader();
+  const reader = createReader();
   let totals = emptyTotals();
+  const refused: string[] = [];
 
   for (const file of (await fs.readdir(dir)).filter((f) => f.endsWith('.json'))) {
     const truth = JSON.parse(await fs.readFile(path.join(dir, file), 'utf8')) as Truth;
     const started = Date.now();
     const image = await normalizeImage(await fs.readFile(path.join(dir, file.replace(/\.json$/, '.jpg'))));
+    // the upload screen refuses these, so they are never read in production
+    try { await checkPhoto(image); } catch (e) {
+      if (!(e instanceof ImageError)) throw e;
+      console.log(`REFUSED ${file}: ${e.message}`);
+      refused.push(file);
+      continue;
+    }
     const { result, usage } = truth.kind === 'key'
       ? await reader.readKey(image).then(({ read, usage }) => ({ result: checkKey(truth, read), usage }))
       : await reader.readStudent(image, truth.questionCount).then(({ read, usage }) => ({ result: checkStudent(truth, read), usage }));
@@ -32,6 +40,7 @@ async function main() {
   const fixed = (v: number | null, digits: number, unit = '') => (v === null ? 'n/a' : v.toFixed(digits) + unit);
   console.log({
     pagesRead: totals.pages,
+    refusedAtUpload: refused.length,
     questions: totals.questions,
     silentWrongRate: fixed(s.silentWrongRate, 2, '%'),
     flaggedRate: fixed(s.flaggedRate, 2, '%'),

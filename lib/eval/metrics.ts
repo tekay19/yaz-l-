@@ -48,6 +48,12 @@ export function checkStudent(truth: StudentTruth, read: StudentRead): SheetResul
     }
     // a question the model did not report at all counts as a silent error
     const same = got && [...got.marked].sort().join() === [...t.marked].sort().join();
+    // a wrong read with two or more marks is not silent: scoring flags every
+    // multi-mark row ("birden fazla işaret"), so the teacher sees it
+    if (!same && got && got.marked.length > 1) {
+      out.flagged++;
+      continue;
+    }
     if (!same) {
       out.silentWrong++;
       out.mistakes.push({ q: t.q, want: show(t.marked), got: show(got?.marked) });

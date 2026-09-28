@@ -4,9 +4,13 @@ import { jobs, ledger, pages, users } from '@/db/schema';
 
 export type SubmitResult =
   | { ok: true; reserved: number }
-  | { ok: false; error: 'no_key' | 'no_pages' | 'no_consent' | 'insufficient' | 'not_draft'; need?: number; have?: number };
+  | { ok: false; error: 'no_key' | 'no_pages' | 'no_consent' | 'no_roster' | 'insufficient' | 'not_draft'; need?: number; have?: number };
 
-export async function submitJob(db: Db, jobId: string, userId: string, consent: boolean): Promise<SubmitResult> {
+// Without a roster, names are only what the photo says and nothing checks
+// them; the teacher has to choose that knowingly (allowNoRoster).
+export async function submitJob(
+  db: Db, jobId: string, userId: string, consent: boolean, allowNoRoster = false,
+): Promise<SubmitResult> {
   if (!consent) return { ok: false, error: 'no_consent' };
   return db.transaction(async (tx) => {
     const [job] = await tx.select().from(jobs)
@@ -19,6 +23,7 @@ export async function submitJob(db: Db, jobId: string, userId: string, consent: 
     const need = counts.find((c) => c.kind === 'student')?.n ?? 0;
     if (!keyCount) return { ok: false, error: 'no_key' } as const;
     if (!need) return { ok: false, error: 'no_pages' } as const;
+    if (!job.roster.length && !allowNoRoster) return { ok: false, error: 'no_roster' } as const;
 
     const debited = await tx.update(users)
       .set({ pageBalance: sql`${users.pageBalance} - ${need}` })

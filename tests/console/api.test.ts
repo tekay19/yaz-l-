@@ -35,6 +35,7 @@ describe('console api contract', () => {
     ['removePage', (a: any) => a.removePage(J, P), 'DELETE', `/api/jobs/${J}/pages/${P}`, undefined],
     ['setRoster', (a: any) => a.setRoster(J, 'Elif\nMert'), 'PUT', `/api/jobs/${J}/roster`, { roster: 'Elif\nMert' }],
     ['submit', (a: any) => a.submit(J), 'POST', `/api/jobs/${J}/submit`, { consent: true }],
+    ['submit without roster', (a: any) => a.submit(J, true), 'POST', `/api/jobs/${J}/submit`, { consent: true, noRoster: true }],
     ['review', (a: any) => a.review(J), 'GET', `/api/jobs/${J}/review`, undefined],
     ['correct', (a: any) => a.correct(J, P, { studentName: 'Elif', answers: [{ q: 2, marked: ['B'] }] }), 'PATCH', `/api/jobs/${J}/pages/${P}`, { studentName: 'Elif', answers: [{ q: 2, marked: ['B'] }] }],
     ['approve', (a: any) => a.approve(J), 'POST', `/api/jobs/${J}/approve`, undefined],

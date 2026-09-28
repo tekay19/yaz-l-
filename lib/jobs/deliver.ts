@@ -10,6 +10,10 @@ import { buildSummaryPdf } from '@/lib/report/pdf';
 
 type Deps = { db: Db; storage: Storage; mailer: Mailer };
 const RETRY_MS = 5 * 60 * 1000;
+// A job left in review is sent as read after this long: the teacher gets the
+// report (with the unsure places listed) instead of nothing, and the photos
+// are deleted days before the retention backstop.
+export const REVIEW_AUTO_DELIVER_DAYS = 3;
 const safeName = (s: string) => s.replace(/[^\p{L}\p{N} _-]/gu, '').trim().slice(0, 60) || 'sinav';
 
 async function deletePhotos({ db, storage }: Deps, jobId: string) {
@@ -29,7 +33,7 @@ export async function deliverPending(deps: Deps, now = new Date()): Promise<numb
   );
   const due = await db.select({
     id: jobs.id, userId: jobs.userId, status: jobs.status, title: jobs.title,
-    reservedPages: jobs.reservedPages, roster: jobs.roster,
+    reservedPages: jobs.reservedPages, roster: jobs.roster, autoDeliveredAt: jobs.autoDeliveredAt,
   }).from(jobs).where(ready()).limit(5);
 
   let handled = 0;
@@ -58,6 +62,7 @@ export async function deliverPending(deps: Deps, now = new Date()): Promise<numb
           subject: `${job.title || 'Sınav'} sonuçları`,
           text: `${input.rows.length} kâğıt puanlandı. Sınıf ortalaması: ${input.stats.average.toLocaleString('tr-TR')}.`
             + (input.needsReview ? '\nBazı yerler net okunamadı; Excel dosyasındaki "Kontrol Edilecekler" sayfasına bakın.' : '')
+            + (job.autoDeliveredAt ? `\nKontrol ekranında ${REVIEW_AUTO_DELIVER_DAYS} gün içinde onaylanmadığı için rapor, okunduğu haliyle gönderildi.` : '')
             + (refund ? `\n${refund} kâğıt okunamadı; bu sayfaların hakkı iade edildi.` : '')
             // Düzeltme.md D6: roster girilmediyse isim eşleştirme hiç çalışmadı —
             // öğretmen bunun farkında olmadan raporu güvenip kullanmasın.
@@ -82,4 +87,43 @@ export async function deliverPending(deps: Deps, now = new Date()): Promise<numb
     }
   }
   return handled;
+}
+
+// Tells the teacher once that an exam is waiting for their check; without it
+// the only sign is the status on the web page.
+export async function notifyReview({ db, mailer }: Deps, now = new Date()): Promise<number> {
+  const due = await db.select({ id: jobs.id, userId: jobs.userId, title: jobs.title }).from(jobs)
+    .where(and(eq(jobs.status, 'review'), isNull(jobs.reviewNotifiedAt))).limit(10);
+  let sent = 0;
+  for (const job of due) {
+    // claim first; a failed mail is not retried, the auto-delivery still follows
+    const claimed = await db.update(jobs).set({ reviewNotifiedAt: now })
+      .where(and(eq(jobs.id, job.id), isNull(jobs.reviewNotifiedAt))).returning({ id: jobs.id });
+    if (!claimed.length) continue;
+    try {
+      const [user] = await db.select({ email: users.email }).from(users).where(eq(users.id, job.userId));
+      const input = await buildReportInput(db, job.id);
+      const unsure = input.rows.filter((r) => r.flags.length).length;
+      await mailer.send({
+        to: user.email,
+        subject: `${job.title || 'Sınav'}: kontrolünüz bekleniyor`,
+        text: `${input.rows.length} kâğıt okundu; ${unsure} kâğıtta kontrol etmeniz gereken yer var.`
+          + (input.failed.length ? `\n${input.failed.length} kâğıt okunamadı; bu sayfaların hakkı iade edildi.` : '')
+          + `\nKontrol edip onaylamak için: ${process.env.APP_URL}/hesap`
+          + `\n${REVIEW_AUTO_DELIVER_DAYS} gün içinde onaylamazsanız rapor okunduğu haliyle e-postanıza gönderilir.`,
+      });
+      sent++;
+    } catch (e) {
+      console.error('[review-notify] failed', job.id, e instanceof Error ? e.message : e);
+    }
+  }
+  return sent;
+}
+
+export async function autoDeliverStale(db: Db, now = new Date()): Promise<number> {
+  const cutoff = new Date(now.getTime() - REVIEW_AUTO_DELIVER_DAYS * 86_400_000);
+  const moved = await db.update(jobs).set({ status: 'delivering', autoDeliveredAt: now })
+    .where(and(eq(jobs.status, 'review'), lt(jobs.finishedAt, cutoff)))
+    .returning({ id: jobs.id });
+  return moved.length;
 }

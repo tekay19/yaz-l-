@@ -4,6 +4,7 @@ import { testDb, makeUser } from '../helpers/db';
 import { memoryStorage } from '../helpers/storage';
 import { addPage, createJob } from '@/lib/jobs/pages';
 import { submitJob } from '@/lib/jobs/submit';
+import { setRoster } from '@/lib/jobs/review';
 import { jobs, pages, users } from '@/db/schema';
 
 async function setup(balance: number, students: number, withKey = true) {
@@ -19,7 +20,7 @@ async function setup(balance: number, students: number, withKey = true) {
 describe('submitJob', () => {
   it('reserves one credit per student page and queues every page', async () => {
     const { db, u, id } = await setup(10, 3);
-    expect(await submitJob(db, id, u.id, true)).toEqual({ ok: true, reserved: 3 });
+    expect(await submitJob(db, id, u.id, true, true)).toEqual({ ok: true, reserved: 3 });
     const [user] = await db.select().from(users).where(eq(users.id, u.id));
     expect(user.pageBalance).toBe(7);
     const [job] = await db.select().from(jobs).where(eq(jobs.id, id));
@@ -29,18 +30,28 @@ describe('submitJob', () => {
   });
   it('refuses without enough credit and changes nothing', async () => {
     const { db, u, id } = await setup(2, 3);
-    expect(await submitJob(db, id, u.id, true)).toEqual({ ok: false, error: 'insufficient', need: 3, have: 2 });
+    expect(await submitJob(db, id, u.id, true, true)).toEqual({ ok: false, error: 'insufficient', need: 3, have: 2 });
     const [job] = await db.select().from(jobs).where(eq(jobs.id, id));
     expect(job.status).toBe('draft');
   });
   it('requires a key page, student pages and consent', async () => {
-    expect((await (async () => { const s = await setup(5, 1, false); return submitJob(s.db, s.id, s.u.id, true); })())).toMatchObject({ error: 'no_key' });
-    expect((await (async () => { const s = await setup(5, 0); return submitJob(s.db, s.id, s.u.id, true); })())).toMatchObject({ error: 'no_pages' });
-    expect((await (async () => { const s = await setup(5, 1); return submitJob(s.db, s.id, s.u.id, false); })())).toMatchObject({ error: 'no_consent' });
+    expect((await (async () => { const s = await setup(5, 1, false); return submitJob(s.db, s.id, s.u.id, true, true); })())).toMatchObject({ error: 'no_key' });
+    expect((await (async () => { const s = await setup(5, 0); return submitJob(s.db, s.id, s.u.id, true, true); })())).toMatchObject({ error: 'no_pages' });
+    expect((await (async () => { const s = await setup(5, 1); return submitJob(s.db, s.id, s.u.id, false, true); })())).toMatchObject({ error: 'no_consent' });
   });
   it('cannot be submitted twice', async () => {
     const { db, u, id } = await setup(10, 1);
-    await submitJob(db, id, u.id, true);
-    expect(await submitJob(db, id, u.id, true)).toMatchObject({ error: 'not_draft' });
+    await submitJob(db, id, u.id, true, true);
+    expect(await submitJob(db, id, u.id, true, true)).toMatchObject({ error: 'not_draft' });
+  });
+
+  // Without a roster nothing checks the names on the photos; the teacher must
+  // choose that, it cannot happen by forgetting the list.
+  it('asks for a roster or an explicit choice to go without one', async () => {
+    const { db, u, id } = await setup(5, 1);
+    expect(await submitJob(db, id, u.id, true)).toEqual({ ok: false, error: 'no_roster' });
+    expect((await db.select().from(users).where(eq(users.id, u.id)))[0].pageBalance).toBe(5);
+    await setRoster(db, id, 'Elif Yılmaz\nMert Kaya');
+    expect(await submitJob(db, id, u.id, true)).toEqual({ ok: true, reserved: 1 });
   });
 });

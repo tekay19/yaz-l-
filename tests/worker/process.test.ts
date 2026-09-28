@@ -22,7 +22,7 @@ async function run(reader: Reader) {
   const { id } = await createJob(db, u.id, { title: 't', mode: 'optik' });
   await addPage(db, storage, { jobId: id, kind: 'key', image: Buffer.from('k') });
   await addPage(db, storage, { jobId: id, kind: 'student', image: Buffer.from('s') });
-  await submitJob(db, id, u.id, true);
+  await submitJob(db, id, u.id, true, true);
   // drain the queue the way the worker loop does
   for (let batch = await claimPages(db, 10); batch.length; batch = await claimPages(db, 10)) {
     for (const p of batch) await processPage({ db, storage, reader }, p);
