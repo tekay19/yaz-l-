@@ -53,3 +53,35 @@ Diğer ölçütler tutmuyorsa sıra şudur: önce prompt düzeltilip tekrar öl�
 | 2026-09-25 | Aynı sentetik set; 4 düşük çözünürlüklü kâğıt artık yüklemede reddediliyor (37 okundu) | `gpt-5.5` | `medium` | %0,54 | %4,32 | — | $0,0504 | 12,9 | Prompt düzeltildi; ölçüm çoklu işaretli yanlış okumayı artık "işaretli" sayıyor (puanlama zaten uyarıyor). Kalan 4 hata: 2 silik işaret "boş", eğik fotoğrafta 2 satır kayması. Geçmedi. |
 
 Ölçüm yapılınca bu tabloya bir satır eklenir ve en üstteki **Durum** satırı güncellenir.
+
+## Klasik (açık uçlu) puanlama
+
+**Durum: HENÜZ ÖLÇÜLMEDİ.** `KLASIK_ENABLED=true`, bu ölçüm gerçek modelle geçmeden açılmaz.
+
+Klasik iki ayrı adımda ölçülür:
+
+1. **Puanlama** (`scripts/eval-klasik.ts`): yazıya dökülmüş cevaplar onaylı bir rubrikle puanlanır, ürünün kendi puan kodu (`lib/klasik/score.ts`) öneriyi hesaplar ve öğretmenin puanıyla karşılaştırılır. Veri: `eval/klasik/cases.json` (sentetik, depoda). Set, ürün sahibinin sorduğu her durumu içerir: farklı ama doğru yol, farklı sıra ve ifade, yanlış yoldan doğru sonuç, işlemsiz sonuç, iki hatanın birbirini götürmesi, hata taşıma, benzer ama yanlış cevap, kavram sayma, hatalı gerekçe, kâğıda yazılmış talimat, üstü çizili satır.
+2. **Okuma** (gerçek kâğıtlarla, veri gelince): el yazısı harfi harfine ve düzeltilmeden yazıya dökülmeli. Kasıtlı olarak hatalı adım içeren kâğıtlarda okuyucunun hatayı sessizce "düzeltmediği" ayrıca sayılır; aksi hâlde yanlış yol doğru görünür.
+
+Çalıştır (gerçek API, gerçek maliyet — önce ürün sahibinin onayı):
+
+```bash
+ANTHROPIC_API_KEY=... npx tsx --tsconfig tsconfig.json scripts/eval-klasik.ts eval/klasik/cases.json
+# OpenAI ile: GRADER_PROVIDER=openai GRADER_MODEL=gpt-5.5 OPENAI_API_KEY=... PRICE_IN_PER_M=... PRICE_OUT_PER_M=...
+```
+
+Kabul ölçütleri (ürün sahibi değiştirebilir):
+
+| Ölçüt | Eşik | Anlamı |
+|---|---|---|
+| `avgDeviationPct` | ≤ %10 | Önerinin öğretmen puanına ortalama uzaklığı (sorunun azami puanına göre) |
+| `silentUnderRate` | ≤ %2 | Doğru ama farklı cevabın uyarısız puan kaybetmesi |
+| `silentOverRate` | ≤ %2 | Yanlış yoldan ya da işlemsiz bulunan sonucun uyarısız puan alması |
+| Okuma sadakati | %100 | Kasıtlı hatalı adımların hiçbiri düzeltilerek okunmaz (gerçek kâğıt) |
+| Klasik sayfa maliyeti | ölçülür | Okuma + puanlama birlikte; klasik sayfanın kaç hak düşeceği ürün sahibinin kararı |
+
+"Sessiz" sayılmayan: öneriyle birlikte öğretmenin dikkatini isteyen bir uyarı gösterilmiş olması. Yalnız bilgi veren "Anahtardan farklı bir yöntem" notu uyarı sayılmaz.
+
+| Tarih | Veri seti | `GRADER_MODEL` | Efor | avgDeviationPct | silentUnderRate | silentOverRate | usdPerAnswer | Karar |
+|---|---|---|---|---|---|---|---|---|
+
