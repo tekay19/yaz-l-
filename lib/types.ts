@@ -18,13 +18,71 @@ export type StudentRead = {
   answers: { q: number; marked: Option[]; confidence: Confidence }[];
 };
 
+// ── Klasik (open-ended) exams ─────────────────────────────────────────────
+// A klasik page is first copied down literally (KlasikRead), then graded
+// against the rubric the teacher approved (QuestionGrade). The copy never
+// sees the key, and the grade never carries points: code computes them.
+
+export type KlasikLine = { text: string; crossed: boolean };
+export type KlasikAnswer = { q: number; lines: KlasikLine[]; unclear: boolean; hasFigure: boolean };
+export type KlasikRead = {
+  isBackSide: boolean;
+  studentName: string | null;
+  nameConfidence: Confidence;
+  unreadable: boolean;
+  answers: KlasikAnswer[];
+};
+
+export type QuestionType = 'islem' | 'kisa' | 'yorum';
+export type Criterion = { id: string; text: string; points: number; role: 'result' | 'other'; required: boolean };
+export type AcceptedPath = { text: string; example: string | null; by: 'ai' | 'teacher' };
+export type QuestionPolicy = { workRequired: boolean; carryForward: boolean; wrongInfoPenalty: boolean };
+export type RubricQuestion = {
+  q: number;
+  rev: number; // bumped when the question changes after approval: its grades go stale
+  type: QuestionType;
+  prompt: string | null;
+  answer: string;
+  criteria: Criterion[]; // the question is worth the sum of its criteria
+  accepted: AcceptedPath[];
+  policy: QuestionPolicy;
+};
+export type Rubric = { questions: RubricQuestion[] };
+
+export const KLASIK_FLAGS = [
+  'alternative_path', 'invalid_path', 'compensating_errors', 'unsupported_result', 'unclear_reading',
+  'wrong_info', 'keywords_only', 'wrong_justification', 'off_topic', 'instruction_in_answer',
+] as const;
+export type KlasikFlag = (typeof KLASIK_FLAGS)[number];
+export type Verdict = 'met' | 'partial' | 'not_met';
+export type ResultPath = 'valid' | 'invalid' | 'unsupported' | 'none';
+
+export type QuestionGrade = {
+  q: number;
+  rev: number; // the rubric question revision this grade was made against
+  criteria: { id: string; verdict: Verdict; evidence: string }[];
+  resultCorrect: boolean | null;
+  resultPath: ResultPath | null;
+  firstError: string | null;
+  errorKind: 'islem' | 'yontem' | null;
+  flags: KlasikFlag[];
+  confidence: Confidence;
+  note: string;
+  failed: boolean; // grading gave up; the teacher enters the points
+  textOnly: boolean; // a figure question graded without its photo
+};
+export type KlasikGrade = { questions: QuestionGrade[] };
+
 export type PageResult =
   | { type: 'key'; read: KeyRead }
-  | { type: 'student'; read: StudentRead };
+  | { type: 'student'; read: StudentRead }
+  | { type: 'klasik-key'; read: KlasikRead }
+  | { type: 'klasik-student'; read: KlasikRead };
 
 export type PageOverride = {
   studentName?: string;
   answers?: { q: number; marked: Option[] }[]; // optik student sheet
   key?: { q: number; option: Option | null }[]; // optik key page; null = the teacher confirms "no key"
-  points?: { q: number; points: number }[];
+  points?: { q: number; points: number }[]; // klasik: the teacher's final points for a question
+  texts?: { q: number; text: string }[]; // klasik: the teacher's fix of the transcription
 };

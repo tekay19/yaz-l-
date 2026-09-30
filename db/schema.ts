@@ -2,13 +2,13 @@ import {
   pgTable, pgEnum, uuid, text, integer, timestamp, jsonb, doublePrecision,
   uniqueIndex, index,
 } from 'drizzle-orm/pg-core';
-import type { PageOverride, PageResult } from '@/lib/types';
+import type { KlasikGrade, PageOverride, PageResult, Rubric } from '@/lib/types';
 
 const ts = (name: string) => timestamp(name, { withTimezone: true });
 
 export const examMode = pgEnum('exam_mode', ['optik', 'klasik']);
 export const jobStatus = pgEnum('job_status', [
-  'draft', 'queued', 'processing', 'review', 'delivering', 'done', 'failed',
+  'draft', 'queued', 'processing', 'rubric', 'review', 'delivering', 'done', 'failed',
 ]);
 export const pageKind = pgEnum('page_kind', ['key', 'student']);
 export const pageStatus = pgEnum('page_status', ['uploaded', 'queued', 'reading', 'read', 'failed']);
@@ -47,6 +47,18 @@ export const jobs = pgTable('jobs', {
   // later went out on its own because nobody approved it
   reviewNotifiedAt: ts('review_notified_at'),
   autoDeliveredAt: ts('auto_delivered_at'),
+  // klasik: the typed answer key, the rubric the teacher approves, and the
+  // bookkeeping of drafting it, waiting for it and grading against it
+  keyText: text('key_text').notNull().default(''),
+  rubric: jsonb('rubric').$type<Rubric>(),
+  rubricRev: integer('rubric_rev').notNull().default(0),
+  rubricApprovedAt: ts('rubric_approved_at'),
+  rubricReadyAt: ts('rubric_ready_at'),
+  rubricDraftAt: ts('rubric_draft_at'),
+  rubricDraftAttempts: integer('rubric_draft_attempts').notNull().default(0),
+  rubricNotifiedAt: ts('rubric_notified_at'),
+  reviewRemindedAt: ts('review_reminded_at'),
+  failReason: text('fail_reason').$type<'key_failed' | 'rubric_expired'>(),
 }, (t) => [index('jobs_user').on(t.userId), index('jobs_status').on(t.status)]);
 
 export const pages = pgTable('pages', {
@@ -63,6 +75,12 @@ export const pages = pgTable('pages', {
   error: text('error'),
   inputTokens: integer('input_tokens').notNull().default(0),
   outputTokens: integer('output_tokens').notNull().default(0),
+  // klasik: the verdicts for the sheet that starts on this page, the job's
+  // rubric revision they were made against, and the grading queue's lease
+  grade: jsonb('grade').$type<KlasikGrade>(),
+  gradedRev: integer('graded_rev').notNull().default(0),
+  gradeAttempts: integer('grade_attempts').notNull().default(0),
+  gradeLeaseUntil: ts('grade_lease_until'),
   createdAt: ts('created_at').notNull().defaultNow(),
 }, (t) => [
   uniqueIndex('pages_job_kind_seq').on(t.jobId, t.kind, t.seq),

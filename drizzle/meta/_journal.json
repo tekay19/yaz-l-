@@ -15,6 +15,13 @@
       "when": 1790331856988,
       "tag": "0001_review_followup",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790761099334,
+      "tag": "0002_klasik_rubric",
+      "breakpoints": true
     }
   ]
 }
