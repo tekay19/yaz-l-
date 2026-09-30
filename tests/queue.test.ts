@@ -26,7 +26,7 @@ describe('queue', () => {
     const first = await claimPages(db, 10);
     expect(first.map((p) => p.kind)).toEqual(['key']);
     expect(await claimPages(db, 10)).toHaveLength(0);
-    await completePage(db, first[0].id, { type: 'key', read: { questionCount: 1, answers: [{ q: 1, option: 'A' }] } }, { inputTokens: 0, outputTokens: 0 });
+    await completePage(db, first[0], { type: 'key', read: { questionCount: 1, answers: [{ q: 1, option: 'A' }] } }, { inputTokens: 0, outputTokens: 0 });
     expect(await claimPages(db, 10)).toHaveLength(2);
     expect(await claimPages(db, 10)).toHaveLength(0);
     const [job] = await db.select().from(jobs).where(eq(jobs.id, id));
@@ -45,7 +45,7 @@ describe('queue', () => {
     let t = Date.now();
     for (let i = 0; i < MAX_ATTEMPTS; i++) {
       const [p] = await claimPages(db, 1, new Date(t));
-      await failPage(db, p.id, 'boom', true, new Date(t));
+      await failPage(db, p, 'boom', true, new Date(t));
       t += RETRY_BACKOFF_MS + 1000;
     }
     const row = await keyRow(db);
@@ -60,7 +60,7 @@ describe('queue', () => {
     const { db } = await queued(1);
     const t0 = Date.now();
     const [p] = await claimPages(db, 1, new Date(t0));
-    await failPage(db, p.id, 'overloaded', true, new Date(t0));
+    await failPage(db, p, 'overloaded', true, new Date(t0));
     expect(await claimPages(db, 1, new Date(t0 + 1000))).toHaveLength(0);
     expect((await claimPages(db, 1, new Date(t0 + FIRST_RETRY_MS + 1000))).map((x) => x.id)).toEqual([p.id]);
   });
@@ -71,10 +71,11 @@ describe('queue', () => {
     const { db } = await queued(1);
     const t0 = Date.now();
     const [p] = await claimPages(db, 1, new Date(t0));
-    await failPage(db, p.id, 'Connection error.', true, new Date(t0));
+    await failPage(db, p, 'Connection error.', true, new Date(t0));
     const t1 = t0 + FIRST_RETRY_MS + 1000;
-    expect(await claimPages(db, 1, new Date(t1))).toHaveLength(1);
-    await failPage(db, p.id, 'Connection error.', true, new Date(t1));
+    const [again] = await claimPages(db, 1, new Date(t1));
+    expect(again.id).toBe(p.id);
+    await failPage(db, again, 'Connection error.', true, new Date(t1));
     expect(await claimPages(db, 1, new Date(t1 + FIRST_RETRY_MS + 1000))).toHaveLength(0);
     expect(await claimPages(db, 1, new Date(t1 + RETRY_BACKOFF_MS + 1000))).toHaveLength(1);
   });
@@ -85,5 +86,20 @@ describe('queue', () => {
     for (let i = 0; i < MAX_ATTEMPTS; i++) { await claimPages(db, 1, new Date(t)); t += LEASE_MS + 1000; }
     expect(await sweepExhausted(db, new Date(t))).toEqual([id]);
     expect((await keyRow(db)).status).toBe('failed');
+  });
+
+  // A read that outlives its lease must not settle the page: another worker
+  // holds it by then. Without this a late timeout un-reads a finished page.
+  it('drops a late result from a worker whose lease ran out', async () => {
+    const { db } = await queued(1);
+    const t0 = Date.now();
+    const [stale] = await claimPages(db, 1, new Date(t0));
+    const [fresh] = await claimPages(db, 1, new Date(t0 + LEASE_MS + 1000));
+    expect(fresh.id).toBe(stale.id);
+    const key = { type: 'key' as const, read: { questionCount: 1, answers: [{ q: 1, option: 'A' as const }] } };
+    expect(await completePage(db, fresh, key, { inputTokens: 0, outputTokens: 0 })).toBe(true);
+    expect(await failPage(db, stale, 'timeout', true, new Date(t0 + 10 * 60_000))).toBe(false);
+    expect(await completePage(db, stale, key, { inputTokens: 0, outputTokens: 0 })).toBe(false);
+    expect((await keyRow(db)).status).toBe('read');
   });
 });

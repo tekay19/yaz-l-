@@ -3,6 +3,7 @@ import { zodTextFormat } from 'openai/helpers/zod';
 import type { z } from 'zod';
 import { KeyReadSchema, StudentReadSchema } from './schemas';
 import { KEY_SYSTEM, KEY_USER, STUDENT_SYSTEM, studentUser } from './prompts';
+import { clientOptions } from './config';
 import { ReadRefused, type Effort, type Reader, type Usage } from './claude';
 
 // Same contract as the Claude reader, on the OpenAI Responses API. Chosen with
@@ -49,7 +50,7 @@ async function read<T>(
 }
 
 export function createOpenAIReader(
-  client: ResponsesClient = new OpenAI() as unknown as ResponsesClient,
+  client: ResponsesClient = new OpenAI(clientOptions()) as unknown as ResponsesClient,
   opts: { effort?: Effort } = {},
 ): Reader {
   const effort = () => opts.effort ?? EFFORT();

@@ -47,27 +47,36 @@ export async function claimPages(db: Db, limit: number, now = new Date()): Promi
   });
 }
 
-export async function completePage(db: Db, pageId: string, result: PageResult, usage: Usage) {
-  await db.update(pages).set({
+// Only the attempt that still holds the lease may settle a page. A read that
+// outlived its lease (the page was handed to another worker meanwhile) is
+// dropped: without this check a late failure could un-read a finished page,
+// or a late success overwrite a newer one. Returns whether the write landed.
+type Held = { id: string; attempts: number };
+const holds = (page: Held) =>
+  and(eq(pages.id, page.id), eq(pages.status, 'reading'), eq(pages.attempts, page.attempts));
+
+export async function completePage(db: Db, page: Held, result: PageResult, usage: Usage): Promise<boolean> {
+  const rows = await db.update(pages).set({
     status: 'read', result, error: null, leaseUntil: null,
     inputTokens: sql`${pages.inputTokens} + ${usage.inputTokens}`,
     outputTokens: sql`${pages.outputTokens} + ${usage.outputTokens}`,
-  }).where(eq(pages.id, pageId));
+  }).where(holds(page)).returning({ id: pages.id });
+  return rows.length > 0;
 }
 
-export async function failPage(db: Db, pageId: string, message: string, retry: boolean, now = new Date()) {
+export async function failPage(db: Db, page: Held, message: string, retry: boolean, now = new Date()): Promise<boolean> {
   const error = message.slice(0, 500);
-  if (retry) {
+  if (retry && page.attempts < MAX_ATTEMPTS) {
     // parked as a lease that runs out after the backoff: claimPages offers an
     // expired 'reading' page again, exactly as after a worker crash
-    const [row] = await db.select({ attempts: pages.attempts }).from(pages).where(eq(pages.id, pageId));
-    const requeued = await db.update(pages)
-      .set({ status: 'reading', error, leaseUntil: new Date(now.getTime() + retryBackoffMs(row?.attempts ?? MAX_ATTEMPTS)) })
-      .where(and(eq(pages.id, pageId), lt(pages.attempts, MAX_ATTEMPTS)))
-      .returning({ id: pages.id });
-    if (requeued.length) return;
+    const rows = await db.update(pages)
+      .set({ status: 'reading', error, leaseUntil: new Date(now.getTime() + retryBackoffMs(page.attempts)) })
+      .where(holds(page)).returning({ id: pages.id });
+    return rows.length > 0;
   }
-  await db.update(pages).set({ status: 'failed', error, leaseUntil: null }).where(eq(pages.id, pageId));
+  const rows = await db.update(pages).set({ status: 'failed', error, leaseUntil: null })
+    .where(holds(page)).returning({ id: pages.id });
+  return rows.length > 0;
 }
 
 export async function sweepExhausted(db: Db, now = new Date()): Promise<string[]> {

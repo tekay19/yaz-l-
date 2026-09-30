@@ -4,6 +4,7 @@ import type { z } from 'zod';
 import type { KeyRead, StudentRead } from '@/lib/types';
 import { KeyReadSchema, StudentReadSchema } from './schemas';
 import { KEY_SYSTEM, KEY_USER, STUDENT_SYSTEM, studentUser } from './prompts';
+import { clientOptions } from './config';
 
 export type Usage = { inputTokens: number; outputTokens: number };
 export type Reader = {
@@ -56,7 +57,7 @@ async function read<T>(
 // opts.effort overrides GRADER_EFFORT, so the measurement screen can compare
 // effort levels on the same sheets without restarting the server.
 export function createClaudeReader(
-  client: MessagesClient = new Anthropic() as unknown as MessagesClient,
+  client: MessagesClient = new Anthropic(clientOptions()) as unknown as MessagesClient,
   opts: { effort?: Effort } = {},
 ): Reader {
   const effort = () => opts.effort ?? EFFORT();

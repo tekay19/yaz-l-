@@ -21,21 +21,21 @@ export async function processPage({ db, storage, reader }: WorkerDeps, page: Cla
     if (page.kind === 'key') {
       const { read, usage } = await reader.readKey(image);
       if (read.questionCount < 1 || read.answers.every((a) => a.option === null)) {
-        await failPage(db, page.id, 'key_empty', false);
+        await failPage(db, page, 'key_empty', false);
       } else {
-        await completePage(db, page.id, { type: 'key', read }, usage);
+        await completePage(db, page, { type: 'key', read }, usage);
       }
     } else {
       // claimPages only hands out students once the key is read
       const qc = await keyQuestionCount(db, page.jobId);
       const { read, usage } = await reader.readStudent(image, qc);
-      if (read.unreadable) await failPage(db, page.id, 'unreadable', false);
-      else await completePage(db, page.id, { type: 'student', read }, usage);
+      if (read.unreadable) await failPage(db, page, 'unreadable', false);
+      else await completePage(db, page, { type: 'student', read }, usage);
     }
   } catch (e) {
     const refused = e instanceof ReadRefused;
     console.error('[worker] page_failed', page.id, e instanceof Error ? e.message : e);
-    await failPage(db, page.id, refused ? 'refused' : e instanceof Error ? e.message : 'error', !refused);
+    await failPage(db, page, refused ? 'refused' : e instanceof Error ? e.message : 'error', !refused);
   }
   await maybeCompleteJob(db, page.jobId);
 }
