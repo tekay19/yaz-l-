@@ -1451,6 +1451,22 @@ section { padding: clamp(56px, 8vw, 104px) 0; }
 /* ── Klasik rubric and review (/hesap) ─────────────────────────────── */
 .klasik-q { margin-top: 14px; padding: 12px 14px; border: 1px solid var(--line-soft); border-radius: var(--r-sm); background: #fff; }
 .klasik-q.flagged { border-color: #F3C9C4; background: #FFFBFA; }
+.klasik-label { display: block; margin-top: 10px; font-weight: 600; }
+.klasik-short { min-height: 56px; }
+.klasik-select { height: 36px; padding: 0 8px; border: 1.5px solid var(--line); border-radius: 7px; font: inherit; font-size: 14.5px; background: #fff; }
+.klasik-input { height: 38px; padding: 0 10px; border: 1.5px solid var(--line); border-radius: 7px; font: inherit; font-size: 14.5px; min-width: 0; }
+.klasik-input.grow { flex: 1 1 220px; }
+.klasik-input.pts { width: 84px; }
+.klasik-input:focus, .klasik-select:focus { outline: none; border-color: var(--board); box-shadow: 0 0 0 3px rgba(20,81,60,.13); }
+.klasik-crit-edit { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+.klasik-policies { margin-top: 10px; }
+.klasik-answer { margin-top: 8px; padding: 8px 10px; border-left: 3px solid var(--line); background: var(--canvas); font-size: 14.5px; }
+.klasik-line { white-space: pre-wrap; font-variant-numeric: tabular-nums; }
+.klasik-line.crossed { text-decoration: line-through; color: var(--ink-faint); }
+.klasik-crit { width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 14px; }
+.klasik-crit td { padding: 6px 8px 6px 0; border-top: 1px solid var(--line-soft); vertical-align: top; }
+.klasik-crit .nowrap { white-space: nowrap; }
+.klasik-thumb + .klasik-thumb, a + a .klasik-thumb { margin-top: 8px; }
 
 /* ── Measurement screen (/panel/olcum) — reuses the panel chrome ────── */
 .eval-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; margin-top: 14px; }

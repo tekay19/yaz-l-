@@ -22,6 +22,9 @@ export default function DraftJob({ api, job, onChanged, onSubmitted }: Props) {
   const [noRoster, setNoRoster] = useState(false);
   const [busy, setBusy] = useState(false);
   const [submitNote, setSubmitNote] = useState<Note>(null);
+  const klasik = job.mode === 'klasik';
+  const [keyText, setKeyText] = useState('');
+  const [keyNote, setKeyNote] = useState<Note>(null);
 
   const patch = (key: string, change: Partial<Upload>) =>
     setUploads((list) => list.map((u) => (u.key === key ? { ...u, ...change } : u)));
@@ -38,8 +41,8 @@ export default function DraftJob({ api, job, onChanged, onSubmitted }: Props) {
         patch(key, { state: 'err', error: r.error });
         continue;
       }
-      // a new key page replaces the old one on the server
-      if (kind === 'key') setUploads((list) => list.filter((u) => u.kind !== 'key' || u.key === key));
+      // an optik key is one page: a new one replaces the old one on the server
+      if (kind === 'key' && !klasik) setUploads((list) => list.filter((u) => u.kind !== 'key' || u.key === key));
       patch(key, { state: 'ok', pageId: r.data.id, seq: r.data.seq });
     }
     onChanged();
@@ -54,6 +57,11 @@ export default function DraftJob({ api, job, onChanged, onSubmitted }: Props) {
     }
     setUploads((list) => list.filter((x) => x.key !== u.key));
     onChanged();
+  }
+
+  async function saveKeyText() {
+    const r = await api.setKeyText(job.id, keyText);
+    setKeyNote(r.ok ? { ok: true, text: 'Anahtar metni kaydedildi.' } : { ok: false, text: r.error });
   }
 
   async function saveRoster() {
@@ -91,8 +99,8 @@ export default function DraftJob({ api, job, onChanged, onSubmitted }: Props) {
       <h3 className="console-sub">2. Fotoğraflar</h3>
       <div className="console-row">
         <label className="btn btn-ghost btn-sm">
-          Cevap anahtarı seç
-          <input type="file" accept="image/*" hidden onChange={(e) => { upload(e.target.files, 'key'); e.target.value = ''; }} />
+          {klasik ? 'Anahtar fotoğrafları seç' : 'Cevap anahtarı seç'}
+          <input type="file" accept="image/*" multiple={klasik} hidden onChange={(e) => { upload(e.target.files, 'key'); e.target.value = ''; }} />
         </label>
         <label className="btn btn-ghost btn-sm">
           Öğrenci kâğıtları seç
@@ -100,8 +108,22 @@ export default function DraftJob({ api, job, onChanged, onSubmitted }: Props) {
         </label>
       </div>
       <p className="tiny muted" style={{ marginTop: 8 }}>
-        Arkalı önlü kâğıtta önce ön yüzü, hemen ardından arka yüzü yükleyin. Yeni anahtar eskisinin yerine geçer. Sayfa yenilenirse bu liste boşalır; sayılar yukarıda sunucudan gelir.
+        Arkalı önlü kâğıtta önce ön yüzü, hemen ardından arka yüzü yükleyin.
+        {klasik ? ' Anahtar birden fazla sayfa olabilir.' : ' Yeni anahtar eskisinin yerine geçer.'} Sayfa yenilenirse bu liste boşalır; sayılar yukarıda sunucudan gelir.
       </p>
+      {klasik && (
+        <>
+          <p className="small" style={{ marginTop: 14 }}>
+            Anahtarı yazarak ya da yapıştırarak da verebilirsiniz (Word&apos;deki anahtarınız gibi). Fotoğrafla birlikte de kullanılabilir.
+          </p>
+          <textarea className="console-text" value={keyText} onChange={(e) => setKeyText(e.target.value)}
+            placeholder={'1) 2x + 3 = 11 → 2x = 8 → x = 4\n2) Lirik şiir duygu ve coşkuyu anlatır; öznel; ahenk önemli.'} />
+          <div className="console-row">
+            <button type="button" className="btn btn-ghost btn-sm" onClick={saveKeyText}>Anahtar metnini kaydet</button>
+            {keyNote && <span className={`small ${keyNote.ok ? 'muted' : 'console-err'}`}>{keyNote.text}</span>}
+          </div>
+        </>
+      )}
       {uploads.length > 0 && (
         <div className="console-files">
           {uploads.map((u) => (

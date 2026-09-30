@@ -40,6 +40,16 @@ describe('console api contract', () => {
     ['correct', (a: any) => a.correct(J, P, { studentName: 'Elif', answers: [{ q: 2, marked: ['B'] }] }), 'PATCH', `/api/jobs/${J}/pages/${P}`, { studentName: 'Elif', answers: [{ q: 2, marked: ['B'] }] }],
     ['approve', (a: any) => a.approve(J), 'POST', `/api/jobs/${J}/approve`, undefined],
     ['correctKey', (a: any) => a.correctKey(J, P, [{ q: 2, option: null }]), 'PATCH', `/api/jobs/${J}/pages/${P}`, { key: [{ q: 2, option: null }] }],
+    ['createJob klasik', (a: any) => a.createJob('10-A', 'klasik'), 'POST', '/api/jobs', { title: '10-A', mode: 'klasik' }],
+    ['setKeyText', (a: any) => a.setKeyText(J, '1) x = 4'), 'PUT', `/api/jobs/${J}/key-text`, { text: '1) x = 4' }],
+    ['rubric', (a: any) => a.rubric(J), 'GET', `/api/jobs/${J}/rubric`, undefined],
+    ['saveRubric', (a: any) => a.saveRubric(J, { questions: [] }), 'PUT', `/api/jobs/${J}/rubric`, { questions: [] }],
+    ['approveRubric', (a: any) => a.approveRubric(J), 'POST', `/api/jobs/${J}/rubric/approve`, undefined],
+    ['redraftRubric', (a: any) => a.redraftRubric(J), 'POST', `/api/jobs/${J}/rubric/redraft`, undefined],
+    ['klasikReview', (a: any) => a.klasikReview(J), 'GET', `/api/jobs/${J}/review`, undefined],
+    ['correctKlasik', (a: any) => a.correctKlasik(J, P, { points: [{ q: 1, points: 7 }] }), 'PATCH', `/api/jobs/${J}/pages/${P}`, { points: [{ q: 1, points: 7 }] }],
+    ['acceptAnswer', (a: any) => a.acceptAnswer(J, P, 3, 'kısa yol'), 'POST', `/api/jobs/${J}/rubric/accept`, { pageId: P, q: 3, note: 'kısa yol' }],
+    ['regrade', (a: any) => a.regrade(J, P), 'POST', `/api/jobs/${J}/pages/${P}/regrade`, undefined],
   ])('%s → %s %s', async (_name, invoke, method, url, body) => {
     const { calls, api } = recorder();
     await invoke(api);

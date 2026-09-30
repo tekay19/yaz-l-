@@ -51,7 +51,7 @@ export default function Console({ loginError, payment }: { loginError: boolean; 
         {me && (
           <>
             <AccountCard api={api} me={me} onChange={refreshMe} onSignedOut={() => setMe(null)} />
-            <JobFlow api={api} onBalanceChange={refreshMe} />
+            <JobFlow api={api} klasik={me.klasik} onBalanceChange={refreshMe} />
           </>
         )}
       </main>
