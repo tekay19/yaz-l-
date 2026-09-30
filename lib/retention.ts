@@ -4,10 +4,10 @@ import { events, jobs, loginTokens, pages, users } from '@/db/schema';
 import type { Storage } from '@/lib/storage';
 
 export const PHOTO_TTL_DAYS = 7;
-// Düzeltme.md D5: a job still in the pipeline (being read or waiting for the
-// teacher's check) keeps its photos past the normal 7 days — the review
-// screen needs them — but never past this backstop, paid or not, so nothing
-// lingers indefinitely just because it was never approved.
+// Düzeltme.md D5: a job still in the pipeline (being read, waiting for its
+// rubric or for the teacher's check) keeps its photos past the normal 7 days
+// — the review screen needs them — but never past this backstop, paid or not,
+// so nothing lingers indefinitely just because it was never approved.
 export const REVIEW_PHOTO_TTL_DAYS = 14;
 export const RESULT_TTL_DAYS = 30;
 export const EVENT_TTL_DAYS = 180;
@@ -44,7 +44,7 @@ export async function runRetention(db: Db, storage: Storage, now = new Date()) {
   const draftPhotos = await removeDraftPages(db, storage, drafts.map((j) => j.id));
   // A sent job counts from the day it was sent, not from when its draft was
   // opened: a draft prepared a week ahead must keep its photos while it is
-  // read or waits for the teacher's check.
+  // read, waits for its rubric or waits for the teacher's check.
   const stale = await db.select({ id: jobs.id }).from(jobs).where(or(
     and(inArray(jobs.status, ['delivering', 'done', 'failed']), sentBefore(now, PHOTO_TTL_DAYS)),
     and(ne(jobs.status, 'draft'), sentBefore(now, REVIEW_PHOTO_TTL_DAYS)), // backstop, whatever it waits for

@@ -7,6 +7,9 @@ import { refundPages } from '@/lib/credits';
 // Called after every page settles. Only the call that flips the status wins,
 // so two workers finishing the last two pages cannot both advance the job.
 export async function maybeCompleteJob(db: Db, jobId: string): Promise<'delivering' | 'review' | 'failed' | null> {
+  const [job] = await db.select({ mode: jobs.mode, userId: jobs.userId }).from(jobs).where(eq(jobs.id, jobId));
+  // klasik jobs wait for their rubric and grades; lib/klasik/worker.ts moves them on
+  if (!job || job.mode === 'klasik') return null;
   const [key] = await db.select({ status: pages.status }).from(pages)
     .where(and(eq(pages.jobId, jobId), eq(pages.kind, 'key')));
   if (key?.status === 'failed') {
@@ -21,11 +24,9 @@ export async function maybeCompleteJob(db: Db, jobId: string): Promise<'deliveri
 
   let next: 'delivering' | 'review' | 'failed' = key?.status === 'read' ? 'delivering' : 'failed';
   let input: ReportInput | null = null;
-  const [job] = await db.select({ mode: jobs.mode, userId: jobs.userId }).from(jobs).where(eq(jobs.id, jobId));
   if (next === 'delivering') {
     input = await buildReportInput(db, jobId);
-    // klasik scores are suggestions and always need the teacher (Task 15)
-    if (job?.mode === 'klasik' || input.needsReview) next = 'review';
+    if (input.needsReview) next = 'review';
   }
 
   const moved = await db.update(jobs).set({ status: next, finishedAt: new Date() })
@@ -35,6 +36,6 @@ export async function maybeCompleteJob(db: Db, jobId: string): Promise<'deliveri
   // Unread pages are given back as soon as reading ends, not when the report
   // goes out: a job can wait in review for days. The ledger's (reason, ref)
   // key makes the refund at delivery a no-op afterwards.
-  if (next === 'review' && job && input?.failed.length) await refundPages(db, job.userId, input.failed.length, jobId);
+  if (next === 'review' && input?.failed.length) await refundPages(db, job.userId, input.failed.length, jobId);
   return next;
 }

@@ -23,12 +23,11 @@ export async function POST(req: Request) {
   if (mode === 'klasik' && process.env.KLASIK_ENABLED !== 'true') {
     return Response.json({ error: 'Klasik sınav henüz açık değil.' }, { status: 400 });
   }
+  // klasik: the points per question are settled on the rubric screen; given
+  // here, they only pre-fill the draft
   const klasikMax = Array.isArray(body.klasikMax)
     ? body.klasikMax.filter((n: unknown) => typeof n === 'number' && n > 0 && n <= 100).slice(0, 50)
     : [];
-  if (mode === 'klasik' && klasikMax.length === 0) {
-    return Response.json({ error: 'Klasik sınavda her sorunun puanını girin.' }, { status: 400 });
-  }
   const title = typeof body.title === 'string' ? body.title : '';
   const job = await createJob(getDb(), userId, { title, mode, klasikMax });
   return Response.json(job, { status: 201 });

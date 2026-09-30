@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import type { Db } from '@/db/client';
-import { pages } from '@/db/schema';
+import { jobs, pages } from '@/db/schema';
 import type { Storage } from '@/lib/storage';
 import { ReadRefused, type Reader } from '@/lib/reader/claude';
 import { completePage, failPage, type ClaimedPage } from '@/lib/queue';
@@ -18,7 +18,14 @@ export async function processPage({ db, storage, reader }: WorkerDeps, page: Cla
   try {
     if (!page.filePath) throw new ReadRefused('file_missing');
     const image = await storage.read(page.filePath);
-    if (page.kind === 'key') {
+    const [job] = await db.select({ mode: jobs.mode }).from(jobs).where(eq(jobs.id, page.jobId));
+    if (job?.mode === 'klasik') {
+      // copied down literally, key or student; the rubric and the grades come later
+      const { read, usage } = await reader.readKlasik(image);
+      const empty = page.kind === 'key' && !read.answers.some((a) => a.lines.length);
+      if (read.unreadable || empty) await failPage(db, page, page.kind === 'key' ? 'key_empty' : 'unreadable', false);
+      else await completePage(db, page, { type: page.kind === 'key' ? 'klasik-key' : 'klasik-student', read }, usage);
+    } else if (page.kind === 'key') {
       const { read, usage } = await reader.readKey(image);
       if (read.questionCount < 1 || read.answers.every((a) => a.option === null)) {
         await failPage(db, page, 'key_empty', false);

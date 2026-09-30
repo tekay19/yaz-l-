@@ -6,6 +6,8 @@ import { maybeCompleteJob } from '@/lib/jobs/progress';
 import { getMailer } from '@/lib/mail';
 import { autoDeliverStale, deliverPending, notifyReview } from '@/lib/jobs/deliver';
 import { runRetention } from '@/lib/retention';
+import { completeKlasikJobs, draftPendingRubrics, expireRubrics, gradePending } from '@/lib/klasik/worker';
+import { notifyRubric, remindKlasikReview } from '@/lib/klasik/notify';
 import { processPage, type WorkerDeps } from './process';
 
 const CONCURRENCY = Number(process.env.WORKER_CONCURRENCY || 4);
@@ -29,6 +31,13 @@ while (!stopping) {
     for (const jobId of await sweepExhausted(deps.db)) await maybeCompleteJob(deps.db, jobId);
     await autoDeliverStale(deps.db);
     await notifyReview({ db: deps.db, storage: deps.storage, mailer });
+    // klasik: rubric drafts, the teacher's deadline, grading against the approved rubric
+    await draftPendingRubrics(deps);
+    await notifyRubric({ db: deps.db, mailer });
+    await expireRubrics(deps.db);
+    await gradePending(deps, CONCURRENCY);
+    await completeKlasikJobs(deps.db);
+    await remindKlasikReview({ db: deps.db, mailer });
     await deliverPending({ db: deps.db, storage: deps.storage, mailer });
     const batch = await claimPages(deps.db, CONCURRENCY);
     if (batch.length) await Promise.all(batch.map((p) => processPage(deps, p)));

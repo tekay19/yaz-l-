@@ -5,6 +5,7 @@ import { currentUserId, unauthorized } from '@/lib/auth/current';
 import { getOwnedJob, removePage } from '@/lib/jobs/pages';
 import { OptikPatch, saveKeyOverride, savePageOverride } from '@/lib/jobs/review';
 import { getStorage } from '@/lib/storage';
+import { KlasikError, saveKlasikOverride } from '@/lib/klasik/jobs';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -34,6 +35,15 @@ export async function PATCH(req: Request, { params }: Ctx) {
   const job = await getOwnedJob(db, id, userId);
   if (!job || job.status !== 'review') return Response.json({ error: 'Sınav kontrol aşamasında değil.' }, { status: 409 });
   const body = await req.json().catch(() => null);
+  if (job.mode === 'klasik') {
+    try {
+      await saveKlasikOverride(db, job, pageId, body);
+      return Response.json({ ok: true });
+    } catch (e) {
+      if (e instanceof KlasikError) return Response.json({ error: e.message }, { status: e.status });
+      throw e;
+    }
+  }
   const parsed = OptikPatch.safeParse(body);
   if (!parsed.success) return Response.json({ error: 'Düzeltme geçersiz.' }, { status: 400 });
   const { key, ...sheet } = parsed.data;

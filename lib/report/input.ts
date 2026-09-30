@@ -6,19 +6,25 @@ import { scoreSheet } from '@/lib/grading/score';
 import { classStats, type ClassStats } from '@/lib/grading/stats';
 import { looksLikeName, matchRoster } from '@/lib/grading/names';
 import { REASONS, flagDuplicateNames } from './common';
+import { buildKlasikInput } from './klasik';
 
 export { REASONS, DUPLICATE_NAME } from './common';
 
 export type ReportRow = {
   pageId: string; seq: number; student: string;
   correct: number; wrong: number; blank: number; score: number; flags: string[];
+  // klasik only: points per rubric question and the sheet's total
+  points: { q: number; points: number; max: number }[] | null;
+  total: number | null; max: number | null;
 };
 export type ReportInput = {
+  mode: 'optik' | 'klasik';
   title: string; key: KeyRead; keyPageId: string | null;
   keyFlags: string[];
   rows: ReportRow[];
   failed: { seq: number; reason: string }[];
   stats: ClassStats; needsReview: boolean;
+  klasik: { questions: { q: number; max: number; average: number; fullCount: number }[] } | null;
 };
 
 // The key as the teacher confirmed it. A key answer read as blank would
@@ -38,11 +44,18 @@ export function effectiveKey(read: KeyRead, fixes: { q: number; option: Option |
   return { key: { questionCount: read.questionCount, answers }, flags };
 }
 
+type PageRow = typeof pages.$inferSelect;
+
 export async function buildReportInput(db: Db, jobId: string): Promise<ReportInput> {
   const [job] = await db.select().from(jobs).where(eq(jobs.id, jobId));
   // 'uploaded' pages were never submitted or charged; they are not part of the exam
   const all = (await db.select().from(pages).where(eq(pages.jobId, jobId)).orderBy(asc(pages.seq)))
     .filter((p) => p.status !== 'uploaded');
+  if (job.mode === 'klasik') return buildKlasikInput(job, all);
+  return buildOptikInput(job, all);
+}
+
+function buildOptikInput(job: typeof jobs.$inferSelect, all: PageRow[]): ReportInput {
   const keyPage = all.find((p) => p.kind === 'key');
   if (keyPage?.result?.type !== 'key') throw new Error('key_not_read');
   const { key, flags: keyFlags } = effectiveKey(keyPage.result.read, keyPage.override?.key);
@@ -53,8 +66,7 @@ export async function buildReportInput(db: Db, jobId: string): Promise<ReportInp
 
   // A back-side photo carries no name; its answers belong to the sheet
   // photographed just before it (teachers shoot front, flip, shoot back).
-  type StudentPage = (typeof all)[number];
-  const merged: StudentPage[] = [];
+  const merged: PageRow[] = [];
   for (const p of all.filter((x) => x.kind === 'student')) {
     const prev = merged[merged.length - 1];
     if (p.result?.type === 'student' && p.result.read.isBackSide && prev?.result?.type === 'student') {
@@ -107,12 +119,14 @@ export async function buildReportInput(db: Db, jobId: string): Promise<ReportInp
     rows.push({
       pageId: p.id, seq: p.seq, student: student ?? `Kâğıt ${p.seq}`,
       correct: s.correct, wrong: s.wrong, blank: s.blank, score: s.score, flags,
+      points: null, total: null, max: null,
     });
   }
   flagDuplicateNames(rows);
   return {
-    title: job.title || 'Sınav', key, keyPageId: keyPage.id, keyFlags, rows, failed,
+    mode: 'optik', title: job.title || 'Sınav', key, keyPageId: keyPage.id, keyFlags, rows, failed,
     stats: classStats(key, sheets),
     needsReview: keyFlags.length > 0 || rows.some((r) => r.flags.length > 0),
+    klasik: null,
   };
 }

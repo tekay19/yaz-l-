@@ -18,8 +18,9 @@ export type ClaimedPage = { id: string; jobId: string; kind: 'key' | 'student'; 
 
 // SKIP LOCKED lets several workers pull from the same table without ever
 // receiving the same page; an expired lease means the worker died mid-read.
-// Student pages wait until their job's key is read: the question count and
-// the key text come from it, and a failed key must stop the job cheaply.
+// Optik student pages wait until their job's key is read: the question count
+// comes from it, and a failed key must stop the job cheaply. A klasik page is
+// copied down literally and never needs the key, so it is read at once.
 export async function claimPages(db: Db, limit: number, now = new Date()): Promise<ClaimedPage[]> {
   return db.transaction(async (tx) => {
     const picked = await tx.select({ id: pages.id }).from(pages)
@@ -30,6 +31,7 @@ export async function claimPages(db: Db, limit: number, now = new Date()): Promi
         ),
         or(
           eq(pages.kind, 'key'),
+          sql`exists (select 1 from jobs j where j.id = ${pages.jobId} and j.mode = 'klasik')`,
           sql`exists (select 1 from pages k where k.job_id = ${pages.jobId} and k.kind = 'key' and k.status = 'read')`,
         ),
       ))

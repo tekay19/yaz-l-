@@ -7,6 +7,7 @@ import { refundPages } from '@/lib/credits';
 import { buildReportInput } from '@/lib/report/input';
 import { buildWorkbook } from '@/lib/report/excel';
 import { buildSummaryPdf } from '@/lib/report/pdf';
+import { RUBRIC_EXPIRE_DAYS } from '@/lib/klasik/worker';
 
 type Deps = { db: Db; storage: Storage; mailer: Mailer };
 const RETRY_MS = 5 * 60 * 1000;
@@ -33,7 +34,7 @@ export async function deliverPending(deps: Deps, now = new Date()): Promise<numb
   );
   const due = await db.select({
     id: jobs.id, userId: jobs.userId, status: jobs.status, title: jobs.title,
-    reservedPages: jobs.reservedPages, roster: jobs.roster, autoDeliveredAt: jobs.autoDeliveredAt,
+    reservedPages: jobs.reservedPages, roster: jobs.roster, autoDeliveredAt: jobs.autoDeliveredAt, failReason: jobs.failReason,
   }).from(jobs).where(ready()).limit(5);
 
   let handled = 0;
@@ -46,22 +47,28 @@ export async function deliverPending(deps: Deps, now = new Date()): Promise<numb
     const name = safeName(job.title);
     try {
       if (job.status === 'failed') {
+        const expired = job.failReason === 'rubric_expired';
         await mailer.send({
           to: user.email,
-          subject: `${job.title || 'Sınav'}: cevap anahtarı okunamadı`,
-          text: 'Cevap anahtarınızın fotoğrafı okunamadığı için kâğıtlar puanlanamadı. '
-            + `Kullanılan ${job.reservedPages} sayfa hakkı hesabınıza iade edildi. Anahtarı daha net çekip sınavı yeniden oluşturabilirsiniz.`,
+          subject: `${job.title || 'Sınav'}: ${expired ? 'sınav iptal edildi' : 'cevap anahtarı okunamadı'}`,
+          text: expired
+            ? `Puanlama ölçütleri ${RUBRIC_EXPIRE_DAYS} gün içinde onaylanmadığı için sınav iptal edildi. `
+              + `Kullanılan ${job.reservedPages} sayfa hakkı hesabınıza iade edildi. Fotoğraflarınız silindi.`
+            : 'Cevap anahtarınızın fotoğrafı okunamadığı için kâğıtlar puanlanamadı. '
+              + `Kullanılan ${job.reservedPages} sayfa hakkı hesabınıza iade edildi. Anahtarı daha net çekip sınavı yeniden oluşturabilirsiniz.`,
         });
         await refundPages(db, job.userId, job.reservedPages, job.id);
       } else {
         const input = await buildReportInput(db, job.id);
         const [xlsx, pdf] = await Promise.all([buildWorkbook(input), buildSummaryPdf(input)]);
         const refund = input.failed.length;
+        const klasik = input.mode === 'klasik';
         await mailer.send({
           to: user.email,
           subject: `${job.title || 'Sınav'} sonuçları`,
-          text: `${input.rows.length} kâğıt puanlandı. Sınıf ortalaması: ${input.stats.average.toLocaleString('tr-TR')}.`
-            + (input.needsReview ? '\nBazı yerler net okunamadı; Excel dosyasındaki "Kontrol Edilecekler" sayfasına bakın.' : '')
+          text: `${input.rows.length} kâğıt puanlandı. Sınıf ortalaması: ${klasik ? '%' : ''}${input.stats.average.toLocaleString('tr-TR')}.`
+            + (klasik ? '\nPuanlar, kontrol ekranında onayladığınız hâliyle rapordadır.' : '')
+            + (!klasik && input.needsReview ? '\nBazı yerler net okunamadı; Excel dosyasındaki "Kontrol Edilecekler" sayfasına bakın.' : '')
             + (job.autoDeliveredAt ? `\nKontrol ekranında ${REVIEW_AUTO_DELIVER_DAYS} gün içinde onaylanmadığı için rapor, okunduğu haliyle gönderildi.` : '')
             + (refund ? `\n${refund} kâğıt okunamadı; bu sayfaların hakkı iade edildi.` : '')
             // Düzeltme.md D6: roster girilmediyse isim eşleştirme hiç çalışmadı —
@@ -104,13 +111,16 @@ export async function notifyReview({ db, mailer }: Deps, now = new Date()): Prom
       const [user] = await db.select({ email: users.email }).from(users).where(eq(users.id, job.userId));
       const input = await buildReportInput(db, job.id);
       const unsure = input.rows.filter((r) => r.flags.length).length;
+      const klasik = input.mode === 'klasik';
       await mailer.send({
         to: user.email,
-        subject: `${job.title || 'Sınav'}: kontrolünüz bekleniyor`,
-        text: `${input.rows.length} kâğıt okundu; ${unsure} kâğıtta kontrol etmeniz gereken yer var.`
+        subject: `${job.title || 'Sınav'}: ${klasik ? 'puan önerileri hazır' : 'kontrolünüz bekleniyor'}`,
+        text: `${input.rows.length} kâğıt ${klasik ? 'puanlandı' : 'okundu'}; ${unsure} kâğıtta kontrol etmeniz gereken yer var.`
           + (input.failed.length ? `\n${input.failed.length} kâğıt okunamadı; bu sayfaların hakkı iade edildi.` : '')
           + `\nKontrol edip onaylamak için: ${process.env.APP_URL}/hesap`
-          + `\n${REVIEW_AUTO_DELIVER_DAYS} gün içinde onaylamazsanız rapor okunduğu haliyle e-postanıza gönderilir.`,
+          + (klasik
+            ? '\nPuanlar siz onaylayana kadar öneri olarak kalır; onaylamadan rapor gönderilmez.'
+            : `\n${REVIEW_AUTO_DELIVER_DAYS} gün içinde onaylamazsanız rapor okunduğu haliyle e-postanıza gönderilir.`),
       });
       sent++;
     } catch (e) {
@@ -122,8 +132,9 @@ export async function notifyReview({ db, mailer }: Deps, now = new Date()): Prom
 
 export async function autoDeliverStale(db: Db, now = new Date()): Promise<number> {
   const cutoff = new Date(now.getTime() - REVIEW_AUTO_DELIVER_DAYS * 86_400_000);
+  // klasik points are suggestions: they never go out without the teacher
   const moved = await db.update(jobs).set({ status: 'delivering', autoDeliveredAt: now })
-    .where(and(eq(jobs.status, 'review'), lt(jobs.finishedAt, cutoff)))
+    .where(and(eq(jobs.mode, 'optik'), eq(jobs.status, 'review'), lt(jobs.finishedAt, cutoff)))
     .returning({ id: jobs.id });
   return moved.length;
 }

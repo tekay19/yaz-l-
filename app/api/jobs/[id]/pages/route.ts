@@ -5,6 +5,7 @@ import { currentUserId, unauthorized } from '@/lib/auth/current';
 import { ImageError, checkPhoto, normalizeImage } from '@/lib/images';
 import { JobLockedError, MAX_STUDENT_PAGES, MAX_UPLOAD_BYTES, addPage, getOwnedJob } from '@/lib/jobs/pages';
 import { getStorage } from '@/lib/storage';
+import { MAX_KEY_PAGES } from '@/lib/klasik/jobs';
 import { rateLimited } from '@/lib/store';
 
 export const runtime = 'nodejs';
@@ -29,10 +30,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (!(file instanceof File) || file.size === 0) return err('Fotoğraf seçin.', 400);
   if (file.size > MAX_UPLOAD_BYTES) return err('Fotoğraf çok büyük (en fazla 15 MB).', 413);
 
-  if (kind === 'student') {
-    const [{ n }] = await db.select({ n: count() }).from(pages)
-      .where(and(eq(pages.jobId, id), eq(pages.kind, 'student')));
-    if (n >= MAX_STUDENT_PAGES) return err(`Bir sınavda en fazla ${MAX_STUDENT_PAGES} sayfa olabilir.`, 400);
+  const limit = kind === 'student' ? MAX_STUDENT_PAGES : job.mode === 'klasik' ? MAX_KEY_PAGES : Infinity;
+  const [{ n }] = await db.select({ n: count() }).from(pages).where(and(eq(pages.jobId, id), eq(pages.kind, kind)));
+  if (n >= limit) {
+    return err(kind === 'student' ? `Bir sınavda en fazla ${MAX_STUDENT_PAGES} sayfa olabilir.` : `Cevap anahtarı en fazla ${MAX_KEY_PAGES} sayfa olabilir.`, 400);
   }
 
   try {

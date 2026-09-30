@@ -102,4 +102,16 @@ describe('queue', () => {
     expect(await completePage(db, stale, key, { inputTokens: 0, outputTokens: 0 })).toBe(false);
     expect((await keyRow(db)).status).toBe('read');
   });
+
+  // A klasik page is copied down literally; it never needs the key first.
+  it('hands out klasik student pages without waiting for the key', async () => {
+    const db = await testDb();
+    const st = memoryStorage();
+    const u = await makeUser(db, 'a@b.co', 100);
+    const { id } = await createJob(db, u.id, { title: 't', mode: 'klasik' });
+    await addPage(db, st, { jobId: id, kind: 'key', image: Buffer.from('k') });
+    await addPage(db, st, { jobId: id, kind: 'student', image: Buffer.from('s') });
+    await submitJob(db, id, u.id, true, true);
+    expect((await claimPages(db, 10)).map((p) => p.kind)).toEqual(['key', 'student']);
+  });
 });

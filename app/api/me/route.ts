@@ -16,7 +16,7 @@ export async function GET() {
   const [u] = await getDb().select({ email: users.email, pageBalance: users.pageBalance })
     .from(users).where(eq(users.id, userId));
   if (!u) return unauthorized();
-  return Response.json(u, { headers: { 'Cache-Control': 'no-store' } });
+  return Response.json({ ...u, klasik: process.env.KLASIK_ENABLED === 'true' }, { headers: { 'Cache-Control': 'no-store' } });
 }
 
 export async function DELETE() {

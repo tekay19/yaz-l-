@@ -10,9 +10,9 @@ import type { ReportInput } from '@/lib/report/input';
 const key = { questionCount: 2, answers: [{ q: 1, option: 'A' as const }, { q: 2, option: 'B' as const }] };
 const sheet = scoreSheet(key, [{ q: 1, marked: ['A'] }, { q: 2, marked: ['C'] }]);
 const input: ReportInput = {
-  title: '9-B Matematik', key, keyPageId: 'k1', keyFlags: [],
-  rows: [{ pageId: 'p1', seq: 1, student: 'Şule Çağlar', correct: 1, wrong: 1, blank: 0, score: 50, flags: ['2. soru net okunamadı'] }],
-  failed: [], stats: classStats(key, [sheet]), needsReview: true,
+  mode: 'optik', title: '9-B Matematik', key, keyPageId: 'k1', keyFlags: [],
+  rows: [{ pageId: 'p1', seq: 1, student: 'Şule Çağlar', correct: 1, wrong: 1, blank: 0, score: 50, flags: ['2. soru net okunamadı'], points: null, total: null, max: null }],
+  failed: [], stats: classStats(key, [sheet]), needsReview: true, klasik: null,
 };
 
 describe('report files', () => {

@@ -24,9 +24,11 @@ export async function buildSummaryPdf(input: ReportInput): Promise<Buffer> {
   line('Sınıf özeti', 12, regular, rgb(0.36, 0.4, 0.37));
   y -= 10;
   const s = input.stats;
+  const klasik = input.mode === 'klasik';
+  const pct = klasik ? '%' : ''; // klasik statistics are percentages of the total points
   line(`Öğrenci sayısı: ${s.count}`);
-  line(`Ortalama: ${s.average.toLocaleString('tr-TR')}`);
-  line(`En yüksek: ${s.max}   En düşük: ${s.min}`);
+  line(`${klasik ? 'Ortalama başarı' : 'Ortalama'}: ${pct}${s.average.toLocaleString('tr-TR')}`);
+  line(`En yüksek: ${pct}${s.max}   En düşük: ${pct}${s.min}`);
   y -= 10;
 
   line('Puan dağılımı', 13, bold, GREEN);
@@ -38,11 +40,13 @@ export async function buildSummaryPdf(input: ReportInput): Promise<Buffer> {
     y -= 22;
   }
 
-  if (s.questions.length) { // klasik exams have no per-option analysis
+  if (s.questions.length) {
     y -= 10;
     line('En zor sorular', 13, bold, GREEN);
     for (const q of [...s.questions].sort((a, b) => a.correctRate - b.correctRate).slice(0, 5)) {
-      line(`${q.q}. soru — sınıfın %${q.correctRate}'i doğru yaptı${q.commonWrong ? `, en çok ${q.commonWrong} seçildi` : ''}`);
+      line(klasik
+        ? `${q.q}. soru — sınıf ortalaması, sorunun puanının %${q.correctRate}'i`
+        : `${q.q}. soru — sınıfın %${q.correctRate}'i doğru yaptı${q.commonWrong ? `, en çok ${q.commonWrong} seçildi` : ''}`);
     }
   }
   const unsure = input.rows.filter((r) => r.flags.length).length + input.failed.length;

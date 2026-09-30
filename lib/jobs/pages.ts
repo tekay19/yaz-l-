@@ -40,12 +40,13 @@ export async function addPage(
   await storage.write(filePath, input.image);
   try {
     const { row, oldFiles } = await db.transaction(async (tx) => {
-      const [job] = await tx.select({ status: jobs.status }).from(jobs)
+      const [job] = await tx.select({ status: jobs.status, mode: jobs.mode }).from(jobs)
         .where(eq(jobs.id, input.jobId)).for('update');
       if (job?.status !== 'draft') throw new JobLockedError('not_draft');
 
       let oldFiles: string[] = [];
-      if (input.kind === 'key') {
+      // an optik key is one page, so a new photo replaces it; a klasik key may run over several
+      if (input.kind === 'key' && job.mode === 'optik') {
         const old = await tx.delete(pages)
           .where(and(eq(pages.jobId, input.jobId), eq(pages.kind, 'key')))
           .returning({ filePath: pages.filePath });

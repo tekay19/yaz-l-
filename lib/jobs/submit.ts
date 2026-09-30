@@ -21,7 +21,8 @@ export async function submitJob(
       .where(eq(pages.jobId, jobId)).groupBy(pages.kind);
     const keyCount = counts.find((c) => c.kind === 'key')?.n ?? 0;
     const need = counts.find((c) => c.kind === 'student')?.n ?? 0;
-    if (!keyCount) return { ok: false, error: 'no_key' } as const;
+    // a klasik key can also be typed in instead of photographed
+    if (!keyCount && !(job.mode === 'klasik' && job.keyText.trim())) return { ok: false, error: 'no_key' } as const;
     if (!need) return { ok: false, error: 'no_pages' } as const;
     if (!job.roster.length && !allowNoRoster) return { ok: false, error: 'no_roster' } as const;
 
