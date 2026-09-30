@@ -1,10 +1,13 @@
 import OpenAI from 'openai';
 import { zodTextFormat } from 'openai/helpers/zod';
 import type { z } from 'zod';
-import { KeyReadSchema, StudentReadSchema } from './schemas';
+import {
+  GradeOutputSchema, KeyReadSchema, KlasikReadSchema, RubricDraftSchema, StudentReadSchema,
+} from './schemas';
 import { KEY_SYSTEM, KEY_USER, STUDENT_SYSTEM, studentUser } from './prompts';
-import { clientOptions } from './config';
-import { ReadRefused, type Effort, type Reader, type Usage } from './claude';
+import { GRADE_SYSTEM, KLASIK_READ_SYSTEM, KLASIK_READ_USER, RUBRIC_SYSTEM, gradeUser, rubricUser } from './klasik-prompts';
+import { clientOptions, effortFor, type CallKind, type Effort } from './config';
+import { ReadRefused, type Part, type Reader, type Usage } from './claude';
 
 // Same contract as the Claude reader, on the OpenAI Responses API. Chosen with
 // GRADER_PROVIDER=openai; the prompts and output schemas are shared, so the
@@ -14,13 +17,11 @@ import { ReadRefused, type Effort, type Reader, type Usage } from './claude';
 export type ResponsesClient = { responses: { create(params: any): Promise<any> } };
 
 export const openaiModel = () => process.env.GRADER_MODEL || 'gpt-5.1';
-const EFFORT = () => (process.env.GRADER_EFFORT || 'medium') as Effort;
 
-async function read<T>(
+async function ask<T>(
   client: ResponsesClient,
   system: string,
-  userText: string,
-  image: Buffer,
+  parts: Part[],
   schema: z.ZodType<T>,
   name: string,
   effort: Effort,
@@ -33,15 +34,14 @@ async function read<T>(
     text: { format: zodTextFormat(schema as any, name) },
     input: [{
       role: 'user',
-      content: [
-        { type: 'input_image', image_url: `data:image/jpeg;base64,${image.toString('base64')}`, detail: 'high' },
-        { type: 'input_text', text: userText },
-      ],
+      content: parts.map((p) => ('image' in p
+        ? { type: 'input_image', image_url: `data:image/jpeg;base64,${p.image.toString('base64')}`, detail: 'high' }
+        : { type: 'input_text', text: p.text })),
     }],
   });
-  const parts = (res.output ?? []).filter((o: any) => o.type === 'message').flatMap((o: any) => o.content ?? []);
-  if (parts.some((c: any) => c.type === 'refusal')) throw new ReadRefused('refused');
-  const text = parts.find((c: any) => c.type === 'output_text')?.text;
+  const out = (res.output ?? []).filter((o: any) => o.type === 'message').flatMap((o: any) => o.content ?? []);
+  if (out.some((c: any) => c.type === 'refusal')) throw new ReadRefused('refused');
+  const text = out.find((c: any) => c.type === 'output_text')?.text;
   if (!text) throw new Error(`no_output:${res.status}:${res.incomplete_details?.reason ?? ''}`);
   return {
     read: schema.parse(JSON.parse(text)),
@@ -53,10 +53,17 @@ export function createOpenAIReader(
   client: ResponsesClient = new OpenAI(clientOptions()) as unknown as ResponsesClient,
   opts: { effort?: Effort } = {},
 ): Reader {
-  const effort = () => opts.effort ?? EFFORT();
+  const effort = (kind: CallKind) => opts.effort ?? effortFor(kind);
   return {
-    readKey: (image) => read(client, KEY_SYSTEM, KEY_USER, image, KeyReadSchema, 'answer_key', effort()),
+    readKey: (image) => ask(client, KEY_SYSTEM, [{ image }, { text: KEY_USER }], KeyReadSchema, 'answer_key', effort('optik')),
     readStudent: (image, questionCount) =>
-      read(client, STUDENT_SYSTEM, studentUser(questionCount), image, StudentReadSchema, 'student_sheet', effort()),
+      ask(client, STUDENT_SYSTEM, [{ image }, { text: studentUser(questionCount) }], StudentReadSchema, 'student_sheet', effort('optik')),
+    readKlasik: (image) =>
+      ask(client, KLASIK_READ_SYSTEM, [{ image }, { text: KLASIK_READ_USER }], KlasikReadSchema, 'klasik_page', effort('klasik-read')),
+    draftRubric: ({ keyText, maxPoints }) =>
+      ask(client, RUBRIC_SYSTEM, [{ text: rubricUser(keyText, maxPoints) }], RubricDraftSchema, 'klasik_rubric', effort('klasik-grade')),
+    gradeKlasik: ({ questions, answers, images }) =>
+      ask(client, GRADE_SYSTEM, [...images.map((image) => ({ image })), { text: gradeUser(questions, answers, images.length > 0) }],
+        GradeOutputSchema, 'klasik_grade', effort('klasik-grade')),
   };
 }

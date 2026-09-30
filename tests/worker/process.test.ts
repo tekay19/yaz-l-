@@ -8,12 +8,12 @@ import { claimPages } from '@/lib/queue';
 import { processPage } from '@/worker/process';
 import { ReadRefused, type Reader } from '@/lib/reader/claude';
 import { jobs, pages } from '@/db/schema';
+import { fakeReader, usage } from '../helpers/reader';
 
-const usage = { inputTokens: 10, outputTokens: 5 };
-const okReader: Reader = {
+const okReader: Reader = fakeReader({
   readKey: async () => ({ read: { questionCount: 1, answers: [{ q: 1, option: 'A' }] }, usage }),
   readStudent: async () => ({ read: { isBackSide: false, studentName: 'Elif', nameConfidence: 'high', unreadable: false, answers: [{ q: 1, marked: ['A'], confidence: 'high' }] }, usage }),
-};
+});
 
 async function run(reader: Reader) {
   const db = await testDb();
