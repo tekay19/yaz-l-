@@ -29,3 +29,31 @@ Sınıf listesi: listesi kaydedilmemiş bir sınav `noRoster: true` olmadan gön
 Fotoğraf kontrolü: `POST /api/jobs/:id/pages` çok küçük (uzun kenar 1000 pikselin altında), çok karanlık veya bulanık fotoğrafı 415 ve ne yapılacağını söyleyen Türkçe bir mesajla reddeder.
 
 Kontrol bekleyen sınav: okuma bitince okunamayan sayfaların hakkı hemen iade edilir ve öğretmene "kontrolünüz bekleniyor" e-postası gider. Sınav 3 gün içinde onaylanmazsa rapor okunduğu haliyle gönderilir.
+
+## Klasik sınav (açık uçlu)
+
+Tasarım: `docs/superpowers/specs/2026-09-30-klasik-rubrik-puanlama-design.md`. Sunucuda `KLASIK_ENABLED=true` değilse `POST /api/jobs` klasik isteğini 400 ile reddeder; `GET /api/me` yanıtındaki `klasik: boolean` ön yüze bunu söyler.
+
+Akış: `draft` → gönder → (sayfalar hemen okunur; anahtardan rubrik taslağı çıkar) → `rubric` (öğretmen düzenler, onaylar) → `processing` (puanlama) → `review` (öğretmen kontrol eder) → `delivering` → `done`. Rubrik 7 gün içinde onaylanmazsa iş `failed` olur (`fail_reason = rubric_expired`) ve tüm hak iade edilir. Klasik iş hiçbir zaman öğretmen onayı olmadan gönderilmez.
+
+| Uç | Gövde | Başarılı yanıt | Hatalar |
+|---|---|---|---|
+| POST /api/jobs | `{ title, mode: "klasik", klasikMax?: number[] }` (puanlar isteğe bağlı; rubrik taslağına önceden dolar) | 201 `{ id }` | 400, 401 |
+| POST /api/jobs/:id/pages | `kind: "key"` klasikte birden çok kez (en fazla 10 anahtar sayfası) | 201 | optikteki gibi |
+| PUT /api/jobs/:id/key-text | `{ text }` — yazılı/yapıştırılmış anahtar (`draft` ve `rubric` aşamasında) | `{ ok }` | 404, 409 |
+| POST /api/jobs/:id/submit | optikteki gibi; klasikte anahtar fotoğrafı ya da yazılı anahtar yeterli | 202 | optikteki gibi |
+| GET /api/jobs/:id/rubric | — | `{ status, keyText, rubric, approved, problems[] }` | 404 |
+| PUT /api/jobs/:id/rubric | `{ questions: RubricQuestion[] }` (yalnız `rubric` aşamasında) | `{ rubric }` | 400 (Türkçe neden), 409 |
+| POST /api/jobs/:id/rubric/approve | — | 202 | 400 (`Rubrikte hiç soru yok.`), 409 |
+| POST /api/jobs/:id/rubric/redraft | — (anahtardan taslağı yeniden oluşturur) | 202 | 409 |
+| GET /api/jobs/:id/review | — | `{ mode: "klasik", roster, rubric, sheets[{ pageId, seqs, student, nameFlags, total, max, percent, imageUrls, questions[{ q, points, max, status, lines, criteria[{ text, points, verdict, evidence, earned, counted }], notes[{ code, text, attention }], note, firstError }] }], failed, pending }` | 404 |
+| PATCH /api/jobs/:id/pages/:pageId | `{ studentName?, points?: [{ q, points \| null }], texts?: [{ q, text }] }` — `points: null` öğretmen puanını kaldırır; `texts` o soruyu yeniden puanlatır | `{ ok }` | 400, 404, 409 |
+| POST /api/jobs/:id/rubric/accept | `{ pageId, q, note? }` — "Bu cevabı kabul et, rubriğe ekle": soru, elle puanlanmamış tüm kâğıtlarda yeniden puanlanır | 202 | 400, 404, 409 |
+| POST /api/jobs/:id/pages/:pageId/regrade | — (puanlaması başarısız kâğıt için) | 202 | 404, 409 |
+| POST /api/jobs/:id/approve | — | 202 | 409 (yeniden puanlama sürerken) |
+
+## Diğer değişiklikler (2026-09-30)
+
+- Optik kontrol: `GET /api/jobs/:id/review` yanıtına `keyPageId` ve `keyFlags` eklendi. Okunamayan anahtar sorusu işi kontrole düşürür; öğretmen `PATCH /api/jobs/:id/pages/:keyPageId` ile `{ key: [{ q, option: "A".."E" | null }] }` gönderir (`null` = soru iptal, kimseye puanlanmaz).
+- `PATCH /api/jobs/:id/pages/:pageId` gövdesi doğrulanır; bozuk gövde 500 yerine 400 döner.
+- `POST /api/pay/checkout`: Başlangıç paketi hesabın ilk ödemesinden sonra 400 `Başlangıç paketi yalnızca ilk siparişte alınabilir.` döner.

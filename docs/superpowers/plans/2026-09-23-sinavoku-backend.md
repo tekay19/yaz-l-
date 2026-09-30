@@ -3631,6 +3631,8 @@ git commit -m "feat(review): roster matching, back-side merge and teacher review
 
 ### Task 15: Açık uçlu sorular için puan önerisi
 
+> **Yerini aldı (2026-09-30):** Bu görev uygulanmadı; yerine rubrik tabanlı tasarım uygulandı — `docs/superpowers/specs/2026-09-30-klasik-rubrik-puanlama-design.md` ve `docs/superpowers/plans/2026-09-30-klasik-rubrik-puanlama.md`. Aşağıdaki "anahtarla karşılaştır" yaklaşımı, doğru ama farklı yazılmış cevapları cezalandırabildiği için bırakıldı.
+
 Klasik sınavda yapay zeka her soru için öğrencinin yazdığını okur ve öğretmenin anahtarına göre **puan önerir**; iş her zaman `review`'e düşer ve puan öğretmen onayıyla kesinleşir (sitedeki "son karar sizde" vaadi).
 
 **Files:**
