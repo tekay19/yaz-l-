@@ -20,6 +20,8 @@ export type ReviewRow = {
 export type Review = {
   roster: string[];
   key: { questionCount: number; answers: { q: number; option: string | null }[] };
+  keyPageId: string | null;
+  keyFlags: string[];
   rows: ReviewRow[];
   failed: { seq: number; reason: string }[];
 };
@@ -68,6 +70,8 @@ export function createApi(fetchImpl: typeof fetch = (input, init) => fetch(input
       call<{ ok: true; reserved: number }>(`/api/jobs/${id}/submit`, withJson('POST', noRoster ? { consent: true, noRoster: true } : { consent: true })),
     review: (id: string) => call<Review>(`/api/jobs/${id}/review`),
     correct: (id: string, pageId: string, patch: Correction) => call<{ ok: true }>(`/api/jobs/${id}/pages/${pageId}`, withJson('PATCH', patch)),
+    correctKey: (id: string, keyPageId: string, key: { q: number; option: string | null }[]) =>
+      call<{ ok: true }>(`/api/jobs/${id}/pages/${keyPageId}`, withJson('PATCH', { key })),
     approve: (id: string) => call<{ ok: true }>(`/api/jobs/${id}/approve`, { method: 'POST' }),
   };
 }

@@ -42,6 +42,7 @@ export async function buildWorkbook(input: ReportInput): Promise<Buffer> {
     { header: 'Kontrol edin', key: 'flag', width: 60 },
   ];
   review.getRow(1).font = { bold: true };
+  for (const flag of input.keyFlags) review.addRow({ seq: 'Anahtar', student: '', flag });
   for (const r of input.rows) for (const flag of r.flags) review.addRow({ seq: r.seq, student: r.student, flag });
   for (const f of input.failed) review.addRow({ seq: f.seq, student: '', flag: `${f.reason} — yeniden çekip yükleyin (sayfa hakkı iade edildi)` });
 

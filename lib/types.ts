@@ -24,6 +24,7 @@ export type PageResult =
 
 export type PageOverride = {
   studentName?: string;
-  answers?: { q: number; marked: Option[] }[];
+  answers?: { q: number; marked: Option[] }[]; // optik student sheet
+  key?: { q: number; option: Option | null }[]; // optik key page; null = the teacher confirms "no key"
   points?: { q: number; points: number }[];
 };

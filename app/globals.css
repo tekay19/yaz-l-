@@ -1448,6 +1448,10 @@ section { padding: clamp(56px, 8vw, 104px) 0; }
   .console-thumb { width: 100%; }
 }
 
+/* ── Klasik rubric and review (/hesap) ─────────────────────────────── */
+.klasik-q { margin-top: 14px; padding: 12px 14px; border: 1px solid var(--line-soft); border-radius: var(--r-sm); background: #fff; }
+.klasik-q.flagged { border-color: #F3C9C4; background: #FFFBFA; }
+
 /* ── Measurement screen (/panel/olcum) — reuses the panel chrome ────── */
 .eval-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; margin-top: 14px; }
 .eval-photo-item {

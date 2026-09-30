@@ -9,3 +9,10 @@ export function flaggedQuestions(flags: string[]): number[] {
 }
 
 export const nameFlagged = (flags: string[]) => flags.some((f) => f.startsWith('İsim'));
+
+// "Anahtarda okunamayan soru: 2, 5" → [2, 5]: the key questions the teacher
+// has to settle before the report is right for anyone.
+export function keyQuestions(keyFlags: string[]): number[] {
+  const qs = keyFlags.flatMap((f) => (/:\s*([\d,\s]+)$/.exec(f)?.[1] ?? '').split(',').map((x) => Number(x.trim())).filter((n) => n > 0));
+  return [...new Set(qs)].sort((a, b) => a - b);
+}

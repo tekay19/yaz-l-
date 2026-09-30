@@ -5,20 +5,38 @@ import type { KeyRead, Option } from '@/lib/types';
 import { scoreSheet } from '@/lib/grading/score';
 import { classStats, type ClassStats } from '@/lib/grading/stats';
 import { looksLikeName, matchRoster } from '@/lib/grading/names';
+import { REASONS, flagDuplicateNames } from './common';
+
+export { REASONS, DUPLICATE_NAME } from './common';
 
 export type ReportRow = {
   pageId: string; seq: number; student: string;
   correct: number; wrong: number; blank: number; score: number; flags: string[];
 };
 export type ReportInput = {
-  title: string; key: KeyRead; rows: ReportRow[];
+  title: string; key: KeyRead; keyPageId: string | null;
+  keyFlags: string[];
+  rows: ReportRow[];
   failed: { seq: number; reason: string }[];
   stats: ClassStats; needsReview: boolean;
 };
 
-const REASONS: Record<string, string> = {
-  unreadable: 'Fotoğraf okunamadı', refused: 'Fotoğraf işlenemedi', max_attempts: 'Okuma zaman aşımına uğradı',
-};
+// The key as the teacher confirmed it. A key answer read as blank would
+// silently drop that question for the whole class, so it is flagged until the
+// teacher either sets the option or confirms the question has no key (null).
+export function effectiveKey(read: KeyRead, fixes: { q: number; option: Option | null }[] = []) {
+  const byQ = new Map(read.answers.map((a) => [a.q, a.option]));
+  for (const f of fixes) byQ.set(f.q, f.option);
+  const answers = [...byQ].map(([q, option]) => ({ q, option })).sort((a, b) => a.q - b.q);
+  const fixed = new Set(fixes.map((f) => f.q));
+  const blank = answers.filter((a) => a.option === null && !fixed.has(a.q)).map((a) => a.q);
+  const missing: number[] = [];
+  for (let q = 1; q <= read.questionCount; q++) if (!byQ.has(q)) missing.push(q);
+  const flags: string[] = [];
+  if (blank.length) flags.push(`Anahtarda okunamayan soru: ${blank.join(', ')}`);
+  if (missing.length) flags.push(`Anahtarda bulunamayan soru: ${missing.join(', ')}`);
+  return { key: { questionCount: read.questionCount, answers }, flags };
+}
 
 export async function buildReportInput(db: Db, jobId: string): Promise<ReportInput> {
   const [job] = await db.select().from(jobs).where(eq(jobs.id, jobId));
@@ -27,7 +45,7 @@ export async function buildReportInput(db: Db, jobId: string): Promise<ReportInp
     .filter((p) => p.status !== 'uploaded');
   const keyPage = all.find((p) => p.kind === 'key');
   if (keyPage?.result?.type !== 'key') throw new Error('key_not_read');
-  const key = keyPage.result.read;
+  const { key, flags: keyFlags } = effectiveKey(keyPage.result.read, keyPage.override?.key);
 
   const rows: ReportRow[] = [];
   const failed: ReportInput['failed'] = [];
@@ -57,10 +75,15 @@ export async function buildReportInput(db: Db, jobId: string): Promise<ReportInp
     }
     const read = p.result.read;
     const ov = p.override ?? {};
+    const fixes = new Map((ov.answers ?? []).map((o) => [o.q, o]));
     const answers = read.answers.map((a) => {
-      const fixed = ov.answers?.find((o) => o.q === a.q);
+      const fixed = fixes.get(a.q);
       return fixed ? { q: a.q, marked: fixed.marked as Option[], confidence: 'high' as const } : a;
     });
+    // a question the reader missed entirely can still be entered by the teacher
+    for (const o of ov.answers ?? []) {
+      if (!read.answers.some((a) => a.q === o.q)) answers.push({ q: o.q, marked: o.marked, confidence: 'high' });
+    }
     const s = scoreSheet(key, answers);
     const flags = [...s.flags];
 
@@ -86,9 +109,10 @@ export async function buildReportInput(db: Db, jobId: string): Promise<ReportInp
       correct: s.correct, wrong: s.wrong, blank: s.blank, score: s.score, flags,
     });
   }
+  flagDuplicateNames(rows);
   return {
-    title: job.title || 'Sınav', key, rows, failed,
+    title: job.title || 'Sınav', key, keyPageId: keyPage.id, keyFlags, rows, failed,
     stats: classStats(key, sheets),
-    needsReview: rows.some((r) => r.flags.length > 0),
+    needsReview: keyFlags.length > 0 || rows.some((r) => r.flags.length > 0),
   };
 }

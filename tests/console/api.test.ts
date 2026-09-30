@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createApi } from '@/components/console/api';
-import { flaggedQuestions, nameFlagged } from '@/components/console/flags';
+import { flaggedQuestions, keyQuestions, nameFlagged } from '@/components/console/flags';
 
 type Call = { url: string; method: string; body: unknown };
 
@@ -39,6 +39,7 @@ describe('console api contract', () => {
     ['review', (a: any) => a.review(J), 'GET', `/api/jobs/${J}/review`, undefined],
     ['correct', (a: any) => a.correct(J, P, { studentName: 'Elif', answers: [{ q: 2, marked: ['B'] }] }), 'PATCH', `/api/jobs/${J}/pages/${P}`, { studentName: 'Elif', answers: [{ q: 2, marked: ['B'] }] }],
     ['approve', (a: any) => a.approve(J), 'POST', `/api/jobs/${J}/approve`, undefined],
+    ['correctKey', (a: any) => a.correctKey(J, P, [{ q: 2, option: null }]), 'PATCH', `/api/jobs/${J}/pages/${P}`, { key: [{ q: 2, option: null }] }],
   ])('%s → %s %s', async (_name, invoke, method, url, body) => {
     const { calls, api } = recorder();
     await invoke(api);
@@ -79,5 +80,9 @@ describe('review flags', () => {
     expect(flaggedQuestions(flags)).toEqual([2, 12]);
     expect(nameFlagged(flags)).toBe(true);
     expect(nameFlagged(['3. soru net okunamadı'])).toBe(false);
+  });
+  it('finds the key questions the teacher has to settle', () => {
+    expect(keyQuestions(['Anahtarda okunamayan soru: 2, 5', 'Anahtarda bulunamayan soru: 7'])).toEqual([2, 5, 7]);
+    expect(keyQuestions([])).toEqual([]);
   });
 });

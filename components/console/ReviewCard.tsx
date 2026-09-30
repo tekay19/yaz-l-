@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { Api, Correction, Review, ReviewRow } from './api';
-import { flaggedQuestions, nameFlagged } from './flags';
+import { flaggedQuestions, keyQuestions, nameFlagged } from './flags';
 
 const OPTIONS = ['A', 'B', 'C', 'D', 'E'];
 
@@ -47,6 +47,10 @@ export default function ReviewCard({ api, jobId, onApproved }: { api: Api; jobId
       <p className="small muted">
         {flagged} kâğıtta kontrol edilecek yer var. Düzeltmeleri kaydedip onaylayınca rapor e-postanıza gider.
       </p>
+
+      {data.keyFlags.length > 0 && data.keyPageId && (
+        <KeyFixer api={api} jobId={jobId} keyPageId={data.keyPageId} flags={data.keyFlags} onSaved={load} />
+      )}
 
       <h3 className="console-sub">Sınıf listesi</h3>
       <textarea className="console-text" value={roster} onChange={(e) => setRoster(e.target.value)} placeholder={'Elif Yılmaz\nMert Kaya'} />
@@ -153,6 +157,49 @@ function RowEditor({ api, jobId, row, onSaved }: RowProps) {
           {note && <span className={`small ${note.ok ? 'muted' : 'console-err'}`}>{note.text}</span>}
         </div>
         <p className="tiny muted">Bir soruda şık işaretleyip kaydederseniz o soru okunanın yerine geçer; hiç şık seçilmezse boş sayılır.</p>
+      </div>
+    </div>
+  );
+}
+
+// A key answer the reader could not settle drops that question for the whole
+// class, so the teacher sets it here — or confirms it has no key.
+function KeyFixer({ api, jobId, keyPageId, flags, onSaved }: {
+  api: Api; jobId: string; keyPageId: string; flags: string[]; onSaved: () => void;
+}) {
+  const [choice, setChoice] = useState<Record<number, string>>({});
+  const [note, setNote] = useState<string | null>(null);
+  const qs = keyQuestions(flags);
+
+  async function save() {
+    const key = Object.entries(choice).map(([q, v]) => ({ q: Number(q), option: v === 'none' ? null : v }));
+    if (!key.length) return;
+    const r = await api.correctKey(jobId, keyPageId, key);
+    if (r.ok) {
+      setChoice({});
+      onSaved();
+    } else setNote(r.error);
+  }
+
+  return (
+    <div className="klasik-q flagged">
+      <h3 className="console-sub" style={{ marginTop: 0 }}>Cevap anahtarı</h3>
+      <ul className="small console-list console-err">{flags.map((f) => <li key={f}>{f}</li>)}</ul>
+      <p className="tiny muted">Bu sorular düzeltilene kadar hiçbir öğrencide puanlanmaz.</p>
+      {qs.map((q) => (
+        <div key={q} className="console-opts">
+          <span className="small">Soru {q}:</span>
+          {[...OPTIONS, 'none'].map((o) => (
+            <label key={o}>
+              <input type="radio" name={`key-${q}`} checked={choice[q] === o} onChange={() => setChoice((c) => ({ ...c, [q]: o }))} />
+              {o === 'none' ? 'Soru iptal (anahtar yok)' : o}
+            </label>
+          ))}
+        </div>
+      ))}
+      <div className="console-row">
+        <button type="button" className="btn btn-ghost btn-sm" onClick={save}>Anahtarı kaydet</button>
+        {note && <span className="small console-err">{note}</span>}
       </div>
     </div>
   );

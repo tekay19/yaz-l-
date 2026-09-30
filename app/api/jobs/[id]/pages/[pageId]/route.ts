@@ -3,7 +3,7 @@ import { getDb } from '@/db/client';
 import { pages } from '@/db/schema';
 import { currentUserId, unauthorized } from '@/lib/auth/current';
 import { getOwnedJob, removePage } from '@/lib/jobs/pages';
-import { savePageOverride } from '@/lib/jobs/review';
+import { OptikPatch, saveKeyOverride, savePageOverride } from '@/lib/jobs/review';
 import { getStorage } from '@/lib/storage';
 
 export const runtime = 'nodejs';
@@ -33,12 +33,11 @@ export async function PATCH(req: Request, { params }: Ctx) {
   const db = getDb();
   const job = await getOwnedJob(db, id, userId);
   if (!job || job.status !== 'review') return Response.json({ error: 'Sınav kontrol aşamasında değil.' }, { status: 409 });
-  const body = await req.json().catch(() => ({}));
-  const ok = await savePageOverride(db, id, pageId, {
-    studentName: typeof body.studentName === 'string' ? body.studentName : undefined,
-    answers: Array.isArray(body.answers) ? body.answers : undefined,
-    points: Array.isArray(body.points) ? body.points : undefined,
-  });
+  const body = await req.json().catch(() => null);
+  const parsed = OptikPatch.safeParse(body);
+  if (!parsed.success) return Response.json({ error: 'Düzeltme geçersiz.' }, { status: 400 });
+  const { key, ...sheet } = parsed.data;
+  const ok = key ? await saveKeyOverride(db, id, pageId, key) : await savePageOverride(db, id, pageId, sheet);
   return ok ? Response.json({ ok: true }) : Response.json({ error: 'Düzeltme geçersiz.' }, { status: 400 });
 }
 

@@ -17,6 +17,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   return Response.json({
     roster: job.roster,
     key: input.key,
+    keyPageId: input.keyPageId,
+    keyFlags: input.keyFlags,
     rows: input.rows.map((r) => ({ ...r, imageUrl: `/api/jobs/${id}/pages/${r.pageId}` })),
     failed: input.failed,
   }, { headers: { 'Cache-Control': 'no-store' } });
