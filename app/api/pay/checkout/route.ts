@@ -3,7 +3,7 @@ import { getDb } from '@/db/client';
 import { users } from '@/db/schema';
 import { currentUserId, unauthorized } from '@/lib/auth/current';
 import { isPackName } from '@/lib/packs';
-import { getIyzico, startCheckout } from '@/lib/payments/iyzico';
+import { IntroPackUsed, getIyzico, startCheckout } from '@/lib/payments/iyzico';
 import { clientIp } from '@/lib/store';
 
 export const runtime = 'nodejs';
@@ -22,6 +22,9 @@ export async function POST(req: Request) {
     });
     return Response.json(r);
   } catch (e) {
+    if (e instanceof IntroPackUsed) {
+      return Response.json({ error: 'Başlangıç paketi yalnızca ilk siparişte alınabilir.' }, { status: 400 });
+    }
     console.error('[pay] init', e);
     return Response.json({ error: 'Ödeme sayfası açılamadı. Biraz sonra tekrar deneyin.' }, { status: 502 });
   }

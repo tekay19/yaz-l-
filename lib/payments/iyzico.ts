@@ -2,7 +2,7 @@ import Iyzipay from 'iyzipay';
 import { and, eq } from 'drizzle-orm';
 import type { Db } from '@/db/client';
 import { payments } from '@/db/schema';
-import { PACKS, type PackName } from '@/lib/packs';
+import { DEFAULT_PLAN, PACKS, type PackName } from '@/lib/packs';
 import { grantPages } from '@/lib/credits';
 
 export type IyzicoApi = { initialize(req: object): Promise<any>; retrieve(req: object): Promise<any> };
@@ -26,11 +26,22 @@ export function getIyzico(): IyzicoApi {
 
 const tl = (kurus: number) => (kurus / 100).toFixed(2);
 
+// The Başlangıç pack is the intro offer ("İlk siparişe özel": ₺50 instead of
+// ₺500). Without this check it could be bought again and again, and no one
+// would ever pay the regular price.
+export class IntroPackUsed extends Error {}
+export const INTRO_PACK: PackName = DEFAULT_PLAN;
+
 export async function startCheckout(
   db: Db, api: IyzicoApi,
   input: { userId: string; email: string; pack: PackName; ip: string; appUrl: string },
 ) {
   const pack = PACKS[input.pack];
+  if (pack.name === INTRO_PACK) {
+    const [earlier] = await db.select({ id: payments.id }).from(payments)
+      .where(and(eq(payments.userId, input.userId), eq(payments.status, 'paid'))).limit(1);
+    if (earlier) throw new IntroPackUsed('intro_pack_used');
+  }
   const amountKurus = pack.price * 100;
   const [payment] = await db.insert(payments).values({
     userId: input.userId, pack: pack.name, pages: pack.pages, amountKurus,

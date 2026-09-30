@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { testDb, makeUser } from '../helpers/db';
 import { payments, users } from '@/db/schema';
-import { finishCheckout, startCheckout, type IyzicoApi } from '@/lib/payments/iyzico';
+import { IntroPackUsed, finishCheckout, startCheckout, type IyzicoApi } from '@/lib/payments/iyzico';
 
 function fakeApi(paid: boolean): IyzicoApi & { basketId?: string } {
   const api: any = {
@@ -37,5 +37,24 @@ describe('iyzico checkout', () => {
   it('ignores an unknown token', async () => {
     const db = await testDb();
     expect(await finishCheckout(db, fakeApi(true), 'nope')).toBe('unknown');
+  });
+
+  it('sells the intro pack only on the first order', async () => {
+    const db = await testDb();
+    const u = await makeUser(db);
+    let n = 0;
+    const api: IyzicoApi = {
+      initialize: async () => ({ status: 'success', token: `tok-${++n}`, paymentPageUrl: 'https://sandbox/pay' }),
+      retrieve: async (req: any) => ({ status: 'success', paymentStatus: 'SUCCESS', basketId: req.conversationId, paidPrice: '50.00' }),
+    };
+    await startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Başlangıç', ip: '1.2.3.4', appUrl: 'https://x' });
+    // an abandoned attempt does not use the offer up
+    await startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Başlangıç', ip: '1.2.3.4', appUrl: 'https://x' });
+    expect(await finishCheckout(db, api, 'tok-2')).toBe('paid');
+    await expect(startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Başlangıç', ip: '1.2.3.4', appUrl: 'https://x' }))
+      .rejects.toBeInstanceOf(IntroPackUsed);
+    // the regular packs stay available
+    await expect(startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Öğretmen', ip: '1.2.3.4', appUrl: 'https://x' }))
+      .resolves.toMatchObject({ paymentPageUrl: 'https://sandbox/pay' });
   });
 });
