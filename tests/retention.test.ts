@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { testDb, makeUser } from './helpers/db';
 import { memoryStorage } from './helpers/storage';
 import { jobs, pages, payments, users } from '@/db/schema';
-import { deleteAccount, runRetention } from '@/lib/retention';
+import { deleteAccount, runRetention, sentBefore } from '@/lib/retention';
 
 const days = (n: number) => new Date(Date.now() - n * 86_400_000);
 
@@ -39,6 +39,46 @@ describe('retention', () => {
     expect(await runRetention(db, st)).toEqual({ photos: 1, jobs: 0 });
     expect(st.files.has('jobs/b/1.jpg')).toBe(true);
     expect(st.files.has('jobs/c/1.jpg')).toBe(false);
+  });
+
+  // A sent job's clock starts at submission: a draft prepared a week ahead
+  // must not lose its photos while the worker is still reading it.
+  it('keeps the photos of a job still being read, counting from submission', async () => {
+    const db = await testDb();
+    const st = memoryStorage();
+    const u = await makeUser(db);
+    const [fresh] = await db.insert(jobs).values({ userId: u.id, status: 'queued', createdAt: days(8), submittedAt: days(0) }).returning();
+    const [stuck] = await db.insert(jobs).values({ userId: u.id, status: 'processing', createdAt: days(16), submittedAt: days(15) }).returning();
+    await st.write('jobs/q/1.jpg', Buffer.from('x'));
+    await st.write('jobs/s/1.jpg', Buffer.from('x'));
+    await db.insert(pages).values([
+      { jobId: fresh.id, kind: 'student', seq: 1, status: 'queued', filePath: 'jobs/q/1.jpg' },
+      { jobId: stuck.id, kind: 'student', seq: 1, status: 'queued', filePath: 'jobs/s/1.jpg' },
+    ]);
+    expect(await runRetention(db, st)).toEqual({ photos: 1, jobs: 0 });
+    expect(st.files.has('jobs/q/1.jpg')).toBe(true);
+    expect(st.files.has('jobs/s/1.jpg')).toBe(false);
+  });
+
+  it('empties a draft nobody sent within a week', async () => {
+    const db = await testDb();
+    const st = memoryStorage();
+    const u = await makeUser(db);
+    const [draft] = await db.insert(jobs).values({ userId: u.id, status: 'draft', createdAt: days(8) }).returning();
+    await st.write('jobs/d/1.jpg', Buffer.from('x'));
+    await db.insert(pages).values({ jobId: draft.id, kind: 'student', seq: 1, filePath: 'jobs/d/1.jpg' });
+    expect(await runRetention(db, st)).toEqual({ photos: 1, jobs: 0 });
+    expect(await db.select().from(pages).where(eq(pages.jobId, draft.id))).toHaveLength(0);
+    expect(st.files.size).toBe(0);
+  });
+
+  // Found end to end, not by these tests: PGlite accepts a Date parameter in
+  // raw SQL, the production postgres driver throws on it (the worker's hourly
+  // retention failed). The cutoff must reach the driver as text.
+  it('hands the driver the cutoff as text, never as a Date', async () => {
+    const db = await testDb();
+    const { params } = db.select({ id: jobs.id }).from(jobs).where(sentBefore(new Date('2026-09-30T12:00:00Z'), 7)).toSQL();
+    expect(params).toEqual(['2026-09-23T12:00:00.000Z']);
   });
 
   it('deletes the account but keeps payment records', async () => {
