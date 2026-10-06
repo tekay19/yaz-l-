@@ -1,7 +1,7 @@
 import type { jobs, pages } from '@/db/schema';
 import { looksLikeName, matchRoster } from '@/lib/grading/names';
 import { scoreBuckets } from '@/lib/grading/stats';
-import { mergeSheets, type Sheet } from '@/lib/klasik/sheets';
+import { mergeSheets, type Sheet, strayWriting } from '@/lib/klasik/sheets';
 import { FLAG_TEXT, attentionFlags, questionMax, scoreSheet } from '@/lib/klasik/score';
 import type { Rubric } from '@/lib/types';
 import { failReason, flagDuplicateNames } from './common';
@@ -34,7 +34,8 @@ export function buildKlasikInput(job: Job, all: PageRow[]): ReportInput {
     return {
       pageId: s.pageId, seq: s.seqs[0], student: who.student ?? `Kâğıt ${s.seqs[0]}`,
       correct: 0, wrong: 0, blank: 0, score: sc.percent,
-      flags: [...who.flags, ...sc.questions.flatMap((q) => attentionFlags(q).map((f) => `${q.q}. soru: ${FLAG_TEXT[f]}`))],
+      flags: [...who.flags, ...strayWriting(s.read, rubric.questions.map((q) => q.q)),
+        ...sc.questions.flatMap((q) => attentionFlags(q).map((f) => `${q.q}. soru: ${FLAG_TEXT[f]}`))],
       points: sc.questions.map((q) => ({ q: q.q, points: q.points, max: q.max })),
       total: sc.total, max: sc.max,
     };

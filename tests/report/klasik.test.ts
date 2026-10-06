@@ -55,7 +55,8 @@ describe('klasik report', () => {
     expect(r.rows.map((x) => [x.student, x.total, x.max, x.score])).toEqual([['Elif Yılmaz', 12.5, 15, 83], ['Mert Kaya', 5, 15, 33]]);
     expect(r.rows[0].points).toEqual([{ q: 1, points: 10, max: 10 }, { q: 2, points: 2.5, max: 5 }]);
     // a bare result where the work was asked for: 0 and the reason, spelled out
-    expect(r.rows[1].flags).toEqual(['1. soru: Sonuç doğru ama yazılı işlemlerden çıkmıyor']);
+    // a rule the code already applied explains the points; it is not a thing to check
+    expect(r.rows[1].flags).toEqual([]);
     expect(r.failed).toEqual([{ seq: 4, reason: 'Fotoğraf okunamadı' }]);
     expect(r.klasik?.questions).toEqual([{ q: 1, max: 10, average: 5, fullCount: 1 }, { q: 2, max: 5, average: 3.8, fullCount: 1 }]);
     expect(r.stats).toMatchObject({ count: 2, average: 58, max: 83, min: 33 });

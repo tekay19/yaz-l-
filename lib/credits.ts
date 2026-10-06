@@ -22,5 +22,7 @@ async function credit(db: Db, userId: string, pages: number, reason: Reason, ref
 export const grantPages = (db: Db, userId: string, pages: number, reason: 'purchase' | 'admin_grant', ref: string) =>
   credit(db, userId, pages, reason, ref);
 
-export const refundPages = (db: Db, userId: string, pages: number, jobId: string) =>
-  credit(db, userId, pages, 'job_refund', jobId);
+// `part` keys a later refund of the same job (e.g. 'closed'): the unique
+// (reason, ref) index would otherwise swallow it as a replay of the first.
+export const refundPages = (db: Db, userId: string, pages: number, jobId: string, part?: string) =>
+  credit(db, userId, pages, 'job_refund', part ? `${jobId}:${part}` : jobId);

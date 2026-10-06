@@ -3,7 +3,7 @@ import { getDb } from '@/db/client';
 import { users } from '@/db/schema';
 import { currentUserId, unauthorized } from '@/lib/auth/current';
 import { isPackName } from '@/lib/packs';
-import { IntroPackUsed, getIyzico, startCheckout } from '@/lib/payments/iyzico';
+import { IntroPackPending, IntroPackUsed, getIyzico, startCheckout } from '@/lib/payments/iyzico';
 import { clientIp } from '@/lib/store';
 import { readJson } from '@/lib/http';
 
@@ -23,6 +23,9 @@ export async function POST(req: Request) {
     });
     return Response.json(r);
   } catch (e) {
+    if (e instanceof IntroPackPending) {
+      return Response.json({ error: 'Başlangıç paketi için açık bir ödeme sayfanız var. Onu tamamlayın ya da yarım saat sonra yeniden deneyin.' }, { status: 409 });
+    }
     if (e instanceof IntroPackUsed) {
       return Response.json({ error: 'Başlangıç paketi yalnızca ilk siparişte alınabilir.' }, { status: 400 });
     }

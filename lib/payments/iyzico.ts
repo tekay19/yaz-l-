@@ -1,5 +1,5 @@
 import Iyzipay from 'iyzipay';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, gt, isNotNull, lt } from 'drizzle-orm';
 import type { Db } from '@/db/client';
 import { payments } from '@/db/schema';
 import { DEFAULT_PLAN, PACKS, type PackName } from '@/lib/packs';
@@ -30,6 +30,10 @@ const tl = (kurus: number) => (kurus / 100).toFixed(2);
 // ₺500). Without this check it could be bought again and again, and no one
 // would ever pay the regular price.
 export class IntroPackUsed extends Error {}
+// Two payment pages for the intro offer open at once (two tabs, a double
+// click) could both be paid; while one is open, a second is not started.
+export class IntroPackPending extends Error {}
+const OPEN_CHECKOUT_MS = 30 * 60 * 1000;
 export const INTRO_PACK: PackName = DEFAULT_PLAN;
 
 export async function startCheckout(
@@ -41,6 +45,11 @@ export async function startCheckout(
     const [earlier] = await db.select({ id: payments.id }).from(payments)
       .where(and(eq(payments.userId, input.userId), eq(payments.status, 'paid'))).limit(1);
     if (earlier) throw new IntroPackUsed('intro_pack_used');
+    const [open] = await db.select({ id: payments.id }).from(payments).where(and(
+      eq(payments.userId, input.userId), eq(payments.pack, INTRO_PACK), eq(payments.status, 'pending'),
+      isNotNull(payments.providerToken), gt(payments.createdAt, new Date(Date.now() - OPEN_CHECKOUT_MS)),
+    )).limit(1);
+    if (open) throw new IntroPackPending('intro_pack_pending');
   }
   const amountKurus = pack.price * 100;
   const [payment] = await db.insert(payments).values({
@@ -103,4 +112,23 @@ export async function finishCheckout(db: Db, api: IyzicoApi, token: string): Pro
     if (flipped.length && payment.userId) await grantPages(tx, payment.userId, payment.pages, 'purchase', payment.id);
   });
   return 'paid';
+}
+
+// A payer who closes the tab after paying never brings the callback back; the
+// worker asks iyzico about open payments, so paid pages are never lost.
+export async function reconcilePayments(db: Db, api: IyzicoApi, now = new Date()): Promise<number> {
+  const open = await db.select({ token: payments.providerToken }).from(payments).where(and(
+    eq(payments.status, 'pending'), isNotNull(payments.providerToken),
+    lt(payments.createdAt, new Date(now.getTime() - 10 * 60 * 1000)),
+    gt(payments.createdAt, new Date(now.getTime() - 48 * 3_600_000)),
+  )).limit(20);
+  let settled = 0;
+  for (const { token } of open) {
+    try {
+      if ((await finishCheckout(db, api, token!)) !== 'unknown') settled++;
+    } catch (e) {
+      console.error('[pay] reconcile failed', e instanceof Error ? e.message : e);
+    }
+  }
+  return settled;
 }

@@ -54,12 +54,12 @@ export async function checkPhoto(normalized: Buffer): Promise<void> {
   }
 }
 
-export async function normalizeImage(rawInput: Buffer): Promise<Buffer> {
+export async function normalizeImage(rawInput: Buffer, longEdge = LONG_EDGE): Promise<Buffer> {
   const input = await toJpegIfHeic(rawInput);
   try {
     return await sharp(input, { failOn: 'error' })
       .rotate() // honour EXIF orientation from phone cameras
-      .resize({ width: LONG_EDGE, height: LONG_EDGE, fit: 'inside', withoutEnlargement: true })
+      .resize({ width: longEdge, height: longEdge, fit: 'inside', withoutEnlargement: true })
       .jpeg({ quality: 85 })
       .toBuffer();
   } catch {

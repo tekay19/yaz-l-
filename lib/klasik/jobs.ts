@@ -7,7 +7,7 @@ import type { KlasikLine, PageOverride, Rubric } from '@/lib/types';
 import { normalizeName } from '@/lib/grading/names';
 import { failReason } from '@/lib/report/common';
 import { rubricOf, sheetStudent } from '@/lib/report/klasik';
-import { answerText, mergeSheets, type Sheet } from './sheets';
+import { answerText, mergeSheets, type Sheet, strayWriting } from './sheets';
 import { FLAG_TEXT, INFO_FLAGS, attentionFlags, scoreSheet, type QuestionScore, type ScoreFlag } from './score';
 import { RubricInput, amendRubric, fromInput, rubricProblems } from './rubric';
 
@@ -190,7 +190,8 @@ export async function klasikReviewView(db: Db, job: Job): Promise<KlasikReview> 
       };
     });
     return {
-      pageId: s.pageId, seqs: s.seqs, student: who.student ?? `Kâğıt ${s.seqs[0]}`, nameFlags: who.flags,
+      pageId: s.pageId, seqs: s.seqs, student: who.student ?? `Kâğıt ${s.seqs[0]}`,
+      nameFlags: [...who.flags, ...strayWriting(s.read, rubric.questions.map((q) => q.q))],
       total: sc.total, max: sc.max, percent: sc.percent, pending: sc.pending,
       attention: questions.filter((q) => q.notes.some((n) => n.attention)).length,
       imageUrls: s.pageIds.filter((id) => hasPhoto.has(id)).map((id) => `/api/jobs/${job.id}/pages/${id}`),

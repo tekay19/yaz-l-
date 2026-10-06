@@ -82,3 +82,16 @@ function applyTexts(answers: KlasikAnswer[], texts: { q: number; text: string }[
   }
   return out.sort((a, b) => a.q - b.q);
 }
+
+// Writing the rubric has no question for: written under no number (q = 0)
+// or under a number the exam does not have. It is never graded, so the
+// teacher is told, rather than the student silently losing it.
+export function strayWriting(read: KlasikRead, rubricQs: number[]): string[] {
+  return read.answers
+    .filter((a) => !rubricQs.includes(a.q) && answerText(a).trim())
+    .map((a) => {
+      const text = answerText(a).replace(/\s+/g, ' ').trim();
+      const where = a.q === 0 ? 'Soru numarası olmayan yazı' : `Sınavda olmayan ${a.q}. soru altında yazı`;
+      return `${where}: "${text.length > 80 ? `${text.slice(0, 80)}…` : text}" — doğru sorunun okumasına taşıyın`;
+    });
+}

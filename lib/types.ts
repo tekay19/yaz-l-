@@ -56,7 +56,7 @@ export type RubricQuestion = {
 export type Rubric = { questions: RubricQuestion[] };
 
 export const KLASIK_FLAGS = [
-  'alternative_path', 'invalid_path', 'compensating_errors', 'unsupported_result', 'unclear_reading',
+  'alternative_path', 'alternative_answer', 'invalid_path', 'compensating_errors', 'unsupported_result', 'unclear_reading',
   'wrong_info', 'keywords_only', 'wrong_justification', 'off_topic', 'instruction_in_answer',
 ] as const;
 export type KlasikFlag = (typeof KLASIK_FLAGS)[number];

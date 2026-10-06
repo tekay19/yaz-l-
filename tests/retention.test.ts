@@ -4,6 +4,9 @@ import { testDb, makeUser } from './helpers/db';
 import { memoryStorage } from './helpers/storage';
 import { jobs, pages, payments, users } from '@/db/schema';
 import { deleteAccount, runRetention, sentBefore } from '@/lib/retention';
+import { deliverPending } from '@/lib/jobs/deliver';
+import { refundPages } from '@/lib/credits';
+import { fakeMailer } from './helpers/mail';
 
 const days = (n: number) => new Date(Date.now() - n * 86_400_000);
 
@@ -16,7 +19,7 @@ describe('retention', () => {
     const [ancient] = await db.insert(jobs).values({ userId: u.id, status: 'done', createdAt: days(31) }).returning();
     await st.write('jobs/o/1.jpg', Buffer.from('x'));
     await db.insert(pages).values({ jobId: old.id, kind: 'student', seq: 1, filePath: 'jobs/o/1.jpg' });
-    expect(await runRetention(db, st)).toEqual({ photos: 1, jobs: 1 });
+    expect(await runRetention(db, st)).toEqual({ closed: 0, photos: 1, jobs: 1 });
     expect(st.files.size).toBe(0);
     expect(await db.select().from(jobs).where(eq(jobs.id, ancient.id))).toHaveLength(0);
   });
@@ -36,7 +39,7 @@ describe('retention', () => {
       { jobId: reviewRecent.id, kind: 'student', seq: 1, filePath: 'jobs/b/1.jpg' },
       { jobId: reviewStale.id, kind: 'student', seq: 1, filePath: 'jobs/c/1.jpg' },
     ]);
-    expect(await runRetention(db, st)).toEqual({ photos: 1, jobs: 0 });
+    expect(await runRetention(db, st)).toEqual({ closed: 0, photos: 1, jobs: 0 });
     expect(st.files.has('jobs/b/1.jpg')).toBe(true);
     expect(st.files.has('jobs/c/1.jpg')).toBe(false);
   });
@@ -55,7 +58,7 @@ describe('retention', () => {
       { jobId: fresh.id, kind: 'student', seq: 1, status: 'queued', filePath: 'jobs/q/1.jpg' },
       { jobId: stuck.id, kind: 'student', seq: 1, status: 'queued', filePath: 'jobs/s/1.jpg' },
     ]);
-    expect(await runRetention(db, st)).toEqual({ photos: 1, jobs: 0 });
+    expect(await runRetention(db, st)).toEqual({ closed: 0, photos: 1, jobs: 0 });
     expect(st.files.has('jobs/q/1.jpg')).toBe(true);
     expect(st.files.has('jobs/s/1.jpg')).toBe(false);
   });
@@ -67,7 +70,7 @@ describe('retention', () => {
     const [draft] = await db.insert(jobs).values({ userId: u.id, status: 'draft', createdAt: days(8) }).returning();
     await st.write('jobs/d/1.jpg', Buffer.from('x'));
     await db.insert(pages).values({ jobId: draft.id, kind: 'student', seq: 1, filePath: 'jobs/d/1.jpg' });
-    expect(await runRetention(db, st)).toEqual({ photos: 1, jobs: 0 });
+    expect(await runRetention(db, st)).toEqual({ closed: 0, photos: 1, jobs: 0 });
     expect(await db.select().from(pages).where(eq(pages.jobId, draft.id))).toHaveLength(0);
     expect(st.files.size).toBe(0);
   });
@@ -89,5 +92,24 @@ describe('retention', () => {
     await deleteAccount(db, st, u.id);
     expect(await db.select().from(users)).toHaveLength(0);
     expect((await db.select().from(payments))[0].userId).toBeNull();
+  });
+
+  it('closes a job left unfinished for 30 days, tells the teacher and gives back the rest before deleting it', async () => {
+    const db = await testDb();
+    const st = memoryStorage();
+    const u = await makeUser(db, 'ogretmen@okul.k12.tr', 0);
+    const [j] = await db.insert(jobs).values({
+      userId: u.id, title: '10-A', mode: 'klasik', status: 'review', reservedPages: 10, createdAt: days(40), submittedAt: days(31),
+    }).returning();
+    await refundPages(db, u.id, 2, j.id); // two unread pages came back when grading ended
+    const first = await runRetention(db, st);
+    expect(first).toMatchObject({ closed: 1, jobs: 0 }); // not deleted before the teacher is told
+    expect((await db.select().from(jobs).where(eq(jobs.id, j.id)))[0]).toMatchObject({ status: 'failed', failReason: 'review_expired' });
+    const mailer = fakeMailer();
+    expect(await deliverPending({ db, storage: st, mailer })).toBe(1);
+    expect(mailer.sent[0].subject).toContain('kapatıldı');
+    expect(mailer.sent[0].text).toContain('Kalan 8 sayfa');
+    expect((await db.select().from(users).where(eq(users.id, u.id)))[0].pageBalance).toBe(10);
+    expect((await runRetention(db, st)).jobs).toBe(1);
   });
 });

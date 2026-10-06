@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { testDb, makeUser } from '../helpers/db';
 import { payments, users } from '@/db/schema';
-import { IntroPackUsed, finishCheckout, startCheckout, type IyzicoApi } from '@/lib/payments/iyzico';
+import { IntroPackPending, IntroPackUsed, finishCheckout, reconcilePayments, startCheckout, type IyzicoApi } from '@/lib/payments/iyzico';
 
 function fakeApi(paid: boolean): IyzicoApi & { basketId?: string } {
   const api: any = {
@@ -48,7 +48,8 @@ describe('iyzico checkout', () => {
       retrieve: async (req: any) => ({ status: 'success', paymentStatus: 'SUCCESS', basketId: req.conversationId, paidPrice: '50.00' }),
     };
     await startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Başlangıç', ip: '1.2.3.4', appUrl: 'https://x' });
-    // an abandoned attempt does not use the offer up
+    // an attempt abandoned for over half an hour does not use the offer up
+    await db.update(payments).set({ createdAt: new Date(Date.now() - 31 * 60 * 1000) });
     await startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Başlangıç', ip: '1.2.3.4', appUrl: 'https://x' });
     expect(await finishCheckout(db, api, 'tok-2')).toBe('paid');
     await expect(startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Başlangıç', ip: '1.2.3.4', appUrl: 'https://x' }))
@@ -87,5 +88,31 @@ describe('iyzico checkout', () => {
     await expect(startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Öğretmen', ip: '1.2.3.4', appUrl: 'https://x' }))
       .rejects.toThrow('ECONNRESET');
     expect((await db.select().from(payments))[0].status).toBe('failed');
+  });
+
+  it('does not open a second intro payment page while one is open', async () => {
+    const db = await testDb();
+    const u = await makeUser(db);
+    let n = 0;
+    const api: IyzicoApi = {
+      initialize: async () => ({ status: 'success', token: `tok-${++n}`, paymentPageUrl: 'https://sandbox/pay' }),
+      retrieve: async () => ({}),
+    };
+    await startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Başlangıç', ip: '1.2.3.4', appUrl: 'https://x' });
+    await expect(startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Başlangıç', ip: '1.2.3.4', appUrl: 'https://x' }))
+      .rejects.toBeInstanceOf(IntroPackPending);
+    // a regular pack is not held back
+    await expect(startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Öğretmen', ip: '1.2.3.4', appUrl: 'https://x' }))
+      .resolves.toMatchObject({ paymentPageUrl: 'https://sandbox/pay' });
+  });
+
+  it('settles a paid order whose callback never came', async () => {
+    const db = await testDb();
+    const u = await makeUser(db);
+    const api = fakeApi(true);
+    await startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Başlangıç', ip: '1.2.3.4', appUrl: 'https://x' });
+    expect(await reconcilePayments(db, api, new Date())).toBe(0); // too fresh: the payer may still be on the page
+    expect(await reconcilePayments(db, api, new Date(Date.now() + 15 * 60 * 1000))).toBe(1);
+    expect((await db.select().from(users).where(eq(users.id, u.id)))[0].pageBalance).toBe(150);
   });
 });

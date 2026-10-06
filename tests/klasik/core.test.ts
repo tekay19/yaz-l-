@@ -195,3 +195,19 @@ describe('gradeInChunks', () => {
     expect(out.usage).toEqual({ inputTokens: 30, outputTokens: 3 });
   });
 });
+
+describe('strayWriting', () => {
+  it('tells the teacher about writing no rubric question will grade', async () => {
+    const { strayWriting } = await import('@/lib/klasik/sheets');
+    const read: KlasikRead = { isBackSide: false, studentName: 'Elif', nameConfidence: 'high', unreadable: false, answers: [
+      { q: 0, lines: lines('Fotosentez kloroplastta olur.'), unclear: false, hasFigure: false },
+      { q: 2, lines: lines('x = 4'), unclear: false, hasFigure: false },
+      { q: 7, lines: lines('Mitokondri'), unclear: false, hasFigure: false },
+      { q: 8, lines: [{ text: 'silinmiş', crossed: true }], unclear: false, hasFigure: false },
+    ] };
+    const notes = strayWriting(read, [1, 2, 3]);
+    expect(notes).toHaveLength(2);
+    expect(notes[0]).toContain('Soru numarası olmayan yazı: "Fotosentez kloroplastta olur."');
+    expect(notes[1]).toContain('Sınavda olmayan 7. soru');
+  });
+});

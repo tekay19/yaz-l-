@@ -15,7 +15,7 @@ describe('klasik metrics', () => {
       r({ id: 'under', tags: ['farkli-dogru'], suggested: 6 }), // a correct different path lost points, unflagged
       r({ id: 'under-info', tags: ['farkli-dogru'], suggested: 6, flags: ['alternative_path'] }), // an info flag does not make it visible
       r({ id: 'over', tags: ['yanlis-yol'], teacher: 0, suggested: 7 }),
-      r({ id: 'flagged', tags: ['yanlis-yol'], teacher: 0, suggested: 7, flags: ['invalid_path'] }),
+      r({ id: 'flagged', tags: ['yanlis-yol'], teacher: 0, suggested: 7, flags: ['low_confidence'] }),
       r({ id: 'close', suggested: 9.5 }), // within the tolerance
     ]);
     expect(s.silentUnder).toEqual(['under', 'under-info']);

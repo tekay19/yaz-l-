@@ -1,14 +1,15 @@
-import { and, eq, inArray, isNull, lt, or } from 'drizzle-orm';
+import { and, eq, inArray, isNull, lt, or, sql } from 'drizzle-orm';
 import type { Db } from '@/db/client';
 import { jobs, users } from '@/db/schema';
 import type { Storage } from '@/lib/storage';
 import type { Mailer } from '@/lib/mail';
 import { refundPages } from '@/lib/credits';
+import { ledger } from '@/db/schema';
 import { buildReportInput } from '@/lib/report/input';
 import { buildWorkbook } from '@/lib/report/excel';
 import { buildSummaryPdf } from '@/lib/report/pdf';
 import { RUBRIC_EXPIRE_DAYS } from '@/lib/klasik/worker';
-import { removePhotos } from '@/lib/retention';
+import { RESULT_TTL_DAYS, removePhotos } from '@/lib/retention';
 
 type Deps = { db: Db; storage: Storage; mailer: Mailer };
 const RETRY_MS = 5 * 60 * 1000;
@@ -17,6 +18,13 @@ const RETRY_MS = 5 * 60 * 1000;
 // are deleted days before the retention backstop.
 export const REVIEW_AUTO_DELIVER_DAYS = 3;
 const safeName = (s: string) => s.replace(/[^\p{L}\p{N} _-]/gu, '').trim().slice(0, 60) || 'sinav';
+
+// pages already given back for a job under its first refund key
+async function refundedFor(db: Db, jobId: string): Promise<number> {
+  const [row] = await db.select({ n: sql<number>`coalesce(sum(${ledger.delta}), 0)::int` }).from(ledger)
+    .where(and(eq(ledger.reason, 'job_refund'), eq(ledger.ref, jobId)));
+  return Number(row?.n ?? 0);
+}
 
 export async function deliverPending(deps: Deps, now = new Date()): Promise<number> {
   const { db, mailer, storage } = deps;
@@ -45,15 +53,23 @@ export async function deliverPending(deps: Deps, now = new Date()): Promise<numb
       // can never send the teacher the same mail again.
       if (job.status === 'failed') {
         const expired = job.failReason === 'rubric_expired';
-        await refundPages(db, job.userId, job.reservedPages, job.id);
+        const closed = job.failReason === 'review_expired';
+        // a closed job may have had its unread pages refunded already: give
+        // back the rest under its own ledger key
+        const refund = closed ? job.reservedPages - await refundedFor(db, job.id) : job.reservedPages;
+        if (closed) await refundPages(db, job.userId, refund, job.id, 'closed');
+        else await refundPages(db, job.userId, job.reservedPages, job.id);
         await mailer.send({
           to: user.email,
-          subject: `${job.title || 'Sınav'}: ${expired ? 'sınav iptal edildi' : 'cevap anahtarı okunamadı'}`,
-          text: expired
-            ? `Puanlama ölçütleri ${RUBRIC_EXPIRE_DAYS} gün içinde onaylanmadığı için sınav iptal edildi. `
-              + `Kullanılan ${job.reservedPages} sayfa hakkı hesabınıza iade edildi. Fotoğraflarınız silindi.`
-            : 'Cevap anahtarınızın fotoğrafı okunamadığı için kâğıtlar puanlanamadı. '
-              + `Kullanılan ${job.reservedPages} sayfa hakkı hesabınıza iade edildi. Anahtarı daha net çekip sınavı yeniden oluşturabilirsiniz.`,
+          subject: `${job.title || 'Sınav'}: ${closed ? 'sınav kapatıldı' : expired ? 'sınav iptal edildi' : 'cevap anahtarı okunamadı'}`,
+          text: closed
+            ? `Sınav ${RESULT_TTL_DAYS} gün içinde tamamlanıp onaylanmadığı için kapatıldı. `
+              + `${refund > 0 ? `Kalan ${refund} sayfa hakkı hesabınıza iade edildi. ` : ''}Fotoğraflarınız ve sınav kayıtları silinecek.`
+            : expired
+              ? `Puanlama ölçütleri ${RUBRIC_EXPIRE_DAYS} gün içinde onaylanmadığı için sınav iptal edildi. `
+                + `Kullanılan ${job.reservedPages} sayfa hakkı hesabınıza iade edildi. Fotoğraflarınız silindi.`
+              : 'Cevap anahtarınızın fotoğrafı okunamadığı için kâğıtlar puanlanamadı. '
+                + `Kullanılan ${job.reservedPages} sayfa hakkı hesabınıza iade edildi. Anahtarı daha net çekip sınavı yeniden oluşturabilirsiniz.`,
         });
       } else {
         const input = await buildReportInput(db, job.id);

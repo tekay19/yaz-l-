@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNotNull, lt, ne, or, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull, lt, ne, notInArray, or, sql } from 'drizzle-orm';
 import type { Db } from '@/db/client';
 import { events, jobs, loginTokens, pages, users } from '@/db/schema';
 import type { Storage } from '@/lib/storage';
@@ -38,7 +38,22 @@ async function removeDraftPages(db: Db, storage: Storage, jobIds: string[]) {
   return rows.filter((r) => r.filePath).length;
 }
 
+// A job that never finished (a klasik exam left in review, a stuck one) is
+// not deleted silently: it is closed as failed, and delivery mails the
+// teacher and refunds what is still reserved. It is deleted only after that.
+export async function closeStaleJobs(db: Db, now = new Date()): Promise<number> {
+  const closed = await db.update(jobs).set({ status: 'failed', failReason: 'review_expired', finishedAt: now })
+    .where(and(notInArray(jobs.status, ['draft', 'done', 'failed']), sentBefore(now, RESULT_TTL_DAYS)))
+    .returning({ id: jobs.id });
+  if (closed.length) {
+    await db.update(pages).set({ status: 'failed', error: 'job_cancelled', leaseUntil: null })
+      .where(and(inArray(pages.jobId, closed.map((j) => j.id)), inArray(pages.status, ['queued', 'reading'])));
+  }
+  return closed.length;
+}
+
 export async function runRetention(db: Db, storage: Storage, now = new Date()) {
+  const closed = await closeStaleJobs(db, now);
   const drafts = await db.select({ id: jobs.id }).from(jobs)
     .where(and(eq(jobs.status, 'draft'), lt(jobs.createdAt, ago(now, PHOTO_TTL_DAYS))));
   const draftPhotos = await removeDraftPages(db, storage, drafts.map((j) => j.id));
@@ -50,10 +65,14 @@ export async function runRetention(db: Db, storage: Storage, now = new Date()) {
     and(ne(jobs.status, 'draft'), sentBefore(now, REVIEW_PHOTO_TTL_DAYS)), // backstop, whatever it waits for
   ));
   const photos = draftPhotos + await removePhotos(db, storage, stale.map((j) => j.id));
-  const gone = await db.delete(jobs).where(lt(jobs.createdAt, ago(now, RESULT_TTL_DAYS))).returning({ id: jobs.id });
+  // only finished jobs go: done, or failed once the teacher has been told
+  const gone = await db.delete(jobs).where(and(
+    lt(jobs.createdAt, ago(now, RESULT_TTL_DAYS)),
+    or(inArray(jobs.status, ['draft', 'done']), and(eq(jobs.status, 'failed'), isNotNull(jobs.notifiedAt))),
+  )).returning({ id: jobs.id });
   await db.delete(loginTokens).where(lt(loginTokens.createdAt, ago(now, 1)));
   await db.delete(events).where(lt(events.ts, ago(now, EVENT_TTL_DAYS)));
-  return { photos, jobs: gone.length };
+  return { closed, photos, jobs: gone.length };
 }
 
 export async function deleteAccount(db: Db, storage: Storage, userId: string) {

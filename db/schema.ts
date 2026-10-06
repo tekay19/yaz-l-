@@ -58,7 +58,7 @@ export const jobs = pgTable('jobs', {
   rubricDraftAttempts: integer('rubric_draft_attempts').notNull().default(0),
   rubricNotifiedAt: ts('rubric_notified_at'),
   reviewRemindedAt: ts('review_reminded_at'),
-  failReason: text('fail_reason').$type<'key_failed' | 'rubric_expired'>(),
+  failReason: text('fail_reason').$type<'key_failed' | 'rubric_expired' | 'review_expired'>(),
 }, (t) => [index('jobs_user').on(t.userId), index('jobs_status').on(t.status)]);
 
 export const pages = pgTable('pages', {

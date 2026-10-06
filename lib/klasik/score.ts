@@ -19,6 +19,7 @@ export type ScoreFlag =
 
 export const FLAG_TEXT: Record<ScoreFlag, string> = {
   alternative_path: 'Anahtardan farklı bir yöntem',
+  alternative_answer: 'Anahtarda olmayan bir fikir kabul edildi, kontrol edin',
   invalid_path: 'Sonuç doğru ama geçersiz bir adımdan geçiyor',
   compensating_errors: 'İki hata birbirini götürmüş görünüyor',
   unsupported_result: 'Sonuç doğru ama yazılı işlemlerden çıkmıyor',
@@ -37,8 +38,17 @@ export const FLAG_TEXT: Record<ScoreFlag, string> = {
   pending: 'Puanlanıyor',
 };
 
-// Flags that only inform: they do not ask the teacher to act.
-export const INFO_FLAGS: ReadonlySet<ScoreFlag> = new Set<ScoreFlag>(['alternative_path', 'pending']);
+// Flags that explain the points without asking the teacher to act: each is
+// a rule the code has already applied (a result through an invalid step or
+// without work earns no result points, listing terms or addressing the grader
+// earns nothing). Measured on the Turkish and foreign sets (2026-10-06), these
+// were wrong in 0–14% of the answers they marked, against 40–50% for the flags
+// that stay: wrong information, low confidence, a correct idea the key does
+// not mention (alternative_answer), a wrong justification, and anything about
+// the reading. A different valid method (alternative_path) only informs.
+export const INFO_FLAGS: ReadonlySet<ScoreFlag> = new Set<ScoreFlag>([
+  'alternative_path', 'invalid_path', 'unsupported_result', 'compensating_errors', 'off_topic', 'keywords_only', 'instruction_in_answer', 'pending',
+]);
 
 export type ScoredCriterion = {
   id: string; text: string; points: number; role: 'result' | 'other';
