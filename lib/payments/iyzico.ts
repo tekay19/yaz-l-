@@ -48,6 +48,7 @@ export async function startCheckout(
   }).returning({ id: payments.id });
 
   const price = tl(amountKurus);
+  const fail = () => db.update(payments).set({ status: 'failed' }).where(eq(payments.id, payment.id));
   const res = await api.initialize({
     locale: 'tr',
     conversationId: payment.id,
@@ -65,9 +66,12 @@ export async function startCheckout(
     },
     billingAddress: { contactName: input.email, city: 'Istanbul', country: 'Turkey', address: 'Türkiye' },
     basketItems: [{ id: pack.name, name: `${pack.short} (${pack.pages} sayfa)`, category1: 'Dijital hizmet', itemType: 'VIRTUAL', price }],
+  }).catch(async (e: unknown) => {
+    await fail();
+    throw e;
   });
   if (res?.status !== 'success' || !res.token) {
-    await db.update(payments).set({ status: 'failed' }).where(eq(payments.id, payment.id));
+    await fail();
     throw new Error(`iyzico_init_failed:${res?.errorCode ?? 'unknown'}`);
   }
   await db.update(payments).set({ providerToken: res.token }).where(eq(payments.id, payment.id));
@@ -90,9 +94,13 @@ export async function finishCheckout(db: Db, api: IyzicoApi, token: string): Pro
       .where(and(eq(payments.id, payment.id), eq(payments.status, 'pending')));
     return 'failed';
   }
-  const flipped = await db.update(payments).set({ status: 'paid', paidAt: new Date() })
-    .where(and(eq(payments.id, payment.id), eq(payments.status, 'pending')))
-    .returning({ id: payments.id });
-  if (flipped.length && payment.userId) await grantPages(db, payment.userId, payment.pages, 'purchase', payment.id);
+  // one transaction: a payment is never left 'paid' without its pages, which
+  // a replayed callback could not fix because it stops at status 'paid'
+  await db.transaction(async (tx) => {
+    const flipped = await tx.update(payments).set({ status: 'paid', paidAt: new Date() })
+      .where(and(eq(payments.id, payment.id), eq(payments.status, 'pending')))
+      .returning({ id: payments.id });
+    if (flipped.length && payment.userId) await grantPages(tx, payment.userId, payment.pages, 'purchase', payment.id);
+  });
   return 'paid';
 }

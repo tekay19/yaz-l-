@@ -20,7 +20,7 @@ const ago = (now: Date, d: number) => new Date(now.getTime() - d * 86_400_000);
 export const sentBefore = (now: Date, days: number) =>
   sql`coalesce(${jobs.submittedAt}, ${jobs.createdAt}) < ${ago(now, days).toISOString()}::timestamptz`;
 
-async function removePhotos(db: Db, storage: Storage, jobIds: string[]) {
+export async function removePhotos(db: Db, storage: Storage, jobIds: string[]) {
   if (!jobIds.length) return 0;
   const withPhoto = and(inArray(pages.jobId, jobIds), isNotNull(pages.filePath));
   const rows = await db.select({ filePath: pages.filePath }).from(pages).where(withPhoto);

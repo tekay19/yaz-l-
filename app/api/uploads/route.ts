@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
+import { rateLimited } from '@/lib/store';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -7,10 +8,6 @@ export const dynamic = 'force-dynamic';
 const MAX_FILES_PER_REQUEST = 8;
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
 const MAX_REQUEST_BYTES = 13 * 1024 * 1024;
-const WINDOW_MS = 5 * 60 * 1000;
-const MAX_REQUESTS_PER_WINDOW = 80;
-
-const attempts = new Map<string, { count: number; resetAt: number }>();
 
 function response(body: object, status = 200) {
   return NextResponse.json(body, {
@@ -21,29 +18,6 @@ function response(body: object, status = 200) {
       'X-Content-Type-Options': 'nosniff',
     },
   });
-}
-
-function clientAddress(request: Request) {
-  return (
-    request.headers.get('cf-connecting-ip') ||
-    request.headers.get('x-real-ip') ||
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    'unknown'
-  );
-}
-
-function rateLimited(request: Request) {
-  const now = Date.now();
-  const key = clientAddress(request);
-  const current = attempts.get(key);
-
-  if (!current || current.resetAt <= now) {
-    attempts.set(key, { count: 1, resetAt: now + WINDOW_MS });
-    return false;
-  }
-
-  current.count += 1;
-  return current.count > MAX_REQUESTS_PER_WINDOW;
 }
 
 function isJpeg(bytes: Uint8Array) {
@@ -74,7 +48,9 @@ function isSupportedImage(bytes: Uint8Array) {
 }
 
 export async function POST(request: Request) {
-  if (rateLimited(request)) return response({ error: 'Çok fazla yükleme isteği gönderildi.' }, 429);
+  // the shared limiter keys on the address Caddy sets; cf-connecting-ip and
+  // x-real-ip come straight from the client here and could be faked
+  if (await rateLimited('uploads', request, 80, 300)) return response({ error: 'Çok fazla yükleme isteği gönderildi.' }, 429);
 
   const contentLength = Number(request.headers.get('content-length') || 0);
   if (contentLength > MAX_REQUEST_BYTES) return response({ error: 'Yükleme boyutu sınırı aşıldı.' }, 413);

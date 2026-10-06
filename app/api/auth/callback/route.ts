@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { getDb } from '@/db/client';
 import { consumeLogin } from '@/lib/auth/login';
 import { fromOwnOrigin } from '@/lib/auth/origin';
-import { SESSION_COOKIE, SESSION_TTL_DAYS, issueSession } from '@/lib/auth/session';
+import { SESSION_COOKIE, SESSION_TTL_DAYS, issueSession, sessionConfigured } from '@/lib/auth/session';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -25,7 +25,13 @@ export async function POST(req: Request) {
   const base = process.env.APP_URL!;
   // checked before the token is touched, so a cross-site post cannot spend it
   if (!fromOwnOrigin(req, base)) return Response.redirect(`${base}/giris?hata=baglanti`, 303);
-  const form = await req.formData();
+  // a misconfigured server must not spend the one-time token
+  if (!sessionConfigured()) {
+    console.error('[auth] SESSION_SECRET is missing or shorter than 32 characters');
+    return Response.redirect(`${base}/giris?hata=baglanti`, 303);
+  }
+  const form = await req.formData().catch(() => null);
+  if (!form) return Response.redirect(`${base}/giris?hata=baglanti`, 303);
   const token = String(form.get('token') || '');
   const userId = await consumeLogin(getDb(), token);
   if (!userId) return Response.redirect(`${base}/giris?hata=baglanti`, 303);

@@ -1,5 +1,5 @@
 import { acceptAnswer } from '@/lib/klasik/jobs';
-import { withKlasikJob } from '@/lib/klasik/http';
+import { readJson, withKlasikJob } from '@/lib/http';
 
 export const runtime = 'nodejs';
 
@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   return withKlasikJob(id, async (db, job) => {
-    const body = await req.json().catch(() => ({}));
+    const body = await readJson(req);
     if (typeof body.pageId !== 'string' || !Number.isInteger(body.q)) {
       return Response.json({ error: 'Kâğıt ve soru seçin.' }, { status: 400 });
     }

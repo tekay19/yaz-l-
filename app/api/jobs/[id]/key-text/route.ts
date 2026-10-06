@@ -1,5 +1,5 @@
 import { setKeyText } from '@/lib/klasik/jobs';
-import { withKlasikJob } from '@/lib/klasik/http';
+import { readJson, withKlasikJob } from '@/lib/http';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   return withKlasikJob(id, async (db, job) => {
-    const body = await req.json().catch(() => ({}));
+    const body = await readJson(req);
     if (typeof body.text !== 'string') return Response.json({ error: 'Anahtar metni gönderin.' }, { status: 400 });
     await setKeyText(db, job, body.text);
     return Response.json({ ok: true });

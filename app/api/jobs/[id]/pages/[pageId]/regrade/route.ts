@@ -1,5 +1,5 @@
 import { requestRegrade } from '@/lib/klasik/jobs';
-import { withKlasikJob } from '@/lib/klasik/http';
+import { withKlasikJob } from '@/lib/http';
 
 export const runtime = 'nodejs';
 

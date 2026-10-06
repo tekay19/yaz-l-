@@ -17,12 +17,10 @@ import {
   tooManyAttempts,
   verifyToken,
 } from '@/lib/store';
+import { json, readJson } from '@/lib/http';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-
-const json = (body: unknown, status = 200) =>
-  Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 
 export async function GET(req: Request) {
   const action = new URL(req.url).searchParams.get('action');
@@ -44,12 +42,7 @@ export async function POST(req: Request) {
   const ip = clientIp(req);
   if (tooManyAttempts(ip)) return json({ error: 'too_many_attempts' }, 429);
 
-  let body: any = {};
-  try {
-    body = await req.json();
-  } catch {
-    body = {};
-  }
+  const body = await readJson(req);
   const attempt = typeof body.password === 'string' ? body.password.slice(0, 200) : '';
 
   const ok = attempt.length > 0 && passwordMatches(attempt);

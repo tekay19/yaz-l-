@@ -57,4 +57,35 @@ describe('iyzico checkout', () => {
     await expect(startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Öğretmen', ip: '1.2.3.4', appUrl: 'https://x' }))
       .resolves.toMatchObject({ paymentPageUrl: 'https://sandbox/pay' });
   });
+
+  it('leaves the payment pending when crediting fails, so a replay settles it', async () => {
+    const db = await testDb();
+    const u = await makeUser(db);
+    const api = fakeApi(true);
+    await startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Başlangıç', ip: '1.2.3.4', appUrl: 'https://x' });
+    // the first transaction fails after its writes, as a dropped connection would
+    const real = db.transaction.bind(db);
+    let failNext = true;
+    (db as any).transaction = (fn: any) => real(async (tx: any) => {
+      const out = await fn(tx);
+      if (failNext) { failNext = false; throw new Error('connection lost'); }
+      return out;
+    });
+    await expect(finishCheckout(db, api, 'tok-1')).rejects.toThrow('connection lost');
+    expect((await db.select().from(payments))[0].status).toBe('pending');
+    expect(await finishCheckout(db, api, 'tok-1')).toBe('paid');
+    expect((await db.select().from(users).where(eq(users.id, u.id)))[0].pageBalance).toBe(150);
+  });
+
+  it('marks the payment failed when the payment page cannot be opened', async () => {
+    const db = await testDb();
+    const u = await makeUser(db);
+    const api: IyzicoApi = {
+      initialize: async () => { throw new Error('ECONNRESET'); },
+      retrieve: async () => ({}),
+    };
+    await expect(startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Öğretmen', ip: '1.2.3.4', appUrl: 'https://x' }))
+      .rejects.toThrow('ECONNRESET');
+    expect((await db.select().from(payments))[0].status).toBe('failed');
+  });
 });

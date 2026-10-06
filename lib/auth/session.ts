@@ -7,12 +7,17 @@ function secret(): string | null {
   const s = process.env.SESSION_SECRET || '';
   return s.length >= 32 ? s : null;
 }
+// Without a usable secret no session can be checked, so none is issued: a
+// cookie signed with a stand-in key would look like a login that never holds.
+export const sessionConfigured = () => secret() !== null;
+
 const sign = (value: string, key: string) =>
   crypto.createHmac('sha256', key).update(value).digest('base64url');
 
 // Format: <userId>.<expiryEpochSeconds>.<hmac>
 export function issueSession(userId: string, now = Date.now()): string {
-  const key = secret() ?? 'unset';
+  const key = secret();
+  if (!key) throw new Error('SESSION_SECRET is missing or shorter than 32 characters');
   const exp = String(Math.floor(now / 1000) + SESSION_TTL_DAYS * 86_400);
   return `${userId}.${exp}.${sign(`${userId}.${exp}`, key)}`;
 }

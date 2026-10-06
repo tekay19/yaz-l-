@@ -7,6 +7,7 @@
 // storage, no fingerprinting.
 
 import { pushEvents, rateLimited, type TrackEvent } from '@/lib/store';
+import { readJson } from '@/lib/http';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -30,12 +31,7 @@ export async function POST(req: Request) {
   // a real visitor sends a handful of batches a minute; drop floods silently
   if (await rateLimited('track', req, 60, 60)) return new Response(null, { status: 204 });
 
-  let body: any = {};
-  try {
-    body = await req.json();
-  } catch {
-    body = {};
-  }
+  const body = await readJson(req);
 
   const batch: unknown[] = Array.isArray(body.events) ? body.events.slice(0, 50) : [body];
   const ua = str(req.headers.get('user-agent'), 200);

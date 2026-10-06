@@ -1,5 +1,5 @@
 import { rubricView, saveRubric } from '@/lib/klasik/jobs';
-import { noStore, withKlasikJob } from '@/lib/klasik/http';
+import { noStore, withKlasikJob } from '@/lib/http';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

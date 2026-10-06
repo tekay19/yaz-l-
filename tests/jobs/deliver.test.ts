@@ -49,6 +49,19 @@ describe('deliverPending', () => {
     expect((await db.select().from(users).where(eq(users.id, u.id)))[0].pageBalance).toBe(2);
   });
 
+  it('never mails twice when cleanup fails after the mail went out', async () => {
+    const { db, storage, j } = await job('delivering');
+    const mailer = fakeMailer();
+    const flaky = { ...storage, remove: async () => { throw new Error('disk busy'); } };
+    expect(await deliverPending({ db, storage: flaky, mailer })).toBe(1);
+    const [row] = await db.select().from(jobs).where(eq(jobs.id, j.id));
+    expect(row.status).toBe('done');
+    expect(row.notifiedAt).not.toBeNull();
+    const later = new Date(Date.now() + 60 * 60 * 1000);
+    expect(await deliverPending({ db, storage, mailer }, later)).toBe(0);
+    expect(mailer.sent).toHaveLength(1);
+  });
+
   it('keeps the job for a retry when mail fails', async () => {
     const { db, storage, j } = await job('delivering');
     const broken = { send: async () => { throw new Error('smtp down'); } };

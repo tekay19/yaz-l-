@@ -2,6 +2,7 @@ import { getDb } from '@/db/client';
 import { currentUserId, unauthorized } from '@/lib/auth/current';
 import { createJob } from '@/lib/jobs/pages';
 import { listJobs } from '@/lib/jobs/status';
+import { noStore, readJson } from '@/lib/http';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,13 +10,13 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   const userId = await currentUserId();
   if (!userId) return unauthorized();
-  return Response.json(await listJobs(getDb(), userId), { headers: { 'Cache-Control': 'no-store' } });
+  return Response.json(await listJobs(getDb(), userId), noStore);
 }
 
 export async function POST(req: Request) {
   const userId = await currentUserId();
   if (!userId) return unauthorized();
-  const body = await req.json().catch(() => ({}));
+  const body = await readJson(req);
   const mode = body.mode === 'klasik' ? 'klasik' : 'optik';
   // Düzeltme.md D1: klasik okuma Task 15'te gelir ve ayrı bir ölçüm kapısından
   // geçer. Bayrak açılana kadar klasik sınav oluşturulamaz — yoksa worker açık

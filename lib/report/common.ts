@@ -3,9 +3,11 @@ import type { ReportRow } from './input';
 
 // Shared by the optik and klasik report builders.
 
-export const REASONS: Record<string, string> = {
+const REASONS: Record<string, string> = {
   unreadable: 'Fotoğraf okunamadı', refused: 'Fotoğraf işlenemedi', max_attempts: 'Okuma zaman aşımına uğradı',
 };
+// Why a page could not be read, for the teacher.
+export const failReason = (error: string | null) => REASONS[error ?? ''] ?? REASONS.unreadable;
 
 export const DUPLICATE_NAME = 'İsim başka bir kâğıtta da var';
 

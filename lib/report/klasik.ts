@@ -4,7 +4,7 @@ import { scoreBuckets } from '@/lib/grading/stats';
 import { mergeSheets, type Sheet } from '@/lib/klasik/sheets';
 import { FLAG_TEXT, attentionFlags, questionMax, scoreSheet } from '@/lib/klasik/score';
 import type { Rubric } from '@/lib/types';
-import { REASONS, flagDuplicateNames } from './common';
+import { failReason, flagDuplicateNames } from './common';
 import type { ReportInput, ReportRow } from './input';
 
 type Job = typeof jobs.$inferSelect;
@@ -56,7 +56,7 @@ export function buildKlasikInput(job: Job, all: PageRow[]): ReportInput {
     keyPageId: null,
     keyFlags: [],
     rows,
-    failed: failed.map((p) => ({ seq: p.seq, reason: REASONS[p.error ?? ''] ?? 'Fotoğraf okunamadı' })),
+    failed: failed.map((p) => ({ seq: p.seq, reason: failReason(p.error) })),
     stats: {
       count: n,
       average: n ? Math.round((percents.reduce((a, b) => a + b, 0) / n) * 10) / 10 : 0,

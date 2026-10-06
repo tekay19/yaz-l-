@@ -1,10 +1,11 @@
+import { HttpError } from '@/lib/http';
 import { and, asc, count, eq, lt } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Db } from '@/db/client';
 import { jobs, pages } from '@/db/schema';
 import type { KlasikLine, PageOverride, Rubric } from '@/lib/types';
 import { normalizeName } from '@/lib/grading/names';
-import { REASONS } from '@/lib/report/common';
+import { failReason } from '@/lib/report/common';
 import { rubricOf, sheetStudent } from '@/lib/report/klasik';
 import { answerText, mergeSheets, type Sheet } from './sheets';
 import { FLAG_TEXT, INFO_FLAGS, attentionFlags, scoreSheet, type QuestionScore, type ScoreFlag } from './score';
@@ -16,11 +17,7 @@ import { RubricInput, amendRubric, fromInput, rubricProblems } from './rubric';
 
 type Job = typeof jobs.$inferSelect;
 
-export class KlasikError extends Error {
-  constructor(public status: number, message: string) {
-    super(message);
-  }
-}
+export class KlasikError extends HttpError {}
 const fail = (status: number, message: string): never => {
   throw new KlasikError(status, message);
 };
@@ -209,7 +206,7 @@ export async function klasikReviewView(db: Db, job: Job): Promise<KlasikReview> 
   for (const group of byName.values()) if (group.length > 1) for (const s of group) s.nameFlags.unshift('İsim başka bir kâğıtta da var');
   return {
     mode: 'klasik', roster: job.roster, rubric, sheets: view,
-    failed: failed.map((p) => ({ seq: p.seq, reason: REASONS[p.error ?? ''] ?? 'Fotoğraf okunamadı' })),
+    failed: failed.map((p) => ({ seq: p.seq, reason: failReason(p.error) })),
     pending: await regradesPending(db, job),
   };
 }

@@ -5,6 +5,7 @@
 // show them, and are echoed to the server log as a fallback.
 
 import { pushEvents, rateLimited } from '@/lib/store';
+import { readJson } from '@/lib/http';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -17,12 +18,7 @@ export async function POST(req: Request) {
     return Response.json({ error: 'too_many_requests' }, { status: 429 });
   }
 
-  let body: any = {};
-  try {
-    body = await req.json();
-  } catch {
-    body = {};
-  }
+  const body = await readJson(req);
 
   const email = typeof body.email === 'string' ? body.email.trim().slice(0, 254) : '';
   const source = typeof body.source === 'string' ? body.source.slice(0, 64) : 'unknown';

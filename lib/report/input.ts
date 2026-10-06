@@ -5,10 +5,8 @@ import type { KeyRead, Option } from '@/lib/types';
 import { scoreSheet } from '@/lib/grading/score';
 import { classStats, type ClassStats } from '@/lib/grading/stats';
 import { looksLikeName, matchRoster } from '@/lib/grading/names';
-import { REASONS, flagDuplicateNames } from './common';
+import { failReason, flagDuplicateNames } from './common';
 import { buildKlasikInput } from './klasik';
-
-export { REASONS, DUPLICATE_NAME } from './common';
 
 export type ReportRow = {
   pageId: string; seq: number; student: string;
@@ -82,7 +80,7 @@ function buildOptikInput(job: typeof jobs.$inferSelect, all: PageRow[]): ReportI
 
   for (const p of merged) {
     if (p.status !== 'read' || p.result?.type !== 'student') {
-      failed.push({ seq: p.seq, reason: REASONS[p.error ?? ''] ?? 'Fotoğraf okunamadı' });
+      failed.push({ seq: p.seq, reason: failReason(p.error) });
       continue;
     }
     const read = p.result.read;

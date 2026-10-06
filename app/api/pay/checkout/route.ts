@@ -5,6 +5,7 @@ import { currentUserId, unauthorized } from '@/lib/auth/current';
 import { isPackName } from '@/lib/packs';
 import { IntroPackUsed, getIyzico, startCheckout } from '@/lib/payments/iyzico';
 import { clientIp } from '@/lib/store';
+import { readJson } from '@/lib/http';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -12,7 +13,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(req: Request) {
   const userId = await currentUserId();
   if (!userId) return unauthorized();
-  const body = await req.json().catch(() => ({}));
+  const body = await readJson(req);
   if (!isPackName(body.pack)) return Response.json({ error: 'Paket seçin.' }, { status: 400 });
   const db = getDb();
   const [u] = await db.select({ email: users.email }).from(users).where(eq(users.id, userId));

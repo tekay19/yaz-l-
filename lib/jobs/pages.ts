@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { and, eq, max } from 'drizzle-orm';
+import { and, count, eq, max } from 'drizzle-orm';
 import type { Db } from '@/db/client';
 import { jobs, pages } from '@/db/schema';
 import type { Storage } from '@/lib/storage';
@@ -28,13 +28,14 @@ export async function getOwnedJob(db: Db, jobId: string, userId: string) {
 }
 
 export class JobLockedError extends Error {}
+export class PageLimitError extends Error {}
 
 // The job row is locked for the whole insert, and submitJob locks the same
 // row: a photo can never slip in after submission uncharged and unqueued.
 export async function addPage(
   db: Db,
   storage: Storage,
-  input: { jobId: string; kind: 'key' | 'student'; image: Buffer },
+  input: { jobId: string; kind: 'key' | 'student'; image: Buffer; limit?: number },
 ) {
   const filePath = `jobs/${input.jobId}/${crypto.randomUUID()}.jpg`;
   await storage.write(filePath, input.image);
@@ -43,6 +44,13 @@ export async function addPage(
       const [job] = await tx.select({ status: jobs.status, mode: jobs.mode }).from(jobs)
         .where(eq(jobs.id, input.jobId)).for('update');
       if (job?.status !== 'draft') throw new JobLockedError('not_draft');
+
+      // counted under the lock, so parallel uploads cannot pass the limit together
+      if (input.limit !== undefined) {
+        const [{ n }] = await tx.select({ n: count() }).from(pages)
+          .where(and(eq(pages.jobId, input.jobId), eq(pages.kind, input.kind)));
+        if (n >= input.limit) throw new PageLimitError('page_limit');
+      }
 
       let oldFiles: string[] = [];
       // an optik key is one page, so a new photo replaces it; a klasik key may run over several

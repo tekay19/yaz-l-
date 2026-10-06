@@ -16,9 +16,11 @@ describe('session', () => {
     const t = issueSession(id, Date.now() - 31 * 86_400_000);
     expect(verifySession(t)).toBeNull();
   });
-  it('rejects everything when the secret is short', () => {
+  it('rejects everything when the secret is short, and issues nothing', () => {
+    const t = issueSession(id);
     process.env.SESSION_SECRET = 'short';
-    expect(verifySession(issueSession(id))).toBeNull();
+    expect(verifySession(t)).toBeNull();
+    expect(() => issueSession(id)).toThrow('SESSION_SECRET');
     process.env.SESSION_SECRET = 'x'.repeat(40);
   });
 });

@@ -1,6 +1,6 @@
-import { and, eq, inArray, isNotNull, isNull, lt, or } from 'drizzle-orm';
+import { and, eq, inArray, isNull, lt, or } from 'drizzle-orm';
 import type { Db } from '@/db/client';
-import { jobs, pages, users } from '@/db/schema';
+import { jobs, users } from '@/db/schema';
 import type { Storage } from '@/lib/storage';
 import type { Mailer } from '@/lib/mail';
 import { refundPages } from '@/lib/credits';
@@ -8,6 +8,7 @@ import { buildReportInput } from '@/lib/report/input';
 import { buildWorkbook } from '@/lib/report/excel';
 import { buildSummaryPdf } from '@/lib/report/pdf';
 import { RUBRIC_EXPIRE_DAYS } from '@/lib/klasik/worker';
+import { removePhotos } from '@/lib/retention';
 
 type Deps = { db: Db; storage: Storage; mailer: Mailer };
 const RETRY_MS = 5 * 60 * 1000;
@@ -17,15 +18,8 @@ const RETRY_MS = 5 * 60 * 1000;
 export const REVIEW_AUTO_DELIVER_DAYS = 3;
 const safeName = (s: string) => s.replace(/[^\p{L}\p{N} _-]/gu, '').trim().slice(0, 60) || 'sinav';
 
-async function deletePhotos({ db, storage }: Deps, jobId: string) {
-  const rows = await db.select({ id: pages.id, filePath: pages.filePath }).from(pages)
-    .where(and(eq(pages.jobId, jobId), isNotNull(pages.filePath)));
-  for (const r of rows) await storage.remove(r.filePath!);
-  await db.update(pages).set({ filePath: null }).where(eq(pages.jobId, jobId));
-}
-
 export async function deliverPending(deps: Deps, now = new Date()): Promise<number> {
-  const { db, mailer } = deps;
+  const { db, mailer, storage } = deps;
   const ready = (id?: string) => and(
     ...(id ? [eq(jobs.id, id)] : []),
     inArray(jobs.status, ['delivering', 'failed']),
@@ -46,8 +40,12 @@ export async function deliverPending(deps: Deps, now = new Date()): Promise<numb
     const [user] = await db.select({ email: users.email }).from(users).where(eq(users.id, job.userId));
     const name = safeName(job.title);
     try {
+      // Order matters on a retry: the refund is idempotent, so it goes first;
+      // once the mail is out the job is marked at once, so a later failure
+      // can never send the teacher the same mail again.
       if (job.status === 'failed') {
         const expired = job.failReason === 'rubric_expired';
+        await refundPages(db, job.userId, job.reservedPages, job.id);
         await mailer.send({
           to: user.email,
           subject: `${job.title || 'Sınav'}: ${expired ? 'sınav iptal edildi' : 'cevap anahtarı okunamadı'}`,
@@ -57,12 +55,12 @@ export async function deliverPending(deps: Deps, now = new Date()): Promise<numb
             : 'Cevap anahtarınızın fotoğrafı okunamadığı için kâğıtlar puanlanamadı. '
               + `Kullanılan ${job.reservedPages} sayfa hakkı hesabınıza iade edildi. Anahtarı daha net çekip sınavı yeniden oluşturabilirsiniz.`,
         });
-        await refundPages(db, job.userId, job.reservedPages, job.id);
       } else {
         const input = await buildReportInput(db, job.id);
         const [xlsx, pdf] = await Promise.all([buildWorkbook(input), buildSummaryPdf(input)]);
         const refund = input.failed.length;
         const klasik = input.mode === 'klasik';
+        await refundPages(db, job.userId, refund, job.id);
         await mailer.send({
           to: user.email,
           subject: `${job.title || 'Sınav'} sonuçları`,
@@ -80,9 +78,7 @@ export async function deliverPending(deps: Deps, now = new Date()): Promise<numb
             { filename: `${name}-ozet.pdf`, content: pdf },
           ],
         });
-        await refundPages(db, job.userId, refund, job.id);
       }
-      await deletePhotos(deps, job.id);
       await db.update(jobs).set({
         notifiedAt: new Date(),
         ...(job.status === 'delivering' ? { status: 'done' as const } : {}),
@@ -91,7 +87,11 @@ export async function deliverPending(deps: Deps, now = new Date()): Promise<numb
     } catch (e) {
       // deliveryAttemptAt stays set: the job is retried after RETRY_MS
       console.error('[deliver] failed', job.id, e instanceof Error ? e.message : e);
+      continue;
     }
+    // photos left behind here are swept by retention a few days later
+    await removePhotos(db, storage, [job.id])
+      .catch((e) => console.error('[deliver] photo cleanup failed', job.id, e instanceof Error ? e.message : e));
   }
   return handled;
 }
