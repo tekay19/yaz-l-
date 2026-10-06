@@ -138,7 +138,9 @@ async function replayReader(cases: Case[]): Promise<Reader> {
     gradeKlasik: async ({ questions: qs, answers }) => {
       const id = byUser.get(gradeUser(qs, answers, false));
       if (!id || !grades[id]) throw new Error(`no grade answer for ${id}`);
-      return { read: GradeOutputSchema.parse(grades[id]), usage: { inputTokens: 0, outputTokens: 0 } };
+      // answers cached before slipOnly existed read as false
+      const out = { questions: (grades[id] as any).questions.map((q: any) => ({ ...q, criteria: q.criteria.map((c: any) => ({ slipOnly: false, ...c })) })) };
+      return { read: GradeOutputSchema.parse(out), usage: { inputTokens: 0, outputTokens: 0 } };
     },
   };
 }

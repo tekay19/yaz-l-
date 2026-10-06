@@ -105,10 +105,20 @@ export function scoreQuestion(
   if (hasResult && correct && path === 'invalid') flags.add('invalid_path');
   if (hasResult && correct && bare && rq.policy.workRequired) flags.add('unsupported_result');
 
+  // resultCorrect is one answer for the whole question; with several result
+  // criteria (a kisa question in parts) it only contradicts a sheet where
+  // every one of them is met — one wrong part makes it false honestly
+  const resultIds = rq.criteria.filter((c) => c.role === 'result').map((c) => c.id);
+  const allResultsMet = resultIds.every((id) => g.criteria.find((x) => x.id === id)?.verdict === 'met');
+
   let points = 0;
   const criteria = rq.criteria.map((c): ScoredCriterion => {
     const v = g.criteria.find((x) => x.id === c.id);
-    const verdict: Verdict = v?.verdict ?? 'not_met';
+    // carry-forward, applied here rather than left to the model: a method
+    // criterion whose step is right but for an arithmetic slip is met; the
+    // result criterion still loses its points for the wrong result
+    const slipKept = rq.policy.carryForward && c.role !== 'result' && v?.slipOnly === true && Boolean(v.evidence.trim());
+    const verdict: Verdict = slipKept ? 'met' : v?.verdict ?? 'not_met';
     const evidence = v?.evidence ?? '';
     let counted = true;
     // a drawing cannot be quoted; figure questions always go to the teacher instead
@@ -120,7 +130,7 @@ export function scoreQuestion(
       if (rq.type === 'kisa') {
         // a short answer has no steps to check: its result criterion stands on
         // its verdict (partial = half), unless the model contradicts itself
-        if (verdict === 'met' && g.resultCorrect === false) {
+        if (verdict === 'met' && g.resultCorrect === false && allResultsMet) {
           counted = false;
           flags.add('low_confidence');
         }

@@ -55,7 +55,7 @@ export type RubricDraft = z.infer<typeof RubricDraftSchema>;
 export const GradeOutputSchema = z.object({
   questions: z.array(z.object({
     q: z.number().int(),
-    criteria: z.array(z.object({ id: z.string(), verdict: z.enum(['met', 'partial', 'not_met']), evidence: z.string() })),
+    criteria: z.array(z.object({ id: z.string(), verdict: z.enum(['met', 'partial', 'not_met']), evidence: z.string(), slipOnly: z.boolean() })),
     resultCorrect: z.boolean().nullable(),
     resultPath: z.enum(['valid', 'invalid', 'unsupported', 'none']).nullable(),
     firstError: z.string().nullable(),

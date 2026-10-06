@@ -118,6 +118,38 @@ describe('scoreQuestion — the agreed case table', () => {
     expect(attentionFlags(contradicts)).toContain('low_confidence');
   });
 
+  it('a kisa question in parts keeps the right part when another part is wrong', () => {
+    // MEB 8 Türkçe 2: "yapanlar" isim-fiil (yanlış), "yapmadan" zarf-fiil (doğru)
+    const parts: RubricQuestion = {
+      q: 1, rev: 1, type: 'kisa', prompt: 'Fiilimsilerin türünü yazınız.', answer: 'sıfat-fiil; zarf-fiil',
+      criteria: [
+        { id: 'c1', text: '“yapanlar” için sıfat-fiil yazar', points: 5, role: 'result', required: true },
+        { id: 'c2', text: '“yapmadan” için zarf-fiil yazar', points: 5, role: 'result', required: true },
+      ],
+      accepted: [], policy: { workRequired: false, carryForward: true, wrongInfoPenalty: false },
+    };
+    const s = scoreQuestion(parts, answer('yapanlar: isim-fiil', 'yapmadan: zarf-fiil'), grade({
+      criteria: [v('c1', 'not_met'), v('c2', 'met', 'yapmadan: zarf-fiil')], resultCorrect: false, resultPath: 'none',
+    }));
+    expect(s.points).toBe(5);
+    expect(attentionFlags(s)).toEqual([]);
+  });
+
+  it('keeps the method points of a step wrong only through an arithmetic slip, whatever verdict the model gave', () => {
+    // 3x - 5 = 16 → 3x = 21 → x = 3: the last division slips
+    const lastSlip = answer('3x - 5 = 16', '3x = 21', 'x = 3');
+    const g = grade({
+      criteria: [v('c1', 'met', '3x = 21'), { ...v('c2', 'not_met', 'x = 3'), slipOnly: true }, v('c3', 'not_met')],
+      resultCorrect: false, resultPath: 'valid', firstError: 'x = 3', errorKind: 'islem',
+    });
+    expect(scoreQuestion(islem(), lastSlip, g).points).toBe(6); // 3 + 3, the result lost
+    // without carry-forward the teacher's choice stands
+    expect(scoreQuestion(islem({ policy: { workRequired: true, carryForward: false, wrongInfoPenalty: false } }), lastSlip, g).points).toBe(3);
+    // never for the result criterion, and never without a quoted step
+    const noQuote = grade({ criteria: [v('c1', 'met', '3x = 21'), { ...v('c2', 'not_met', ''), slipOnly: true }, { ...v('c3', 'not_met', 'x = 3'), slipOnly: true }], resultCorrect: false, resultPath: 'valid' });
+    expect(scoreQuestion(islem(), lastSlip, noQuote).points).toBe(3);
+  });
+
   it('valid steps that do not lead to the result keep their points, the result does not', () => {
     const s = scoreQuestion(islem(), answer('2x + 3 = 11', '2x = 11 - 3', 'x = 4'), grade({
       criteria: [v('c1', 'met', '2x = 11 - 3'), v('c2', 'not_met'), v('c3', 'met', 'x = 4')],

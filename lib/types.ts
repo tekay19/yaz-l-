@@ -67,7 +67,8 @@ export type ResultPath = 'valid' | 'invalid' | 'unsupported' | 'none';
 export type QuestionGrade = {
   q: number;
   rev: number; // the rubric question revision this grade was made against
-  criteria: { id: string; verdict: Verdict; evidence: string }[];
+  // slipOnly: the criterion's step is right but for an arithmetic slip
+  criteria: { id: string; verdict: Verdict; evidence: string; slipOnly?: boolean }[];
   resultCorrect: boolean | null;
   resultPath: ResultPath | null;
   firstError: string | null;

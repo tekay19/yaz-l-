@@ -22,7 +22,7 @@ const allMet = (calls: number[][] = []) => fakeReader({
     calls.push(questions.map((q: RubricQuestion) => q.q));
     return { usage, read: { questions: questions.map((rq: RubricQuestion) => ({
       q: rq.q,
-      criteria: rq.criteria.map((c) => ({ id: c.id, verdict: 'met' as const, evidence: answers.find((a) => a.q === rq.q)!.lines.at(-1)!.text })),
+      criteria: rq.criteria.map((c) => ({ id: c.id, verdict: 'met' as const, evidence: answers.find((a) => a.q === rq.q)!.lines.at(-1)!.text, slipOnly: false })),
       resultCorrect: rq.type === 'yorum' ? null : true, resultPath: rq.type === 'yorum' ? null : 'valid' as const,
       firstError: null, errorKind: null, flags: [], confidence: 'high' as const, note: 'Doğru.',
     })) } };
@@ -47,7 +47,7 @@ describe('demo grading', () => {
   it('gives nothing for a quote that is not on the paper', async () => {
     const lying = fakeReader({
       gradeKlasik: async ({ questions }) => ({ usage, read: { questions: questions.map((rq: RubricQuestion) => ({
-        q: rq.q, criteria: rq.criteria.map((c) => ({ id: c.id, verdict: 'met' as const, evidence: 'x = 9' })),
+        q: rq.q, criteria: rq.criteria.map((c) => ({ id: c.id, verdict: 'met' as const, evidence: 'x = 9', slipOnly: false })),
         resultCorrect: true, resultPath: 'valid' as const, firstError: null, errorKind: null, flags: [], confidence: 'high' as const, note: '',
       })) } }),
     });

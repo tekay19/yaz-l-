@@ -12,7 +12,7 @@ export function toGrade(rq: RubricQuestion, out: GradedOut, textOnly: boolean): 
   return {
     q: rq.q,
     rev: rq.rev,
-    criteria: out.criteria.filter((c) => ids.has(c.id)).map((c) => ({ id: c.id, verdict: c.verdict, evidence: c.evidence.slice(0, 300) })),
+    criteria: out.criteria.filter((c) => ids.has(c.id)).map((c) => ({ id: c.id, verdict: c.verdict, evidence: c.evidence.slice(0, 300), slipOnly: c.slipOnly })),
     resultCorrect: yorum ? null : out.resultCorrect,
     resultPath: yorum ? null : out.resultPath,
     firstError: out.firstError ? out.firstError.slice(0, 300) : null,

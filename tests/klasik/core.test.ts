@@ -157,7 +157,7 @@ describe('toGrade', () => {
   };
   it('stamps the revision, drops unknown criteria and result fields for yorum', () => {
     const g = toGrade(rq, {
-      q: 4, criteria: [{ id: 'c1', verdict: 'met', evidence: 'x' }, { id: 'zz', verdict: 'met', evidence: 'y' }],
+      q: 4, criteria: [{ id: 'c1', verdict: 'met', evidence: 'x', slipOnly: false }, { id: 'zz', verdict: 'met', evidence: 'y', slipOnly: false }],
       resultCorrect: true, resultPath: 'valid', firstError: null, errorKind: null, flags: ['wrong_info', 'wrong_info'], confidence: 'high', note: 'ok',
     }, true);
     expect(g).toMatchObject({ q: 4, rev: 3, criteria: [{ id: 'c1' }], resultCorrect: null, resultPath: null, flags: ['wrong_info'], confidence: 'low', textOnly: true });

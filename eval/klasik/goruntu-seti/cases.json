@@ -748,9 +748,10 @@
       "id": "s08-q3",
       "q": 3,
       "tags": [
+        "yontem-hatasi",
         "kismi"
       ],
-      "teacher": 7.5,
+      "teacher": 5,
       "lines": [
         "6^2 + 8^2 = c^2",
         "36 + 64 = 100",
@@ -1032,9 +1033,10 @@
       "id": "s12-q3",
       "q": 3,
       "tags": [
+        "yontem-hatasi",
         "kismi"
       ],
-      "teacher": 7.5,
+      "teacher": 5,
       "lines": [
         "6^2 + 8^2 = c^2",
         "36 + 64 = 100",

@@ -79,11 +79,11 @@ Her hücre: cevap türü → öğretmen puanı. Türlerin açıklaması bir sonr
 | s05 | Ayşe Çelik | F → 0 | G → 0 | D → 0 | D → 0 | D → 0 | D → 0 | **0** |
 | s06 | Burak Şahin | G → 20 | C → 15 | A → 15 | B → 10 | B → 20 | A → 20 | **100** |
 | s07 | Selin Öztürk | H → 0 | E → 5 | F → 0 | E → 0 | E → 0 | B → 20 | **25** |
-| s08 | Can Aydın | I → 0 | A → 15 | G → 7.5 | G → 0 | F → 4 | C → 12 | **38.5** |
+| s08 | Can Aydın | I → 0 | A → 15 | G → 5 | G → 0 | F → 4 | C → 12 | **36** |
 | s09 | Deniz Koç | J → 0 | H → 0 | A → 15 | F → 0 | G → 0 | F → 0 | **15** |
 | s10 | Ece Kurt | K → 12 | B → 15 | B → 15 | A → 10 | C → 8 | E → 12 | **72** |
 | s11 | Ali Polat | A → 20 | F → 10 | E → 10 | D → 0 | B → 20 | D → 0 | **60** |
-| s12 | İrem Güneş | C → 20 | C → 15 | G → 7.5 | B → 10 | A → 20 | B → 20 | **92.5** |
+| s12 | İrem Güneş | C → 20 | C → 15 | G → 5 | B → 10 | A → 20 | B → 20 | **90** |
 | s13 | Oğuz Tekin | B → 20 | E → 5 | C → 0 | C → 10 | D → 0 | A → 20 | **55** |
 | s14 | Melis Acar | E → 12 | D → 0 | F → 0 | E → 0 | E → 0 | C → 12 | **24** |
 | s15 | Kaan Yurt | A → 20 | B → 15 | B → 15 | G → 0 | C → 8 | E → 12 | **70** |
@@ -115,7 +115,7 @@ Her hücre: cevap türü → öğretmen puanı. Türlerin açıklaması bir sonr
 | 3 | D | yanlis-yol | 0 / 15 | Kenarları toplamış. |
 | 3 | E | hata-tasima | 10 / 15 | Toplama hatası; karekök doğru (taşıma). |
 | 3 | F | yanlis-yol | 0 / 15 | Alan formülü kullanmış. |
-| 3 | G | kismi | 7.5 / 15 | Karekök almayı unutmuş: c1 tam, c2 yarım. |
+| 3 | G | yontem-hatasi, kismi | 5 / 15 | Bağıntı doğru (5); karekök almamak yöntem hatası: adım ve sonuç puanı yok. |
 | 4 | A | dogru | 10 / 10 | Doğru. |
 | 4 | B | farkli-dogru | 10 / 10 | Cümle içinde doğru. |
 | 4 | C | yazim-hatasi, tartismali | 10 / 10 | Yazım hatası; öğretmen kabul eder (tartışmalı, terim şart). |

@@ -20,7 +20,7 @@ const page = { isBackSide: false, studentName: 'Elif', nameConfidence: 'high', u
   answers: [{ q: 1, lines: [{ text: '2x = 8', crossed: false }], unclear: false, hasFigure: false }] };
 const draft = { questions: [{ q: 1, type: 'islem', prompt: null, answer: 'x = 4', workRequired: true, accepted: [],
   criteria: [{ text: 'Sonuç', points: 1, role: 'result', required: false }] }] };
-const grade = { questions: [{ q: 1, criteria: [{ id: 'c1', verdict: 'met', evidence: 'x = 4' }], resultCorrect: true, resultPath: 'valid',
+const grade = { questions: [{ q: 1, criteria: [{ id: 'c1', verdict: 'met', evidence: 'x = 4', slipOnly: false }], resultCorrect: true, resultPath: 'valid',
   firstError: null, errorKind: null, flags: [], confidence: 'high', note: 'Doğru.' }] };
 
 const rq: RubricQuestion = {

@@ -19,7 +19,7 @@ const DEFAULT_MODEL: Record<Provider, string> = {
 const asProvider = (p: string | undefined): Provider | null => (p === 'openai' || p === 'gemini' || p === 'anthropic' ? p : null);
 
 type Role = { provider: Provider; model: string };
-export function roles(env: NodeJS.ProcessEnv = process.env) {
+export function roles(env: Record<string, string | undefined> = process.env) {
   const graderProvider = asProvider(env.GRADER_PROVIDER) ?? 'anthropic';
   const grader: Role = { provider: graderProvider, model: env.GRADER_MODEL || DEFAULT_MODEL[graderProvider] };
   const readerProvider = asProvider(env.READER_PROVIDER);

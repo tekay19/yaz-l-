@@ -52,7 +52,7 @@ function gradeAll(questions: RubricQuestion[], answers: KlasikAnswer[]): GradeOu
     const first = answers.find((a) => a.q === rq.q)?.lines.find((l) => !l.crossed)?.text ?? '';
     const last = answers.find((a) => a.q === rq.q)?.lines.at(-1)?.text ?? '';
     return {
-      q: rq.q, criteria: rq.criteria.map((c) => ({ id: c.id, verdict: 'met' as const, evidence: c.role === 'result' ? last : first })),
+      q: rq.q, criteria: rq.criteria.map((c) => ({ id: c.id, verdict: 'met' as const, evidence: c.role === 'result' ? last : first, slipOnly: false })),
       resultCorrect: rq.type === 'yorum' ? null : true, resultPath: rq.type === 'yorum' ? null : 'valid' as const,
       firstError: null, errorKind: null, flags: [], confidence: 'high' as const, note: 'Doğru.',
     };
