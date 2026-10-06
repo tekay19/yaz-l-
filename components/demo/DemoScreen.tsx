@@ -8,6 +8,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Rubric, KlasikRead } from '@/lib/types';
 import type { DemoQuestion, DemoSheet } from '@/lib/demo/grade';
+import { ADMIN_SESSION_LOST, adminSignedIn, request } from '@/lib/client/request';
+import { AdminHeader, AdminSignedOut } from '@/components/admin/AdminShell';
 
 type Item = {
   key: string; file: File; url: string;
@@ -16,22 +18,11 @@ type Item = {
 };
 type Group = { keys: string[]; status: 'wait' | 'grading' | 'done' | 'error'; sheets?: DemoSheet[]; error?: string };
 
-const opts = { credentials: 'same-origin', cache: 'no-store' } as const;
 const VERDICT = { met: 'karşılıyor', partial: 'kısmen', not_met: 'karşılamıyor' } as const;
 const STATUS: Record<string, string> = { blank: 'boş', missing: 'cevap yok', failed: 'puanlanamadı', pending: 'bekliyor' };
 const fmt = (n: number) => n.toLocaleString('tr-TR', { maximumFractionDigits: 1 });
 
-async function call<T>(url: string, init: RequestInit): Promise<{ ok: true; data: T } | { ok: false; error: string }> {
-  try {
-    const res = await fetch(url, { ...opts, ...init });
-    const body = await res.json().catch(() => null);
-    if (res.ok) return { ok: true, data: body as T };
-    if (res.status === 401) return { ok: false, error: 'Yönetici oturumu kapanmış. /panel sayfasından yeniden giriş yapın.' };
-    return { ok: false, error: (typeof body?.error === 'string' && body.error) || `İstek başarısız (${res.status}).` };
-  } catch {
-    return { ok: false, error: 'Sunucuya ulaşılamadı.' };
-  }
-}
+const call = <T,>(url: string, init: RequestInit) => request<T>(url, init, { unauthorized: ADMIN_SESSION_LOST });
 
 // run fn over items, at most `n` at a time
 async function pool<T>(items: T[], n: number, fn: (x: T) => Promise<void>) {
@@ -66,7 +57,7 @@ export default function DemoScreen() {
   itemsRef.current = items;
 
   useEffect(() => {
-    fetch('/api/admin?action=session', opts).then((r) => r.json()).then((b) => setAuthed(Boolean(b?.authed))).catch(() => setAuthed(false));
+    adminSignedIn().then(setAuthed);
   }, []);
   useEffect(() => {
     if (!authed) return;
@@ -153,33 +144,17 @@ export default function DemoScreen() {
   if (authed === null) return <div className="panel-login" />;
   if (!authed) {
     return (
-      <div className="panel-login">
-        <div className="card panel-login-card">
-          <h1>Demo</h1>
-          <p className="small muted">Bu sayfa yönetici oturumu ister. Önce panelden giriş yapın, sonra buraya dönün.</p>
-          <a href="/panel" className="btn btn-primary btn-block" style={{ marginTop: 18 }}>Panele git</a>
-        </div>
-      </div>
+      <AdminSignedOut title="Demo" />
     );
   }
 
   return (
     <div className="panel-page">
-      <header className="panel-head">
-        <div className="panel-wrap">
-          <a href="/" className="logo">
-            <span className="logo-mark" aria-hidden="true">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-            </span>
-            SınavOku <span className="panel-badge">demo</span>
-          </a>
+      <AdminHeader badge="demo">
           <div className="panel-actions">
             <a href="/panel" className="btn btn-ghost btn-sm">Panel</a>
           </div>
-        </div>
-      </header>
+        </AdminHeader>
 
       <main className="panel-wrap panel-main">
         <p className="panel-note">

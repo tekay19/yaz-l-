@@ -2,12 +2,12 @@
 
 import { useRef, useState } from 'react';
 import type { Api, JobView } from './api';
+import { NoteBanner, RosterEditor, type Note } from './ui';
 
 type Upload = {
   key: string; name: string; kind: 'key' | 'student';
   state: 'up' | 'ok' | 'err'; pageId?: string; seq?: number; error?: string;
 };
-type Note = { ok: boolean; text: string } | null;
 
 type Props = { api: Api; job: JobView; onChanged: () => void; onSubmitted: () => void };
 
@@ -91,11 +91,7 @@ export default function DraftJob({ api, job, onChanged, onSubmitted }: Props) {
       <p className="tiny muted">
         Her satıra bir öğrenci. Kâğıttaki isimler bu listeyle eşleştirilir. Liste girmezseniz göndermeden önce bunu ayrıca onaylamanız istenir.
       </p>
-      <textarea className="console-text" value={roster} onChange={(e) => setRoster(e.target.value)} placeholder={'Elif Yılmaz\nMert Kaya'} />
-      <div className="console-row">
-        <button type="button" className="btn btn-ghost btn-sm" onClick={saveRoster}>Listeyi kaydet</button>
-        {rosterNote && <span className={`small ${rosterNote.ok ? 'muted' : 'console-err'}`}>{rosterNote.text}</span>}
-      </div>
+      <RosterEditor value={roster} onChange={setRoster} onSave={saveRoster} saveLabel="Listeyi kaydet" note={rosterNote} />
 
       <h3 className="console-sub">2. Fotoğraflar</h3>
       <div className="console-row">
@@ -160,7 +156,7 @@ export default function DraftJob({ api, job, onChanged, onSubmitted }: Props) {
       <div className="console-row">
         <button type="button" className="btn btn-primary btn-sm" disabled={!consent || busy || uploading || (askNoRoster && !noRoster)} onClick={submit}>Sınavı gönder</button>
       </div>
-      {submitNote && <p className={`console-banner ${submitNote.ok ? 'ok' : 'err'}`}>{submitNote.text}</p>}
+      <NoteBanner note={submitNote} />
     </div>
   );
 }

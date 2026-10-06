@@ -15,6 +15,8 @@ import { createEvalApi } from './api';
 import { browserStore, fileKey, loadLabels, saveLabels, type Label, type Labels } from './labels';
 import { failed, report, score, tally, type Run } from './run';
 import LabelSheet, { blankLabel } from './LabelSheet';
+import { AdminHeader, AdminSignedOut } from '@/components/admin/AdminShell';
+import { downloadBlob } from '@/lib/client/download';
 
 type Photo = { key: string; file: File; url: string };
 
@@ -163,44 +165,26 @@ export default function EvalScreen() {
   function download() {
     const at = new Date().toISOString();
     const data = report(all, { at, prices, gate });
-    const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `olcum-${data.effort ?? 'efor'}-${at.slice(0, 16).replace(/[:T]/g, '-')}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadBlob(
+      new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }),
+      `olcum-${data.effort ?? 'efor'}-${at.slice(0, 16).replace(/[:T]/g, '-')}.json`,
+    );
   }
 
   if (authed === null) return <div className="panel-login" />;
   if (!authed) {
     return (
-      <div className="panel-login">
-        <div className="card panel-login-card">
-          <h1>Ölçüm ekranı</h1>
-          <p className="small muted">Bu sayfa yönetici oturumu ister. Önce panelden giriş yapın, sonra buraya dönün.</p>
-          <a href="/panel" className="btn btn-primary btn-block" style={{ marginTop: 18 }}>Panele git</a>
-        </div>
-      </div>
+      <AdminSignedOut title="Ölçüm ekranı" />
     );
   }
 
   return (
     <div className="panel-page">
-      <header className="panel-head">
-        <div className="panel-wrap">
-          <a href="/" className="logo">
-            <span className="logo-mark" aria-hidden="true">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-            </span>
-            SınavOku <span className="panel-badge">ölçüm</span>
-          </a>
+      <AdminHeader badge="ölçüm">
           <div className="panel-actions">
             <a href="/panel" className="btn btn-ghost btn-sm">Panel</a>
           </div>
-        </div>
-      </header>
+        </AdminHeader>
 
       <main className="panel-wrap panel-main">
         <p className="panel-note">

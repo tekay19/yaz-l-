@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Criterion, QuestionType, Rubric, RubricQuestion, GradingStyle } from '@/lib/types';
 import type { Api, RubricView } from './api';
+import { NoteBanner } from './ui';
 
 const TYPES: { value: QuestionType; label: string }[] = [
   { value: 'islem', label: 'İşlem / çözüm' },
@@ -227,7 +228,7 @@ export default function RubricCard({ api, jobId, onChanged }: Props) {
         <button type="button" className="btn btn-ghost btn-sm" onClick={redraft} disabled={busy}>Taslağı yeniden oluştur</button>
       </div>
 
-      {note && <p className={`console-banner ${note.ok ? 'ok' : 'err'}`}>{note.text}</p>}
+      <NoteBanner note={note} />
       <div className="console-row">
         <button type="button" className="btn btn-ghost btn-sm" onClick={save} disabled={busy}>Kaydet</button>
         <button type="button" className="btn btn-primary btn-sm" onClick={approve} disabled={busy || !rubric.questions.length}>

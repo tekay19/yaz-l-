@@ -11,6 +11,7 @@ import { createApi, type Me } from './api';
 import LoginForm from './LoginForm';
 import AccountCard from './AccountCard';
 import JobFlow from './JobFlow';
+import { AdminHeader } from '@/components/admin/AdminShell';
 
 export default function Console({ loginError, payment }: { loginError: boolean; payment: 'ok' | 'hata' | null }) {
   const api = useMemo(() => createApi(), []);
@@ -25,19 +26,9 @@ export default function Console({ loginError, payment }: { loginError: boolean; 
 
   return (
     <div className="panel-page console">
-      <header className="panel-head">
-        <div className="panel-wrap">
-          <a href="/" className="logo">
-            <span className="logo-mark" aria-hidden="true">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-            </span>
-            SınavOku <span className="panel-badge">test paneli</span>
-          </a>
+      <AdminHeader badge="test paneli">
           {me && <span className="small muted">{me.email}</span>}
-        </div>
-      </header>
+        </AdminHeader>
 
       <main className="panel-wrap panel-main">
         <p className="panel-note">

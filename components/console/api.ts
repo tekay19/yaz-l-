@@ -7,8 +7,9 @@ import type { Rubric } from '@/lib/types';
 import type { KlasikReview } from '@/lib/klasik/jobs';
 
 export type { KlasikReview, ReviewQuestion, ReviewSheet } from '@/lib/klasik/jobs';
-export type Fail = { ok: false; status: number; error: string; body: any };
-export type Result<T> = { ok: true; data: T } | Fail;
+import { request, withJson, type Result } from '@/lib/client/request';
+
+export type { Fail, Result } from '@/lib/client/request';
 
 export type Me = { email: string; pageBalance: number; klasik: boolean };
 export type JobView = {
@@ -37,27 +38,8 @@ export type KlasikCorrection = {
   texts?: { q: number; text: string }[];
 };
 
-const withJson = (method: string, body: unknown): RequestInit => ({
-  method,
-  headers: { 'content-type': 'application/json' },
-  body: JSON.stringify(body),
-});
-
 export function createApi(fetchImpl: typeof fetch = (input, init) => fetch(input, init)) {
-  async function call<T>(url: string, init: RequestInit = {}): Promise<Result<T>> {
-    let res: Response;
-    try {
-      res = await fetchImpl(url, { credentials: 'same-origin', cache: 'no-store', ...init });
-    } catch {
-      return { ok: false, status: 0, error: 'Sunucuya ulaşılamadı.', body: null };
-    }
-    const body = res.status === 204 ? null : await res.json().catch(() => null);
-    if (res.ok) return { ok: true, data: body as T };
-    const error = (typeof body?.message === 'string' && body.message)
-      || (typeof body?.error === 'string' && body.error)
-      || `İstek başarısız (${res.status}).`;
-    return { ok: false, status: res.status, error, body };
-  }
+  const call = <T,>(url: string, init: RequestInit = {}): Promise<Result<T>> => request<T>(url, init, { fetch: fetchImpl });
   const post = (url: string) => call<{ ok: true }>(url, { method: 'POST' });
 
   return {

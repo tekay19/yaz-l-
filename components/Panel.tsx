@@ -8,6 +8,8 @@
 // captured from the site can never execute in here.
 
 import { useCallback, useEffect, useState } from 'react';
+import { AdminHeader, LogoMark } from '@/components/admin/AdminShell';
+import { downloadCsv } from '@/lib/client/download';
 
 type Row = { name: string; count: number };
 type Avg = { name: string; value: number };
@@ -142,24 +144,13 @@ export default function Panel() {
 
   function exportCsv() {
     if (!data) return;
-    const rows: (string | number)[][] = [['zaman', 'olay', 'sayfa', 'etiket', 'deger']];
-    data.recent.forEach((r) => rows.push([r.ts, r.event, r.page, r.label, r.value ?? '']));
-    rows.push([], ['e-posta', 'kaynak', 'zaman']);
-    data.leads.forEach((l) => rows.push([l.email, l.source, l.ts]));
-
-    // visitor-supplied text must not run as a formula when opened in Excel
-    const cell = (c: string | number | null | undefined) => {
-      let s = String(c ?? '');
-      if (typeof c === 'string' && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
-      return `"${s.replace(/"/g, '""')}"`;
-    };
-    const csv = rows.map((r) => r.map(cell).join(',')).join('\n');
-    const url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `sinavoku-${range}-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadCsv([
+      ['zaman', 'olay', 'sayfa', 'etiket', 'deger'],
+      ...data.recent.map((r) => [r.ts, r.event, r.page, r.label, r.value ?? '']),
+      [],
+      ['e-posta', 'kaynak', 'zaman'],
+      ...data.leads.map((l) => [l.email, l.source, l.ts]),
+    ], `sinavoku-${range}-${new Date().toISOString().slice(0, 10)}.csv`);
   }
 
   if (authed === null) return <div className="panel-login" />;
@@ -168,20 +159,7 @@ export default function Panel() {
     return (
       <div className="panel-login">
         <form className="card panel-login-card" onSubmit={onLogin} autoComplete="off">
-          <span className="logo-mark" aria-hidden="true">
-            <svg
-              width="17"
-              height="17"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
-          </span>
+          <LogoMark />
           <h1>Yönetim paneli</h1>
           <p className="small muted">Bu sayfa yalnızca yetkili kullanıcılar içindir.</p>
 
@@ -227,26 +205,7 @@ export default function Panel() {
 
   return (
     <div>
-      <header className="panel-head">
-        <div className="panel-wrap">
-          <a href="/" className="logo">
-            <span className="logo-mark" aria-hidden="true">
-              <svg
-                width="17"
-                height="17"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-            </span>
-            SınavOku <span className="panel-badge">panel</span>
-          </a>
-
+      <AdminHeader badge="panel">
           <div className="panel-actions">
             <div className="seg" role="group" aria-label="Zaman aralığı">
               {RANGES.map(([key, label]) => (
@@ -274,8 +233,7 @@ export default function Panel() {
               Çıkış
             </button>
           </div>
-        </div>
-      </header>
+        </AdminHeader>
 
       <main className="panel-wrap panel-main">
         {loadError && <p className="panel-note">{loadError}</p>}

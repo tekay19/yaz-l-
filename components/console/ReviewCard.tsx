@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { OPTIONS } from '@/lib/types';
 import type { Api, Correction, Review, ReviewRow } from './api';
 import { flaggedQuestions, keyQuestions, nameFlagged } from './flags';
+import { FailedSheets, NoteBanner, RosterEditor } from './ui';
 
 export default function ReviewCard({ api, jobId, onApproved }: { api: Api; jobId: string; onApproved: () => void }) {
   const [data, setData] = useState<Review | null>(null);
@@ -52,25 +53,15 @@ export default function ReviewCard({ api, jobId, onApproved }: { api: Api; jobId
       )}
 
       <h3 className="console-sub">Sınıf listesi</h3>
-      <textarea className="console-text" value={roster} onChange={(e) => setRoster(e.target.value)} placeholder={'Elif Yılmaz\nMert Kaya'} />
-      <div className="console-row">
-        <button type="button" className="btn btn-ghost btn-sm" onClick={saveRoster}>Listeyi kaydet ve yeniden eşleştir</button>
-      </div>
+      <RosterEditor value={roster} onChange={setRoster} onSave={saveRoster} saveLabel="Listeyi kaydet ve yeniden eşleştir" />
 
       {data.rows.map((row) => (
         <RowEditor key={row.pageId} api={api} jobId={jobId} row={row} onSaved={load} />
       ))}
 
-      {data.failed.length > 0 && (
-        <>
-          <h3 className="console-sub">Okunamayan kâğıtlar</h3>
-          <ul className="small console-list">
-            {data.failed.map((f) => <li key={f.seq}>Kâğıt {f.seq}: {f.reason} (hakkı iade edilir)</li>)}
-          </ul>
-        </>
-      )}
+      <FailedSheets failed={data.failed} refunded={false} />
 
-      {error && <p className="console-banner err">{error}</p>}
+      <NoteBanner note={error ? { ok: false, text: error } : null} />
       <div className="console-row">
         <button type="button" className="btn btn-primary btn-sm" disabled={busy} onClick={approve}>Onayla, raporu gönder</button>
       </div>

@@ -7,6 +7,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { Api, KlasikReview, ReviewQuestion, ReviewSheet } from './api';
+import { FailedSheets, NoteBanner, RosterEditor } from './ui';
 
 const VERDICT: Record<string, string> = { met: 'Karşılandı', partial: 'Kısmen', not_met: 'Karşılanmadı' };
 const STATUS: Record<string, string> = {
@@ -68,23 +69,13 @@ export default function KlasikReviewCard({ api, jobId, onApproved }: Props) {
       {data.pending > 0 && <p className="console-banner ok">{data.pending} kâğıt yeniden puanlanıyor…</p>}
 
       <h3 className="console-sub">Sınıf listesi</h3>
-      <textarea className="console-text" value={roster} onChange={(e) => setRoster(e.target.value)} placeholder={'Elif Yılmaz\nMert Kaya'} />
-      <div className="console-row">
-        <button type="button" className="btn btn-ghost btn-sm" onClick={saveRoster}>Listeyi kaydet ve yeniden eşleştir</button>
-      </div>
+      <RosterEditor value={roster} onChange={setRoster} onSave={saveRoster} saveLabel="Listeyi kaydet ve yeniden eşleştir" />
 
       {sheets.map((s) => <SheetCard key={s.pageId} api={api} jobId={jobId} sheet={s} onChanged={load} />)}
 
-      {data.failed.length > 0 && (
-        <>
-          <h3 className="console-sub">Okunamayan kâğıtlar</h3>
-          <ul className="small console-list">
-            {data.failed.map((f) => <li key={f.seq}>Kâğıt {f.seq}: {f.reason} (hakkı iade edildi)</li>)}
-          </ul>
-        </>
-      )}
+      <FailedSheets failed={data.failed} refunded />
 
-      {error && <p className="console-banner err">{error}</p>}
+      <NoteBanner note={error ? { ok: false, text: error } : null} />
       <div className="console-row">
         <button type="button" className="btn btn-primary btn-sm" disabled={busy || data.pending > 0} onClick={approve}>
           Onayla, raporu gönder
