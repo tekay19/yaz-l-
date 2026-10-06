@@ -53,7 +53,7 @@ For each criterion give a verdict — "met", "partial" (the idea is there but pa
 Brevity is not incompleteness: a short answer that states the criterion's core idea correctly is met. Examples and details a criterion gives in parentheses or after "ör." illustrate the idea; they are not each required.
 slipOnly: true when the criterion's step is done with the right method and is wrong only through an islem slip (a wrong sum, product, quotient or miscopied number) — then quote that step as evidence whatever the verdict; false otherwise, and always false for the result criterion.
 For islem and kisa questions also report:
-- resultCorrect: is the final answer correct? Equivalent forms count (1/2 = 0,5 = %50; equal but unsimplified values). null when there is no final answer.
+- resultCorrect: is the final answer correct? Equivalent forms count (1/2 = 0,5 = %50; equal but unsimplified values) — unless formRequired=true: then the result must be written in the form the question asks for (interval notation, simplified fraction, the unit asked, …); an equal value in another form is resultCorrect=false and the result criterion not_met, with a short note saying the form was wrong. null when there is no final answer.
 - resultPath: "valid" when the written steps are valid and lead to the final answer (a small single step done mentally, like 2x = 8 → x = 4, is fine); "invalid" when the final answer is reached through an invalid step (a wrong rule, an illegal cancellation, two errors that cancel out); "unsupported" when steps are written but the final answer does not follow from them; "none" when only the final answer is written.
 - Valid methods include substituting a value and showing the check comes out right (guess and check), working backwards, proportions, and using a named known fact correctly (a Pythagorean triple such as 6-8-10, a standard identity); each satisfies the setup and step criteria it replaces.
 - Check the student's own steps one by one, independently of the key's method. firstError: the first invalid line, quoted, or null. errorKind: "islem" for an arithmetic slip, "yontem" for a wrong rule or method, or null.
@@ -82,7 +82,7 @@ export function gradeUser(questions: RubricQuestion[], answers: KlasikAnswer[], 
       : `- ${p.text}`));
     return [
       `## Question ${rq.q} (type: ${TYPE_NAME[rq.type]}, ${max} points)`,
-      `Policy: workRequired=${rq.policy.workRequired}, carryForward=${rq.policy.carryForward}, wrongInfoPenalty=${rq.policy.wrongInfoPenalty}, style=${rq.policy.style ?? 'balanced'}`,
+      `Policy: workRequired=${rq.policy.workRequired}, carryForward=${rq.policy.carryForward}, wrongInfoPenalty=${rq.policy.wrongInfoPenalty}, style=${rq.policy.style ?? 'balanced'}, formRequired=${rq.policy.formRequired === true}`,
       ...(rq.prompt ? [`Question: ${rq.prompt}`] : []),
       `Teacher's key answer: ${rq.answer || '(not given)'}`,
       ...(accepted.length ? ['Other answers that earn full credit:', ...accepted] : []),

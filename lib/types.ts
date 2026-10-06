@@ -43,7 +43,9 @@ export type AcceptedPath = { text: string; example: string | null; by: 'ai' | 't
 // partial credit. Never credit for wrong, empty or off-topic answers.
 export const GRADING_STYLES = ['strict', 'balanced', 'lenient'] as const;
 export type GradingStyle = (typeof GRADING_STYLES)[number];
-export type QuestionPolicy = { workRequired: boolean; carryForward: boolean; wrongInfoPenalty: boolean; style?: GradingStyle };
+// formRequired: the result must be in the form the question asks for (aralık
+// gösterimi, sadeleşmiş kesir, birim); an equal value in another form is wrong
+export type QuestionPolicy = { workRequired: boolean; carryForward: boolean; wrongInfoPenalty: boolean; style?: GradingStyle; formRequired?: boolean };
 export type RubricQuestion = {
   q: number;
   rev: number; // bumped when the question changes after approval: its grades go stale

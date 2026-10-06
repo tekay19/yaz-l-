@@ -205,6 +205,11 @@ export default function RubricCard({ api, jobId, onChanged }: Props) {
                 onChange={(e) => setQ(q.q, (x) => ({ ...x, policy: { ...x.policy, carryForward: e.target.checked } }))} />
                 Hata taşıma: bir işlem hatasından sonraki tutarlı adımlar puan alır</label>
             )}
+            {q.type !== 'yorum' && (
+              <label className="console-check"><input type="checkbox" checked={q.policy.formRequired === true}
+                onChange={(e) => setQ(q.q, (x) => ({ ...x, policy: { ...x.policy, formRequired: e.target.checked } }))} />
+                Sonuç istenen biçimde yazılmalı (ör. aralık gösterimi, sadeleşmiş kesir, birim; eşit ama başka biçimdeki sonuç puan almaz)</label>
+            )}
             <label className="console-check"><input type="checkbox" checked={q.policy.wrongInfoPenalty}
               onChange={(e) => setQ(q.q, (x) => ({ ...x, policy: { ...x.policy, wrongInfoPenalty: e.target.checked } }))} />
               Cevaptaki yanlış ek bilgi puan düşürür</label>

@@ -29,7 +29,7 @@ const QuestionZ = z.object({
     example: z.string().max(4000).nullable(),
     by: z.enum(['ai', 'teacher']),
   })).max(MAX_ACCEPTED),
-  policy: z.object({ workRequired: z.boolean(), carryForward: z.boolean(), wrongInfoPenalty: z.boolean(), style: z.enum(GRADING_STYLES).optional() }),
+  policy: z.object({ workRequired: z.boolean(), carryForward: z.boolean(), wrongInfoPenalty: z.boolean(), style: z.enum(GRADING_STYLES).optional(), formRequired: z.boolean().optional() }),
 });
 export const RubricInput = z.object({
   questions: z.array(QuestionZ).max(MAX_QUESTIONS)
