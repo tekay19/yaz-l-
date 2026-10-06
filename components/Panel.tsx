@@ -263,6 +263,7 @@ export default function Panel() {
             <a href="/panel/olcum" className="btn btn-ghost btn-sm">
               Ölçüm
             </a>
+            <a href="/panel/demo" className="btn btn-ghost btn-sm">Demo</a>
             <button type="button" className="btn btn-ghost btn-sm" onClick={() => load(range)}>
               Yenile
             </button>
