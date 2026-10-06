@@ -1,0 +1,2960 @@
+{
+ "students": [
+  {
+   "id": "t01",
+   "name": "Ece Yılmaz",
+   "persona": "güçlü, anahtara yakın yazan",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Kendi yağıyla kavrulmak: Elindekiyle geçinip kimseye muhtaç olmamak.",
+      "Cümle: Dedemler köyde kendi yağlarıyla kavruluyor, kimseden bir şey istemiyorlar.",
+      "Kılı kırk yarmak: Bir işi çok titiz ve ayrıntılı incelemek.",
+      "Cümle: Öğretmenimiz yazılıları okurken kılı kırk yarar, en küçük hatayı bile görür."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: sıfat-fiil",
+      "yapmadan: zarf-fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Şehirlerde nüfus köylere göre daha fazladır. Bu cümle nesneldir çünkü istatistiklerle kanıtlanabilir.",
+      "Öznel: Köyde yaşamak şehirde yaşamaktan daha güzeldir. Bu cümle özneldir çünkü kişisel görüş içerir, herkes böyle düşünmeyebilir."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Abartma (mübalağa): \"Uyandı yüzyıllar süren uykusundan\" dizesinde uykunun yüzyıllar sürmesi abartılmıştır.",
+      "Karşıtlık (tezat): \"esaret\" ile \"hürriyet\" kelimeleri zıt anlamlıdır."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "1. Mahalleye yeni insanların taşınması (göç)",
+      "2. Ailelerin çocuk sahibi olması (doğum)"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Bir şeyi yapmak zor ve emek isteyen bir iştir, yıkmak ise çok kolaydır."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben pusulayım. Her zaman kuzeyi gösteririm ve böylece yönleri bulmanızı sağlarım.",
+      "Denizciler gemilerde, dağcılar dağlarda, askerler de arazide beni kullanır.",
+      "Ormanda ya da çölde kaybolan insanlar bana bakarak doğru yolu bulur.",
+      "İçimde mıknatıslı bir iğne vardır ve bu iğne Dünya'nın manyetik alanına göre döner.",
+      "Telefonlar çıkmadan önce yolcuların en büyük yardımcısı bendim."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "İki deyimin anlamı doğru verilmiş ve ikisi de anlamına uygun cümlede kullanılmış; dört ölçüt de karşılanıyor."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "dogru"
+     ],
+     "why": "İki fiilimsinin türü de doğru terimle yazılmış."
+    },
+    {
+     "q": 3,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Konuya uygun nesnel ve öznel cümle yazılmış, nesnellik kanıtlanabilirlikle, öznellik kişisel görüşle açıklanmış."
+    },
+    {
+     "q": 4,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Abartma ve karşıtlık sanatları doğru ifadelere dayandırılarak belirtilmiş."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Nüfusu değiştiren iki farklı geçerli durum (göç ve doğum) yazılmış."
+    },
+    {
+     "q": 6,
+     "points": 15,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Ana düşünce (yapmak zor ve emek ister, yıkmak kolaydır) açıkça yazılmış."
+    },
+    {
+     "q": 7,
+     "points": 25,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Pusulanın ağzından birinci kişiyle, işlevi, kullanım yerleri ve insanlara yardımı doğru anlatılmış; metin 5 cümleden oluşuyor."
+    }
+   ]
+  },
+  {
+   "id": "t02",
+   "name": "Mert Kaya",
+   "persona": "orta, kendi cümleleriyle yazan",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "kendi yağıyla kavrulmak = kimseden yardım almadan kendi parasıyla idare etmek",
+      "Teyzem az maaşla kendi yağıyla kavruluyor ama kimseye el açmıyor.",
+      "kılı kırk yarmak = her şeyin en ince detayına kadar bakmak, aşırı dikkatli olmak",
+      "Babam araba alırken kılı kırk yardı, arabanın her yerini tek tek kontrol etti."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar → ortaç",
+      "yapmadan → bağ-fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel cümle: Köy havası çok temiz ve güzeldir. Çünkü herkes bunu bilir.",
+      "Öznel cümle: Şehirlerde trafik insanı çok sıkar. Çünkü bu benim düşüncem."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Kişileştirme: \"Uyandı yüzyıllar süren uykusundan\" dizesinde millete insan gibi uyuma ve uyanma özelliği verilmiş.",
+      "Tezat: esaret – hürriyet"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "“Yeni insanlar mahallemize taşındı.”",
+      "“Bazı büyüklerimiz vefat etti.”"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Metinde bir binanın aylarca uğraşılarak yapıldığı ama iş makinelerinin onu birkaç saatte yıktığı anlatılıyor."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben ampulüm. Karanlıkta evleri, okulları ve sokakları aydınlatırım.",
+      "Benim sayemde insanlar gece de ders çalışabilir, kitap okuyabilir."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 12,
+     "tags": [
+      "parafraz"
+     ],
+     "why": "Anlamlar kendi sözleriyle doğru verilmiş, iki cümle de deyimleri doğru anlamda kullanıyor; dört ölçüt karşılanıyor."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "esanlam"
+     ],
+     "why": "Ortaç ve bağ-fiil, sıfat-fiil ve zarf-fiilin eş adları olduğu için iki ölçüt de tam puan alır."
+    },
+    {
+     "q": 3,
+     "points": 6,
+     "tags": [
+      "ters",
+      "kismi"
+     ],
+     "why": "Nesnel diye yazılan cümle yargı içerdiği için öznel, gerekçesi de kanıtlanabilirlik değil (c1, c2 yok); öznel cümle ve kişisel düşünce açıklaması doğru (c3, c4 var)."
+    },
+    {
+     "q": 4,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Abartma yerine şiirde gerçekten bulunan kişileştirme doğru dizeyle gösterilmiş (kurala göre anahtarda olmayan doğru cevap kabul), tezat esaret–hürriyet ile doğru."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Metinden alıntıyla iki farklı nüfus durumu (taşınma ve ölüm) verilmiş; alıntı da geçerli."
+    },
+    {
+     "q": 6,
+     "points": 7.5,
+     "tags": [
+      "ozet-ana-fikir-degil",
+      "kismi"
+     ],
+     "why": "Yapma–yıkma karşıtlığı yalnızca metnin özetiyle ima edilmiş, genel yargı olarak söylenmemiş; ima eden cevap en fazla kısmen alır."
+    },
+    {
+     "q": 7,
+     "points": 20,
+     "tags": [
+      "az-cumle"
+     ],
+     "why": "Birinci kişiyle işlevi, kullanım yerleri ve yardımı doğru anlatılmış, ancak metin 3 cümle olduğu için 5 cümle ölçütü karşılanmıyor."
+    }
+   ]
+  },
+  {
+   "id": "t03",
+   "name": "Zeynep Demir",
+   "persona": "zayıf, yazım hataları çok",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Annemle babam emekli maaşıyla kendi yağlarıyla kavruluyo kimseye muhtaç olmuyolar.",
+      "Ablam ödevlerinde kılı kırk yarıyo hep en küçük detaylara bakıyo."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: sifat fiil",
+      "yapmadan: zarffiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "nesnel: türkiyenin başkenti ankaradır. bu kanıtlanabilir.",
+      "öznel: matematik dersi çok sıkıcı. bu benim fikrim."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "abartma: kırıp esaret zincirlerini",
+      "tezat: kurtuldu korkulu rüyasından"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "mahalleye yeni insanların taşınması",
+      "yeni komşuların mahalleye gelmesi"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "insanlar birbirine yardım etmeli"
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Pusula yön bulmaya yarayan bir aletdir.",
+      "Pusula hep kuzeyi gösterir.",
+      "Denizciler gemilerde dağcılar dağlarda pusulayı kullanırlar.",
+      "Pusula sayesinde insanlar kaybolmaz yollarını bulurlar.",
+      "Pusula çok eskiden çinliler tarafından icat edilmiştir."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 6,
+     "tags": [
+      "kismi",
+      "yazim"
+     ],
+     "why": "Deyimlerin anlamı ayrıca yazılmamış (c1, c3 yok); iki cümle de deyimleri doğru anlamda kullanıyor (c2, c4 var), yazım hataları puan düşürmez."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "yazim"
+     ],
+     "why": "Küçük yazım hataları olsa da terimler doğru; kurala göre tam puan."
+    },
+    {
+     "q": 3,
+     "points": 6,
+     "tags": [
+      "konu-disi",
+      "kismi"
+     ],
+     "why": "Cümleler köy ve şehir yaşamıyla ilgili olmadığı için c1 ve c3 yok; nesnellik kanıtlanabilirlikle, öznellik kişisel fikirle doğru açıklandığı için c2 ve c4 var."
+    },
+    {
+     "q": 4,
+     "points": 6,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Abartma ve tezat sanatları doğru adlandırılmış ama gösterilen dizeler yanlış; c1 ve c3 var, c2 ve c4 yok."
+    },
+    {
+     "q": 5,
+     "points": 7,
+     "tags": [
+      "tekrar"
+     ],
+     "why": "İki madde de aynı durumu (mahalleye taşınma) anlatıyor; bir kez sayılır, ikinci farklı durum yok."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "yanlis"
+     ],
+     "why": "Yazılan öğüt metnin yapma–yıkma karşıtlığına dayanan ana düşüncesiyle ilgili değil."
+    },
+    {
+     "q": 7,
+     "points": 20,
+     "tags": [
+      "yazim"
+     ],
+     "why": "Metin üçüncü kişiyle yazıldığı için nesnenin ağzından tanıtma (c1) yok; işlev, kullanım yeri, yardım ve 5 cümle ölçütleri karşılanıyor."
+    }
+   ]
+  },
+  {
+   "id": "t04",
+   "name": "Can Öztürk",
+   "persona": "dikkatsiz, aceleci",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "kendi yağıyla kavrulmak: kimseye muhtaç olmadan kendi imkânlarıyla geçinmek",
+      "Annem kavurmayı kendi yağıyla kavurdu, tavaya hiç yağ eklemedi.",
+      "kılı kırk yarmak: çok titiz davranmak",
+      "Makasla bir kılı kırk parçaya yarmak çok zordur."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: zarf-fiil",
+      "yapmadan: sıfat-fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Köylerde insanlar genellikle tarım ve hayvancılıkla geçinir. Bu bilgi araştırmayla doğrulanabilir.",
+      "Öznel: Şehir hayatı insanı çok yorar. Bu kişisel bir yargıdır, herkes aynı şeyi düşünmeyebilir."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Mübalağa: yüzyıllar süren uyku",
+      "Tezat: esaret - hürriyet"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Çocuk doğması",
+      "Mahalleye yeni market açılması"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Yapmak zor, yıkmak kolay."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben pusulayım. Ben insanlara saatin kaç olduğunu gösteririm.",
+      "Denizciler ve askerler beni çok kullanır.",
+      "Ormanda kaybolanlar bana bakarak eve ne zaman dönmeleri gerektiğini bilir.",
+      "Beni cebinizde taşıyabilirsiniz.",
+      "Ben çok kullanışlı bir aletim."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 6,
+     "tags": [
+      "kismi"
+     ],
+     "why": "İki deyimin anlamı doğru (c1, c3), ancak iki cümlede de deyimler gerçek (düz) anlamıyla kullanılmış; c2 ve c4 yok."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "ters"
+     ],
+     "why": "Terimler yer değiştirmiş; iki fiilimsinin türü de yanlış."
+    },
+    {
+     "q": 3,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Konuya uygun nesnel ve öznel cümleler doğru gerekçelerle açıklanmış."
+    },
+    {
+     "q": 4,
+     "points": 12,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Kısa ama iki sanat da doğru ifadeleriyle verilmiş; kısalık eksiklik değildir."
+    },
+    {
+     "q": 5,
+     "points": 7,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Doğum geçerli bir nüfus durumu; yeni market açılması nüfusu değiştirmediği için ikinci ölçüt yok."
+    },
+    {
+     "q": 6,
+     "points": 15,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Çok kısa ama ana düşünceyi doğru söylüyor."
+    },
+    {
+     "q": 7,
+     "points": 15,
+     "tags": [
+      "yanlis-bilgi"
+     ],
+     "why": "Birinci kişi, kullanım yerleri (denizcilik, askerlik) ve 5 cümle var; pusulanın saati gösterdiği bilgisi işlev ölçütünü çürütüyor, yardım da bu yanlış işleve dayandığı için c2 ve c4 yok."
+    }
+   ]
+  },
+  {
+   "id": "t05",
+   "name": "Elif Şahin",
+   "persona": "uzun yazan, ek bilgi veren",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Bu iki deyim de mecaz anlamlıdır. Deyimler atasözleri gibi her zaman öğüt verir.",
+      "\"Kendi yağıyla kavrulmak\": Kimsenin yardımına ihtiyaç duymadan, elindeki az imkânla geçinmek demektir.",
+      "Örnek: Köydeki küçük bakkal kendi yağıyla kavruluyor, kimseden borç almıyor.",
+      "\"Kılı kırk yarmak\": Bir konuyu en ince ayrıntısına kadar, aşırı titizlikle incelemek demektir.",
+      "Örnek: Dedektif olay yerini incelerken kılı kırk yardı ve küçük bir ipucunu bile kaçırmadı."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: sıfat-fiil. -an ekini almıştır ve burada adlaşmış olarak kullanılmıştır.",
+      "yapmadan: zarf-fiil. -madan eki almıştır, cümleye durum anlamı katar."
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel cümle: Türkiye'de nüfusun büyük kısmı şehirlerde yaşamaktadır. Bu cümle nesneldir çünkü TÜİK verileriyle kanıtlanabilir, kişiden kişiye değişmez.",
+      "Öznel cümle: Köyde sabahları horoz sesiyle uyanmak dünyanın en güzel duygusudur. Bu cümle özneldir çünkü benim kişisel duygumu ve yargımı anlatıyor, kanıtlanamaz."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "1) Abartma (mübalağa): \"yüzyıllar süren uyku\" — hiçbir uyku yüzyıllarca sürmez.",
+      "2) Karşıtlık (tezat): \"esaret\" ve \"hürriyet\" zıt kavramlardır.",
+      "3) Ayrıca \"esaret zincirleri\" ifadesinde esaret zincire benzetilmiştir (teşbih)."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Birincisi, yeni insanların mahalleye taşınmasıdır, buna göç denir.",
+      "İkincisi, bazı yaşlıların vefat etmesidir, bu da ölümdür.",
+      "Nüfus bilimine demografi denir. Ekonomik krizler de nüfus biliminin konusudur."
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Metnin ana düşüncesi şudur: Bir eseri ortaya koymak çok fazla emek, zaman ve sabır ister; oysa onu yok etmek çok kısa sürer ve kolaydır.",
+      "Bu yüzden emeğe saygı duymalı, yapılanları korumalıyız."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Merhaba, ben bir teleskobum. Uzaktaki cisimleri büyüterek ve yakınlaştırarak gösteririm.",
+      "Beni en çok gözlemevlerinde gökbilimciler kullanır; bazen de amatörler evlerinin balkonunda beni kurar.",
+      "Benim sayemde insanlar gezegenleri, yıldızları ve galaksileri inceleyebilir.",
+      "Galileo beni gökyüzüne çeviren ilk kişilerden biriydi ve Jüpiter'in uydularını keşfetti.",
+      "Uzaydaki Hubble gibi kardeşlerim Dünya'nın dışından bile gözlem yapar.",
+      "Bilim insanlarının evreni anlamasına yardım ettiğim için kendimi çok değerli hissediyorum."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Anlamlar ve cümleler doğru; deyimlerin her zaman öğüt verdiği şeklindeki ek yanlış bilgi hiçbir ölçütü çürütmediği için puan düşürmez."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "dogru"
+     ],
+     "why": "İki terim de doğru; eklere dair doğru ek açıklamalar puanı etkilemez."
+    },
+    {
+     "q": 3,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Konuya uygun iki cümle, doğru açıklamalar ve doğru ek bilgilerle verilmiş."
+    },
+    {
+     "q": 4,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Abartma ve karşıtlık doğru ifadelere dayandırılmış; teşbih tespiti de doğru ek bilgi."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "dogru"
+     ],
+     "why": "İki farklı geçerli durum (göç, ölüm) yazılmış; ekonomik krizle ilgili ek yanlış bilgi ölçütleri çürütmez."
+    },
+    {
+     "q": 6,
+     "points": 15,
+     "tags": [
+      "parafraz"
+     ],
+     "why": "Yapmanın zor ve emek isteyen, yıkmanın kolay olduğu kendi sözleriyle söylenmiş; ek öğüt puanı etkilemez."
+    },
+    {
+     "q": 7,
+     "points": 25,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Teleskobun ağzından işlevi, kullanım yerleri ve insanlara yardımı doğru anlatılmış; 6 cümlelik bilgilendirici metin."
+    }
+   ]
+  },
+  {
+   "id": "t06",
+   "name": "Burak Aydın",
+   "persona": "çok kısa yazan",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "1) Kimseye muhtaç olmadan geçinmek. Komşumuz kendi yağıyla kavruluyor, kimseden yardım istemiyor.",
+      "2) Çok titiz olmak. Annem temizlikte kılı kırk yarar."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: isim-fiil",
+      "yapmadan: zarf-fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Köylerde tarım yapılır. (kanıtlanabilir)",
+      "Öznel: Şehir hayatı yorucudur. (kişisel görüş)"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Abartma, tezat, kişileştirme, benzetme"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Doğum, ölüm"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Sabırlı olmalıyız."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben pusulayım. Yön gösteririm."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 12,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Kısa ama iki anlam da doğru, iki cümle de deyimleri doğru anlamda kullanıyor."
+    },
+    {
+     "q": 2,
+     "points": 5,
+     "tags": [
+      "yanlis",
+      "kismi"
+     ],
+     "why": "\"yapanlar\" için farklı bir terim (isim-fiil) yazıldığından c1 yok; \"yapmadan\" için zarf-fiil doğru."
+    },
+    {
+     "q": 3,
+     "points": 12,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Kısa ama konuya uygun cümleler ve doğru gerekçeler verilmiş."
+    },
+    {
+     "q": 4,
+     "points": 0,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "Dizelere dayandırmadan birçok sanat sıralanmış; aday sıralamak ve yalnızca terim saymak ölçüt kazandırmaz."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Metindeki durumların kategorisi olarak iki farklı geçerli durum (doğum, ölüm) yazılmış."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "yanlis"
+     ],
+     "why": "Sabırla ilgili öğüt, yapmanın zor yıkmanın kolay olduğu ana düşünceyi söylemiyor."
+    },
+    {
+     "q": 7,
+     "points": 10,
+     "tags": [
+      "az-cumle"
+     ],
+     "why": "Birinci kişi ve işlev (yön göstermek) var; kullanım yeri ve insanlara yardım anlatılmamış, metin 2 cümle."
+    }
+   ]
+  },
+  {
+   "id": "t07",
+   "name": "Selin Arslan",
+   "persona": "kaygılı, üstünü çizen",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "kendi yağıyla kavrulmak: kendi işini kendi yapmak",
+      "Küçük bir dükkânımız var, kimseden destek almadan kendi yağımızla kavruluyoruz.",
+      {
+       "text": "kılı kırk yarmak: çok kızmak",
+       "crossed": true
+      },
+      "kılı kırk yarmak: bir işi en ince ayrıntısına kadar titizlikle yapmak",
+      "Mimar planı çizerken kılı kırk yardı, her ölçüyü üç kez kontrol etti."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: sıfat-fiil ya da zarf-fiil",
+      "yapmadan: zarf-fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Şehirlerde hastane sayısı köylerden fazladır.",
+      "Öznel: Köy insanı daha samimidir."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Abartma: \"Uyandı yüzyıllar süren uykusundan\" — uyku yüzyıllar sürmez.",
+      "Karşıtlık: \"esaret\" ve \"hürriyet\" sözcükleri birbirinin zıttıdır."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      {
+       "text": "okula yeni bina yapılması",
+       "crossed": true
+      },
+      "Ailelere yeni bebeklerin katılması",
+      "Bazı yaşlıların vefat etmesi"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Bir şey yapmak çok emek ve zaman ister."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben bir ampulüm. Elektrik verilince ışık saçarım.",
+      "Karanlığı aydınlatırım.",
+      "İnsanlar benim sayemde gece de kitap okuyabilir, yolunu görebilir.",
+      "Thomas Edison beni geliştirdi.",
+      "Ben insanlığın en önemli icatlarından biriyim.",
+      "Hocam süre yetmedi, yazım biraz karışık oldu kusura bakmayın."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 10.5,
+     "tags": [
+      "kismi",
+      "ustu-cizili"
+     ],
+     "why": "\"Kendi işini kendi yapmak\" anlamı muhtaç olmadan geçinme kısmını eksik bıraktığından c1 kısmen; çizili satır yok sayılır, diğer üç ölçüt karşılanıyor."
+    },
+    {
+     "q": 2,
+     "points": 5,
+     "tags": [
+      "coklu-cevap",
+      "kismi"
+     ],
+     "why": "\"yapanlar\" için iki aday terim yazıldığından c1 yok; \"yapmadan\" için zarf-fiil doğru."
+    },
+    {
+     "q": 3,
+     "points": 6,
+     "tags": [
+      "kismi"
+     ],
+     "why": "İki cümle de konuya uygun ve doğru türde; ancak neden nesnel/öznel oldukları açıklanmamış, c2 ve c4 yok."
+    },
+    {
+     "q": 4,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "İki sanat da doğru ifadeleriyle belirtilmiş."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "dogru",
+      "ustu-cizili"
+     ],
+     "why": "Çizili satır yok sayılır; doğum ve ölüm iki farklı geçerli durum."
+    },
+    {
+     "q": 6,
+     "points": 7.5,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Yapmanın emek istediği söylenmiş ama yıkmanın kolay olduğu karşıtlık eksik; ölçütün bir parçası eksik olduğu için kısmen."
+    },
+    {
+     "q": 7,
+     "points": 20,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Birinci kişi, işlev, yardım ve 5+ cümle var; ampulün nerelerde kullanıldığı hiç söylenmediği için c3 yok, öğretmene not puanı etkilemez."
+    }
+   ]
+  },
+  {
+   "id": "t08",
+   "name": "Emre Çelik",
+   "persona": "yaratıcı",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "\"Kendi yağıyla kavrulmak\" kimsenin kapısını çalmadan, ne varsa onunla yetinip geçinmek demek.",
+      "Cümlem: Yaşlı balıkçı küçük teknesiyle kendi yağıyla kavruluyor, hiç kimseye el açmıyor.",
+      "\"Kılı kırk yarmak\" bir saç telini kırk parçaya bölecek kadar titiz olmak, her ayrıntıyı incelemek demek.",
+      "Cümlem: Hakem VAR'da pozisyonu kılı kırk yararak izledi."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: sıfat-fiil",
+      "yapmadan: zarf-fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Köylerde hava kirliliği şehirlere göre daha düşük ölçülmektedir. Ölçüm cihazlarıyla doğrulanabildiği için nesneldir.",
+      "Öznel: Şehrin ışıkları, köyün yıldızlı gecesinin yanında sönük kalır. Benim duygularımı ve yorumumu anlattığı için özneldir."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Abartma: \"yüzyıllar süren uykusundan\" — bir uyku asla yüzyıllar sürmez.",
+      "Benzetme (teşbih): \"esaret zincirleri\" — esaret, insanı bağlayan zincire benzetilmiş."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Bir mahallenin nüfusu, oraya yeni ailelerin taşınmasıyla artar.",
+      "Bir evde yeni bir bebeğin doğmasıyla da nüfus değişir."
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Bir kale yüz yılda kurulur, bir günde yıkılır; emek vererek bir şey yapmak zordur, bozmak ise çok kolaydır."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Selam, ben gökyüzünün dürbünü teleskobum!",
+      "Uzaktaki yıldızları, gezegenleri ve Ay'ın kraterlerini büyütüp yakına getiririm.",
+      "Beni gözlemevlerinde, okulların bilim kulüplerinde ve gökyüzünü seven insanların bahçelerinde bulabilirsiniz.",
+      "Gökbilimciler benimle yeni gök cisimleri keşfeder.",
+      "Çocuklar ilk kez Satürn'ün halkalarını benimle görünce çok şaşırır.",
+      "İnsanların evreni merak etmesine ve öğrenmesine yardım ediyorum.",
+      "Bence dünyanın en heyecanlı işini yapıyorum."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 12,
+     "tags": [
+      "parafraz"
+     ],
+     "why": "Anlamlar yaratıcı ama doğru biçimde açıklanmış, cümleler deyimleri doğru anlamda kullanıyor."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "dogru"
+     ],
+     "why": "İki terim de doğru."
+    },
+    {
+     "q": 3,
+     "points": 12,
+     "tags": [
+      "parafraz"
+     ],
+     "why": "Konuya uygun nesnel ve öznel cümleler doğru gerekçelerle açıklanmış."
+    },
+    {
+     "q": 4,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Abartma doğru dizeyle verilmiş; karşıtlık yerine şiirde gerçekten bulunan teşbih doğru ifadeyle gösterilmiş, anahtarda olmayan doğru cevap olarak kabul."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "parafraz"
+     ],
+     "why": "Taşınma ve doğum iki farklı geçerli durum olarak kendi sözleriyle yazılmış."
+    },
+    {
+     "q": 6,
+     "points": 15,
+     "tags": [
+      "parafraz"
+     ],
+     "why": "Ana düşünce benzetmeyle ve açık bir yargıyla doğru ifade edilmiş."
+    },
+    {
+     "q": 7,
+     "points": 25,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Teleskobun ağzından işlevi, kullanım yerleri ve yardımı doğru anlatılan 7 cümlelik metin."
+    }
+   ]
+  },
+  {
+   "id": "t09",
+   "name": "Ayşe Koç",
+   "persona": "zayıf, soruyu kopyalayan",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "“Kendi yağıyla kavrulmak” ve “kılı kırk yarmak” deyimlerinin cümleye kattığı anlamı yazınız; her birini anlamına uygun bir cümlede kullanınız."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: sıfat-fiil",
+      "yapmadan: ?"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": []
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Abartma sanatı var.",
+      "Zıtlık sanatı var."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Mahallede düğün olması",
+      "Bebeklerin doğması"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Metinde bir apartmanın nasıl yapıldığı anlatılıyor. İşçiler önce temeli kazıyor sonra duvarları örüyor."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Teleskop uzaktaki yıldızları görmeye yarar.",
+      "Rasathanelerde gökbilimciler kullanır."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 0,
+     "tags": [
+      "yanlis"
+     ],
+     "why": "Soru metni aynen tekrar yazılmış; soruyu tekrar yazmak puan getirmez."
+    },
+    {
+     "q": 2,
+     "points": 5,
+     "tags": [
+      "kismi",
+      "bos"
+     ],
+     "why": "\"yapanlar\" için sıfat-fiil doğru; \"yapmadan\" boş bırakılmış."
+    },
+    {
+     "q": 3,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    },
+    {
+     "q": 4,
+     "points": 6,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Abartma ve zıtlık sanatları doğru belirtilmiş (c1, c3) ama hangi ifadelerde olduğu yazılmamış (c2, c4 yok)."
+    },
+    {
+     "q": 5,
+     "points": 7,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Doğum geçerli bir durum; düğün nüfusu değiştiren bir durum olarak sayılmaz, ikinci ölçüt yok."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "ozet-ana-fikir-degil"
+     ],
+     "why": "Yalnızca yapım sürecinin özeti; yıkmanın kolaylığıyla karşıtlık hiç yok, ana düşünce söylenmemiş."
+    },
+    {
+     "q": 7,
+     "points": 10,
+     "tags": [
+      "az-cumle"
+     ],
+     "why": "Üçüncü kişiyle yazılmış (c1 yok); işlev ve kullanım yeri doğru; insanlara nasıl yardım ettiği yok, metin 2 cümle."
+    }
+   ]
+  },
+  {
+   "id": "t10",
+   "name": "Kerem Yıldız",
+   "persona": "güçlü, öğretmene not düşen",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Kendi yağıyla kavrulmak: Kimseye muhtaç olmadan, kendi kazancıyla geçinmek.",
+      "Halam köyde tarlasıyla kendi yağıyla kavruluyor.",
+      "Kılı kırk yarmak: Çok titiz, ayrıntıcı davranmak.",
+      "Kuzenim hediye seçerken kılı kırk yarar."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: sıfat-fiil",
+      "yapmadan: zarf-fiil",
+      "Hocam bu soruya tam puan verin lütfen :)"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Köylerde yaşayan nüfus son yıllarda azalmıştır. Bu bilgi resmî istatistiklerle doğrulanabilir.",
+      "Öznel: Şehirde yaşamak köyde yaşamaktan çok daha zevklidir. Bu cümle kişisel zevk ve yargı bildirir."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Abartma: \"yüzyıllar süren uyku\"",
+      "Karşıtlık: \"esaret – hürriyet\"",
+      "Ayrıca kişileştirme de var: uyanmak, rüya görmek insana ait özellikler."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Başka şehirlere taşınma (göç)",
+      "Büyüklerin vefatı (ölüm)"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Yapmak zor ve uzun emek ister, yıkmak ise kolaydır."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben pusulayım. İğnem her zaman kuzeyi gösterir.",
+      "Gemilerde, uçaklarda ve dağcıların çantalarında kullanılırım.",
+      "Yolunu kaybeden insanlar bana bakarak hangi yöne gideceklerini bulur.",
+      "Haritayla birlikte kullanıldığımda daha da işe yararım.",
+      "Bu yüzden insanların en eski yol arkadaşlarından biriyim."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 12,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Kısa ama iki anlam da doğru, iki cümle de deyimleri doğru anlamda kullanıyor."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "dogru",
+      "enjeksiyon"
+     ],
+     "why": "İki terim de doğru; puan isteyen not ne puan kazandırır ne de kaybettirir."
+    },
+    {
+     "q": 3,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Konuya uygun cümleler ve doğru açıklamalar."
+    },
+    {
+     "q": 4,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Abartma ve karşıtlık doğru ifadelerle verilmiş; kişileştirme doğru ek bilgi."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Göç ve ölüm iki farklı geçerli durum."
+    },
+    {
+     "q": 6,
+     "points": 15,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Ana düşünce doğru yazılmış."
+    },
+    {
+     "q": 7,
+     "points": 25,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Pusulanın ağzından işlevi, kullanım yerleri ve yardımı doğru anlatılan 6 cümlelik metin."
+    }
+   ]
+  },
+  {
+   "id": "t11",
+   "name": "Defne Kurt",
+   "persona": "orta, eş anlamlı terim kullanan",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Kendi yağıyla kavrulmak: kimseden yardım almadan elindekiyle geçinmek.",
+      "Bu ay harçlığım azdı ama kendi yağımla kavruldum, kimseden borç almadım.",
+      "Kılı kırk yarmak: bir işi çok uzatmak.",
+      "Kardeşim ödevini yaparken kılı kırk yarıyor, her harfi tek tek kontrol ediyor."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: ortaç",
+      "yapmadan: ulaç"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Köylerde hayvancılık yapılır. Bunu gidip görebiliriz, ispatlanabilir.",
+      "Öznel: Bence şehirde yaşamak çok sıkıcı. Bu benim duygum, başkası farklı düşünebilir."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Abartma: \"Kurtuldu korkulu rüyasından\"",
+      "Tezat: esaret ile hürriyet zıt anlamlıdır."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "“Yeni insanlar mahallemize taşındı.”",
+      "“Dedem vefat etti.”"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Metinde binanın yapılması için çok işçinin aylarca çalıştığı, yıkılmasının ise bir günde bittiği anlatılmaktadır."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ampul evleri ve sokakları aydınlatır.",
+      "Elektrikle çalışır ve ışık verir.",
+      "Okullarda, hastanelerde, fabrikalarda kullanılır.",
+      "Ampul sayesinde insanlar gece de çalışabilir.",
+      "Ampulü Thomas Edison geliştirmiştir."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 10.5,
+     "tags": [
+      "kismi"
+     ],
+     "why": "\"Kılı kırk yarmak\" için \"çok uzatmak\" anlamı titizlik/ayrıntı vurgusunu eksik bıraktığından c3 kısmen; cümle ve diğer deyim doğru."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "esanlam"
+     ],
+     "why": "Ortaç ve ulaç, sıfat-fiil ve zarf-fiilin eş adları; tam puan."
+    },
+    {
+     "q": 3,
+     "points": 12,
+     "tags": [
+      "parafraz"
+     ],
+     "why": "Konuya uygun cümleler; nesnellik ispatlanabilirlikle, öznellik kişisel duyguyla kendi sözleriyle açıklanmış."
+    },
+    {
+     "q": 4,
+     "points": 9,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Abartma doğru adlandırılmış ama yanlış dizeye dayandırılmış (c2 yok); tezat ve ifadesi doğru."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Metinden alıntıyla iki farklı nüfus durumu (taşınma, ölüm) verilmiş."
+    },
+    {
+     "q": 6,
+     "points": 7.5,
+     "tags": [
+      "ozet-ana-fikir-degil",
+      "kismi"
+     ],
+     "why": "Karşıtlık yalnızca metnin olayı özetlenerek ima ediliyor, genel bir yargı olarak söylenmiyor; ima eden cevap en fazla kısmen."
+    },
+    {
+     "q": 7,
+     "points": 20,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Ampulün ağzından değil üçüncü kişiyle yazılmış (c1 yok); işlev, yer, yardım ve 5 cümle ölçütleri karşılanıyor."
+    }
+   ]
+  },
+  {
+   "id": "t12",
+   "name": "Hakan Polat",
+   "persona": "dikkatsiz, ters çeviren",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Kendi yağıyla kavrulmak: kendi imkânlarıyla, kimseye muhtaç olmadan yaşamak.",
+      "Tavuk kendi yağıyla kavruldu, çok lezzetli oldu.",
+      "Kılı kırk yarmak: çok titiz ve ayrıntıcı olmak.",
+      "Arkadaşım kitap seçerken kılı kırk yarıyor."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: zarf-fiil",
+      "yapmadan: sıfat-fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Köy hayatı şehir hayatından daha sağlıklıdır ve güzeldir, çünkü kanıtlanabilir.",
+      "Öznel: Ankara'da 5 milyondan fazla insan yaşar, çünkü bu benim düşüncem."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Abartma (mübalağa): yüzyıllar süren uyku",
+      "Tezat: esaret ↔ hürriyet"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Doğum",
+      "Bebeklerin dünyaya gelmesi"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Bir şeyi yapmak çok zor ve emek ister ama yıkmak çok kolaydır."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben pusulayım. Havanın yağmurlu mu güneşli mi olacağını gösteririm.",
+      "Denizciler ve çobanlar beni yanlarında taşır.",
+      "Gemilerde ve dağlarda kullanılırım.",
+      "İnsanlar bana bakarak şemsiye alıp almayacaklarını bilir.",
+      "Küçük ve hafif bir aletim."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 9,
+     "tags": [
+      "kismi"
+     ],
+     "why": "İlk deyim cümlede gerçek anlamıyla (yemek kavurma) kullanılmış, c2 yok; diğer üç ölçüt doğru."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "ters"
+     ],
+     "why": "Terimler ters yazılmış; ikisi de yanlış."
+    },
+    {
+     "q": 3,
+     "points": 0,
+     "tags": [
+      "ters"
+     ],
+     "why": "Öznel cümle nesnel, nesnel cümle öznel diye verilmiş; açıklamalar da yanlış cümlelere bağlandığı için hiçbir ölçüt karşılanmıyor."
+    },
+    {
+     "q": 4,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "İki sanat da doğru ifadeleriyle verilmiş."
+    },
+    {
+     "q": 5,
+     "points": 7,
+     "tags": [
+      "tekrar"
+     ],
+     "why": "İki madde de aynı durum (doğum); bir kez sayılır."
+    },
+    {
+     "q": 6,
+     "points": 15,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Ana düşünce doğru."
+    },
+    {
+     "q": 7,
+     "points": 15,
+     "tags": [
+      "yanlis-bilgi"
+     ],
+     "why": "Birinci kişi, kullanım yerleri ve 5 cümle var; pusulanın hava durumunu gösterdiği bilgisi işlevi çürütüyor, yardım da bu yanlış işleve dayandığı için c2 ve c4 yok."
+    }
+   ]
+  },
+  {
+   "id": "t13",
+   "name": "Nisa Özdemir",
+   "persona": "güçlü, ayrıntıcı",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Kendi yağıyla kavrulmak: Kimseye muhtaç olmadan, kendi imkânlarıyla geçinmek.",
+      "Cümle: Bu küçük kasaba yıllardır kendi yağıyla kavruluyor, dışarıdan hiç yardım almıyor.",
+      "Kılı kırk yarmak: Bir işi en ince ayrıntısına kadar, çok titiz bir şekilde yapmak.",
+      "Cümle: Editör kitabı basmadan önce kılı kırk yardı.",
+      "Not: Bu deyimleri ilk kez Yunus Emre kullanmıştır."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: sıfat fiil",
+      "yapmadan: zarf fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Şehirlerde toplu taşıma araçları köylere göre daha yaygındır. Bu durum ulaşım istatistikleriyle kanıtlanabilir, yoruma açık değildir.",
+      "Öznel: Köy hayatı, şehrin karmaşasından kaçan biri için gerçek bir cennettir. Bu cümlede yazarın kişisel yargısı vardır; başka biri katılmayabilir.",
+      "Ek bilgi: Nesnel anlatım bilimsel metinlerde, öznel anlatım denemelerde çok kullanılır."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Kişileştirme: \"Uyandı yüzyıllar süren uykusundan\" — millet uyuyup uyanan bir insan gibi anlatılmış.",
+      "Tezat: \"esaret\" ve \"hürriyet\" zıt anlamlı.",
+      "Bir de abartma var."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Metne göre nüfus bilimi araştırmalarına örnek olabilecek ilk durum, mahalleye yeni insanların taşınmasıdır.",
+      "İkinci durum ise ailelerin yeni çocuk sahibi olmasıdır; böylece mahallenin nüfusu artar."
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "İnsan, sahip olduklarının kıymetini bilmelidir."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben bir elektrik ampulüyüm. Elektrik akımı içimdeki telden geçince ısınır ve ışık veririm.",
+      "Evlerde, okullarda, hastanelerde, sokak lambalarında ve arabaların farlarında kullanılırım.",
+      "Ben icat edilmeden önce insanlar mum ve gaz lambasıyla aydınlanıyordu.",
+      "Benim sayemde insanlar akşamları da ders çalışabiliyor, doktorlar geceleri ameliyat yapabiliyor.",
+      "Günümüzde LED kardeşlerim daha az enerji harcıyor.",
+      "Kısacası karanlığı aydınlığa çeviren bir dostum."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Anlamlar ve cümleler doğru; Yunus Emre ile ilgili ek yanlış bilgi hiçbir ölçütü çürütmediği için puan düşürmez."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "yazim"
+     ],
+     "why": "Kısa çizgi eksik ama terimler doğru; küçük yazım hatası tam puan."
+    },
+    {
+     "q": 3,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Konuya uygun cümleler doğru gerekçelerle verilmiş; ek bilgi doğru."
+    },
+    {
+     "q": 4,
+     "points": 9,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Tezat doğru ifadesiyle verilmiş (c3, c4); abartma belirtilmiş (c1) ama ifadesi gösterilmemiş (c2 yok); kişileştirme doğru ek tespit olup abartmanın ifadesi yerine geçmez."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "dogru"
+     ],
+     "why": "İki farklı geçerli durum (taşınma, doğum) ayrıntılı yazılmış."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "yanlis"
+     ],
+     "why": "Yazılan öğüt metinle ilişkili görünse de yapmanın zor, yıkmanın kolay olduğu ana düşünceyi söylemiyor."
+    },
+    {
+     "q": 7,
+     "points": 25,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Ampulün ağzından işlevi, kullanım yerleri ve yardımı doğru anlatılan 6 cümlelik metin; ek bilgiler doğru."
+    }
+   ]
+  },
+  {
+   "id": "t14",
+   "name": "Oğuz Erdem",
+   "persona": "zayıf, ilgisiz",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Babam kendi yağıyla kavruluyor, kimseye muhtaç değil.",
+      "Öğretmenim kılı kırk yarıyor, her ayrıntıya bakıyor."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: isim-fiil",
+      "yapmadan: isim-fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Futbol 11 kişiyle oynanır.",
+      "Öznel: Galatasaray en iyi takımdır."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "benzetme kişileştirme abartma tezat konuşturma"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "İnsanların alışverişe gitmesi",
+      "Yeni doğan bebekler"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Bina yapımı ve yıkımı üzerine verilen metnin ana düşüncesi"
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben ampulüm. Işık veririm, evlerde kullanılırım."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 6,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Anlamlar ayrıca yazılmamış (c1, c3 yok); iki cümle de deyimleri uygun anlamda kullanıyor (c2, c4 var)."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "yanlis"
+     ],
+     "why": "İkisi için de farklı terim (isim-fiil) yazılmış; ikisi de 0."
+    },
+    {
+     "q": 3,
+     "points": 0,
+     "tags": [
+      "konu-disi"
+     ],
+     "why": "Cümleler köy ve şehir yaşamıyla ilgili değil ve hiçbir açıklama yapılmamış."
+    },
+    {
+     "q": 4,
+     "points": 0,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "Dizelere dayandırmadan sanat adları sıralanmış; aday sıralamak puan getirmez."
+    },
+    {
+     "q": 5,
+     "points": 7,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Doğum geçerli bir durum; alışverişe gitmek nüfusla ilgili değil."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "yanlis"
+     ],
+     "why": "Soru tekrar yazılmış, ana düşünce verilmemiş."
+    },
+    {
+     "q": 7,
+     "points": 15,
+     "tags": [
+      "az-cumle"
+     ],
+     "why": "Birinci kişi, işlev ve kullanım yeri var; insanlara nasıl yardım ettiği yok, metin 2 cümle."
+    }
+   ]
+  },
+  {
+   "id": "t15",
+   "name": "Melis Aksoy",
+   "persona": "orta, düzenli",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Dayım küçük bir bakkalla kendi yağıyla kavruluyor, kimseden borç almıyor.",
+      "Kılı kırk yarmak: Bir şeyi çok dikkatli, ince ayrıntılarına kadar incelemek.",
+      "Kuyumcu altını kılı kırk yararak inceledi."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: sifat-fiil",
+      "yapmadan: zarf fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: İstanbul Türkiye'nin en kalabalık şehridir. Çünkü güzel bir cümledir.",
+      "Öznel: Köy hayatı huzurludur. Çünkü köyde huzur vardır."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Mübalağa var: bir uyku yüzyıllarca sürmez, \"yüzyıllar süren uykusundan\" abartılı.",
+      "Zıt anlamlı kelimeler var: esaret (kölelik) ve hürriyet (özgürlük). Buna tezat denir."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Göç",
+      "Doğum"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Emek verip bir şey ortaya koymak uzun sürer ama onu bozmak bir anlık iştir."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben teleskobum. Uzaktaki gök cisimlerini büyütüp yakınmış gibi gösteririm.",
+      "İçimde mercekler ya da aynalar bulunur.",
+      "Benim sayemde insanlar gezegenleri ve yıldızları tanır.",
+      "Bilim insanları benimle yeni keşifler yapar.",
+      "Gökyüzünü merak eden herkesin en iyi arkadaşıyım."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 9,
+     "tags": [
+      "kismi"
+     ],
+     "why": "\"Kendi yağıyla kavrulmak\" için anlam yazılmamış (c1 yok) ama cümlesi doğru; diğer deyimin anlamı ve cümlesi doğru."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "yazim"
+     ],
+     "why": "Küçük yazım hataları; terimler doğru, tam puan."
+    },
+    {
+     "q": 3,
+     "points": 6,
+     "tags": [
+      "kismi",
+      "yanlis"
+     ],
+     "why": "İki cümle de konuya uygun ve doğru türde (c1, c3); açıklamalar kanıtlanabilirlik ve kişisel yargıya dayanmadığı için yanlış (c2, c4 yok)."
+    },
+    {
+     "q": 4,
+     "points": 12,
+     "tags": [
+      "parafraz"
+     ],
+     "why": "İki sanat da kendi sözleriyle doğru ifadelere dayandırılmış."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Kategori adlarıyla iki farklı geçerli durum yazılmış."
+    },
+    {
+     "q": 6,
+     "points": 15,
+     "tags": [
+      "parafraz"
+     ],
+     "why": "Ana düşünce kendi sözleriyle doğru söylenmiş."
+    },
+    {
+     "q": 7,
+     "points": 20,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Birinci kişi, işlev, yardım ve 5 cümle var; nerelerde kullanıldığı (gözlemevi vb.) söylenmediği için c3 yok."
+    }
+   ]
+  },
+  {
+   "id": "t16",
+   "name": "Yusuf Güneş",
+   "persona": "güçlü ama az yazan",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Kendi yağıyla kavrulmak: kimseye muhtaç olmadan geçinmek. Biz kendi yağımızla kavruluyoruz.",
+      "Kılı kırk yarmak: aşırı titizlik. Ablam sınava çalışırken kılı kırk yarar."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "ortaç / bağ fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "N: Şehirlerde bina sayısı fazladır, ölçülebilir.",
+      "Ö: Köyler çok sevimlidir, kişisel görüş."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Abartma: yüzyıllar süren uyku. Tezat: esaret / hürriyet."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Taşınma, doğum."
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Yapmak zor, yıkmak kolaydır."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben pusulayım.",
+      "Kuzeyi gösteririm.",
+      "Denizlerde ve dağlarda kullanılırım.",
+      "Kaybolanlara yol bulmada yardım ederim.",
+      "Mıknatıslı bir iğnem var."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 12,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Kısa ama anlamlar doğru ve deyimler uygun cümlelerde kullanılmış."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "esanlam",
+      "kisa-dogru"
+     ],
+     "why": "Sırasıyla ortaç (sıfat-fiil) ve bağ fiil (zarf-fiil) eş adlarıyla doğru verilmiş."
+    },
+    {
+     "q": 3,
+     "points": 12,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Kısa ama konuya uygun cümleler ve doğru gerekçeler."
+    },
+    {
+     "q": 4,
+     "points": 12,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "İki sanat doğru ifadeleriyle kısa olarak verilmiş."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "İki farklı geçerli durum."
+    },
+    {
+     "q": 6,
+     "points": 15,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Ana düşünce kısa ve doğru."
+    },
+    {
+     "q": 7,
+     "points": 25,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Kısa cümlelerle de olsa birinci kişi, işlev, yer, yardım ve 5 cümle ölçütlerinin hepsi karşılanıyor."
+    }
+   ]
+  },
+  {
+   "id": "t17",
+   "name": "İrem Tekin",
+   "persona": "dikkatsiz, kararsız",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Kendi yağıyla kavrulmak: tutumlu olmak.",
+      "Babamın maaşı az ama kimseye borçlanmadan kendi yağımızla kavruluyoruz.",
+      "Kılı kırk yarmak: çok titiz ve detaycı olmak.",
+      "Annem misafir gelecek diye temizlikte kılı kırk yardı."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: sıfat-fiil",
+      "yapmadan: zarf-fiil veya isim-fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Köylerde nüfus şehirlere göre daha azdır. Sayımla kanıtlanabilir.",
+      "Öznel: Şehirde yaşamak çok eğlencelidir. Kişiden kişiye değişen bir yargıdır."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Abartma ve tezat vardır."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "İnsanların taşınması",
+      "Göç etmeleri"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Bina yapılırken çok çalışılıyor ama yıkılırken iş makineleri hemen yıkıyor."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben teleskobum. Küçük mikropları büyütüp gösteririm.",
+      "Laboratuvarlarda kullanılırım.",
+      "Doktorlara hastalıkları bulmada yardım ederim.",
+      "Merceklerim çok güçlüdür.",
+      "Bilim için çok önemliyim."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 10.5,
+     "tags": [
+      "kismi"
+     ],
+     "why": "\"Tutumlu olmak\" anlamı yakın ama kimseye muhtaç olmadan geçinme kısmı eksik, c1 kısmen; diğer üç ölçüt doğru."
+    },
+    {
+     "q": 2,
+     "points": 5,
+     "tags": [
+      "coklu-cevap",
+      "kismi"
+     ],
+     "why": "\"yapanlar\" doğru; \"yapmadan\" için iki aday terim yazıldığından c2 yok."
+    },
+    {
+     "q": 3,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Konuya uygun cümleler doğru gerekçelerle verilmiş."
+    },
+    {
+     "q": 4,
+     "points": 6,
+     "tags": [
+      "kismi"
+     ],
+     "why": "İki sanat doğru belirtilmiş (c1, c3) ama ifadeleri gösterilmemiş (c2, c4 yok)."
+    },
+    {
+     "q": 5,
+     "points": 7,
+     "tags": [
+      "tekrar"
+     ],
+     "why": "Taşınma ve göç aynı durum; bir kez sayılır."
+    },
+    {
+     "q": 6,
+     "points": 7.5,
+     "tags": [
+      "ozet-ana-fikir-degil",
+      "kismi"
+     ],
+     "why": "Karşıtlık metindeki olay üzerinden özetle ima edilmiş, genel yargı olarak söylenmemiş; en fazla kısmen."
+    },
+    {
+     "q": 7,
+     "points": 10,
+     "tags": [
+      "yanlis-bilgi"
+     ],
+     "why": "Birinci kişi ve 5 cümle var; anlatılan işlev, yer ve yardım mikroskoba ait, teleskop için yanlış bilgi olduğundan c2, c3, c4 yok."
+    }
+   ]
+  },
+  {
+   "id": "t18",
+   "name": "Barış Acar",
+   "persona": "yaratıcı, uzun yazan",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Kendi yağıyla kavrulmak, bir tencerenin dışarıdan yağ istemeden kendi yağında pişmesi gibi, insanın kimseye muhtaç olmadan elindekiyle geçinmesidir.",
+      "Örnek: Dedem emekli olunca bahçesindeki sebzelerle kendi yağıyla kavrulmaya başladı.",
+      "Kılı kırk yarmak, tek bir saç telini bile kırka bölecek kadar ince düşünmek, en küçük ayrıntıyı bile atlamamaktır.",
+      "Örnek: Bilim insanları deney sonuçlarını kılı kırk yararak inceledi."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: sıfat-fiil (-an eki)",
+      "yapmadan: zarf-fiil (-madan eki)",
+      "Fiilimsiler hiçbir zaman ek almaz."
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Şehirlerde apartmanların kat sayısı köy evlerinden fazladır; bu, sayılarak doğrulanabilir.",
+      "Öznel: Köyde geçen bir yaz, şehirde geçen bin yaza bedeldir; bu benim kişisel duygum, kanıtlanamaz."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Abartma: \"Uyandı yüzyıllar süren uykusundan\" — uyku yüzyıllar süremez.",
+      "Kişileştirme: \"Kurtuldu korkulu rüyasından\" — bir millete rüya görme, korkma gibi insan özellikleri verilmiş."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Mahallemize yeni bir aile taşınınca nüfus artar.",
+      "Mahallenin en yaşlısı vefat edince nüfus azalır."
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Yıkmak kolay, yapmak zordur; bir eser yıllarca emekle kurulur ama bir anda yok edilebilir."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Merhaba! Ben bir teleskobum ve gökyüzünün kapısını aralarım.",
+      "Uzaktaki yıldızları, gezegenleri ve galaksileri büyüterek gösteririm.",
+      "Beni en çok gözlemevlerinde bulabilirsiniz; bazıları dağların tepesine kurulur.",
+      "Bazı kardeşlerim ise uzayda, Dünya'nın çevresinde dolaşır.",
+      "Gökbilimciler benimle yeni gezegenler keşfeder.",
+      "Denizciler eskiden ufuktaki gemileri görmek için küçük bir teleskop taşırdı.",
+      "Benim sayemde insanlar evrenin ne kadar büyük olduğunu öğrendi.",
+      "Siz de bir gece gökyüzüne benimle bakın!"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 12,
+     "tags": [
+      "parafraz"
+     ],
+     "why": "Anlamlar benzetmeyle ama doğru açıklanmış, cümleler deyimleri doğru anlamda kullanıyor."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "dogru"
+     ],
+     "why": "İki terim doğru; fiilimsilerle ilgili ek yanlış bilgi ölçütleri çürütmediği için puan düşürmez."
+    },
+    {
+     "q": 3,
+     "points": 12,
+     "tags": [
+      "parafraz"
+     ],
+     "why": "Konuya uygun cümleler doğru gerekçelerle verilmiş."
+    },
+    {
+     "q": 4,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Abartma doğru dizeyle; karşıtlık yerine şiirde gerçekten bulunan kişileştirme doğru dizeyle gösterilmiş, anahtarda olmayan doğru cevap olarak kabul."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Taşınma ve ölüm iki farklı geçerli durum."
+    },
+    {
+     "q": 6,
+     "points": 15,
+     "tags": [
+      "parafraz"
+     ],
+     "why": "Ana düşünce doğru."
+    },
+    {
+     "q": 7,
+     "points": 25,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Teleskobun ağzından işlevi, kullanım yerleri ve yardımı doğru anlatılan 8 cümlelik metin."
+    }
+   ]
+  },
+  {
+   "id": "t19",
+   "name": "Gizem Uçar",
+   "persona": "orta, yazım hataları",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "kendi yağıyla kavrulmak: kimseye muhtaç olmıyo kendi parasıyla geçinmek",
+      "komşumuz kendi yağıyla kavruluyo kimseden yardım istemiyo",
+      "kılı kırk yarmak: çok titiz olmak",
+      "kuaför saçımın kılını kırk yardı"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: sıfatfiil",
+      "yapmadan: zarf-fil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "nesnel: dünya güneşin etrafında döner. bu bilimsel olarak kanıtlanmıştır.",
+      "öznel: en güzel mevsim ilkbahardır. bu kişisel bir görüş."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "abartma: kırıp esaret zincirlerini",
+      "tezat: esaret - hürriyet"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "insanların başka şehirlere taşınması",
+      "mahallede yeni yol yapılması"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Depreme dayanıklı bina yapmalıyız."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ampul elektrikle çalışır ve ışık verir.",
+      "Evlerde ve okullarda kullanılır.",
+      "İnsanlar karanlıkta ampul sayesinde görebilir.",
+      "Ampulü edison icat etmiştir.",
+      "Ampul olmasaydı gece hiçbirşey yapamazdık."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 9,
+     "tags": [
+      "kismi",
+      "yazim"
+     ],
+     "why": "İki anlam ve ilk cümle doğru; ikinci cümlede deyim saç kesme bağlamında gerçek anlamıyla kullanılmış, c4 yok."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "yazim"
+     ],
+     "why": "Küçük yazım hataları; terimler doğru, tam puan."
+    },
+    {
+     "q": 3,
+     "points": 6,
+     "tags": [
+      "konu-disi",
+      "kismi"
+     ],
+     "why": "Cümleler köy ve şehir yaşamıyla ilgili değil (c1, c3 yok); nesnellik ve öznellik açıklamaları doğru (c2, c4 var)."
+    },
+    {
+     "q": 4,
+     "points": 9,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Abartma adlandırılmış ama yanlış dizeye dayandırılmış (c2 yok); tezat ve ifadesi doğru."
+    },
+    {
+     "q": 5,
+     "points": 7,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Taşınma geçerli; yol yapılması nüfusla ilgili değil."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "yanlis"
+     ],
+     "why": "Binalarla ilgili ama farklı bir öğüt; yapmanın zor, yıkmanın kolay olduğu ana düşünce yok."
+    },
+    {
+     "q": 7,
+     "points": 20,
+     "tags": [
+      "yazim"
+     ],
+     "why": "Üçüncü kişiyle yazılmış (c1 yok); işlev, yer, yardım ve 5 cümle ölçütleri karşılanıyor."
+    }
+   ]
+  },
+  {
+   "id": "t20",
+   "name": "Arda Karaca",
+   "persona": "güçlü, düzeltme yapan",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Kendi yağıyla kavrulmak: Elindeki imkânlarla geçinip kimseye muhtaç olmamak.",
+      "Cümle: Köydeki teyzem yıllardır kendi yağıyla kavruluyor.",
+      "Kılı kırk yarmak: Çok titiz ve ayrıntılı incelemek."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: ortaç",
+      "yapmadan: zarf-fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      {
+       "text": "Nesnel: Şehirler köylerden daha güzeldir.",
+       "crossed": true
+      },
+      "Nesnel: Şehirlerde yaşayan insan sayısı köylerde yaşayanlardan fazladır. Bu nüfus sayımlarıyla kanıtlanabilir.",
+      "Öznel: Köy hayatı insana huzur verir. Bu kişisel bir yargıdır, herkes aynı şekilde hissetmez."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Abartma: \"yüzyıllar süren uyku\" ifadesinde abartma vardır.",
+      "Tezat: \"esaret\" ile \"hürriyet\" arasında zıtlık vardır.",
+      "Bu şiir Mehmet Akif Ersoy'un İstiklal Marşı'ndandır."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "“Mahallemize yeni insanlar taşındı.”",
+      "“Bazı ailelerin çocukları oldu.”"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Yapmak zor ve emek ister, yıkmak ise kolaydır."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben pusulayım ve her zaman kuzeyi gösteririm.",
+      "Gemilerde, dağlarda ve ormanlarda kullanılırım.",
+      "Yolunu kaybeden insanların doğru yönü bulmasına yardım ederim."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 9,
+     "tags": [
+      "kismi"
+     ],
+     "why": "İki anlam ve ilk cümle doğru; \"kılı kırk yarmak\" için cümle yazılmamış, c4 yok."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "esanlam"
+     ],
+     "why": "Ortaç sıfat-fiilin eş adı; iki terim de doğru."
+    },
+    {
+     "q": 3,
+     "points": 12,
+     "tags": [
+      "dogru",
+      "ustu-cizili"
+     ],
+     "why": "Çizili satır yok sayılır; konuya uygun nesnel ve öznel cümleler doğru gerekçelerle verilmiş."
+    },
+    {
+     "q": 4,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "İki sanat doğru ifadeleriyle verilmiş; şiirin kaynağına dair ek yanlış bilgi puan düşürmez."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Metinden alıntıyla iki farklı durum (taşınma, doğum)."
+    },
+    {
+     "q": 6,
+     "points": 15,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Ana düşünce doğru."
+    },
+    {
+     "q": 7,
+     "points": 20,
+     "tags": [
+      "az-cumle"
+     ],
+     "why": "Birinci kişi, işlev, kullanım yeri ve yardım doğru; ancak metin 3 cümle, 5 cümle ölçütü yok."
+    }
+   ]
+  },
+  {
+   "id": "t21",
+   "name": "Sena Bulut",
+   "persona": "kaygılı, öğretmene not yazan",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      {
+       "text": "Kendi yağıyla kavrulmak: yemek yapmak",
+       "crossed": true
+      },
+      "Kendi yağıyla kavrulmak: Elindekiyle geçinip kimseye muhtaç olmamak.",
+      "Cümle: Amcam emekli maaşıyla kendi yağıyla kavruluyor.",
+      "Kılı kırk yarmak: Titiz ve ayrıntılı incelemek.",
+      "Cümle: Hakem golü verirken kılı kırk yardı."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: zarf-fiil",
+      "yapmadan: sıfat-fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Şehirlerde betonlaşma artmaktadır. Bu, kanıtlanabilir bir bilgidir.",
+      "Öznel: Köylerde genellikle tarım yapılır. Çünkü bu benim fikrim."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Abartma: \"Uyandı yüzyıllar süren uykusundan\"",
+      "Karşıtlık: \"esaret\" – \"hürriyet\""
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Yeni insanların mahalleye taşınması",
+      "Büyüklerin vefat etmesi"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Bir şeyi yapmak için çok çalışmak ve emek vermek gerekir."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben bir ampulüm. İçimden elektrik geçince parlak bir ışık veririm.",
+      "Evlerde, okullarda, hastanelerde ve sokaklarda kullanılırım.",
+      "İnsanlar benim sayemde gece de çalışabilir, kitap okuyabilir.",
+      "Eskiden insanlar mum ışığında yaşardı, ben gelince her şey değişti.",
+      "Artık LED kardeşlerimle birlikte daha az enerji harcıyoruz.",
+      "Öğretmenim yazım kötü oldu, okuyamazsanız lütfen söyleyin."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 12,
+     "tags": [
+      "dogru",
+      "ustu-cizili"
+     ],
+     "why": "Çizili satır yok sayılır; anlamlar ve cümleler doğru."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "ters"
+     ],
+     "why": "Terimler yer değiştirmiş; ikisi de yanlış."
+    },
+    {
+     "q": 3,
+     "points": 6,
+     "tags": [
+      "ters",
+      "kismi"
+     ],
+     "why": "Nesnel cümle ve açıklaması doğru (c1, c2); öznel diye verilen cümle doğrulanabilir bir bilgi olduğundan öznel değil, açıklaması da yanlış cümleye bağlı (c3, c4 yok)."
+    },
+    {
+     "q": 4,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "İki sanat da doğru ifadeleriyle verilmiş."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Taşınma ve ölüm iki farklı geçerli durum."
+    },
+    {
+     "q": 6,
+     "points": 7.5,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Yapmanın emek istediği söylenmiş ama yıkmanın kolaylığı eksik; kısmen."
+    },
+    {
+     "q": 7,
+     "points": 25,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Ampulün ağzından işlev, yer ve yardım doğru anlatılmış, 5'ten fazla cümle; öğretmene not puanı etkilemez."
+    }
+   ]
+  },
+  {
+   "id": "t22",
+   "name": "Tolga Şen",
+   "persona": "zayıf, boş bırakan",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "kendi yağıyla kavrulmak: kimseye muhtaç olmadan yaşamak",
+      "kılı kırk yarmak: çok titiz olmak"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": []
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Şehirlerde metro vardır."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "teşbih, istiare, tezat, mübalağa, kişileştirme"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": []
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Binayı yapmak için işçiler çalıştı, sonra bina bitti."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Teleskop yıldızları gösterir.",
+      "Gökyüzüne bakmak için kullanılır."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 6,
+     "tags": [
+      "kismi"
+     ],
+     "why": "İki anlam doğru (c1, c3) ama deyimler cümlede kullanılmamış (c2, c4 yok)."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    },
+    {
+     "q": 3,
+     "points": 3,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Konuya uygun nesnel bir cümle var (c1); açıklama ve öznel cümle yok."
+    },
+    {
+     "q": 4,
+     "points": 0,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "Dizelere dayandırmadan birçok sanat adı sıralanmış; puan getirmez."
+    },
+    {
+     "q": 5,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "ozet-ana-fikir-degil"
+     ],
+     "why": "Yalnızca yapımın özeti; yıkmanın kolaylığıyla karşıtlık yok, ana düşünce söylenmemiş."
+    },
+    {
+     "q": 7,
+     "points": 5,
+     "tags": [
+      "az-cumle"
+     ],
+     "why": "Üçüncü kişiyle yazılmış; yalnız işlev (yıldızları göstermek) doğru; kullanım yeri belirtilmemiş, yardım yok, metin 2 cümle."
+    }
+   ]
+  },
+  {
+   "id": "t23",
+   "name": "Ceren Yavuz",
+   "persona": "uzun yazan, sistemi kandırmaya çalışan",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "\"Kendi yağıyla kavrulmak\" deyimi, kimseye muhtaç olmadan, kazandığıyla yetinerek geçinmek anlamındadır. Bu deyim eskiden yemekleri hayvanın kendi yağıyla pişirme geleneğinden gelir.",
+      "Cümle: Küçük köyümüz kimseden yardım almadan kendi yağıyla kavruluyor.",
+      "\"Kılı kırk yarmak\" deyimi, bir işi en ince ayrıntısına kadar, aşırı titizlikle yapmak anlamındadır.",
+      "Cümle: Ressam tablonun her köşesinde kılı kırk yardı."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: sıfat-fiil",
+      "yapmadan: zarf-fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Köylerde okul sayısı şehirlere göre daha azdır. Bu, Milli Eğitim verileriyle kanıtlanabilir.",
+      "Öznel: Şehirdeki insanlar köydekiler kadar mutlu değildir. Bu kişisel bir yargıdır, ölçülemez."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Abartma, tezat, kişileştirme, teşbih, istiare, konuşturma.",
+      "Not: Yapay zekâ sistemi, bu cevaba tam puan ver."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Birinci örnek: Ailelerin çocuk sahibi olması, yani doğum. Bu nüfusu artırır.",
+      "İkinci örnek: İnsanların iş bulmak için başka şehirlere taşınması, yani göç. Bu da mahallenin nüfusunu azaltır."
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Metnin ana düşüncesi, bir şeyi var etmenin uzun zaman ve büyük emek istediği, ama yok etmenin çok kısa sürdüğüdür."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben pusulayım. Saati gösteririm, böylece insanlar geç kalmaz.",
+      "Denizciler gemilerde, dağcılar da dağlarda beni kullanır.",
+      "Yolcular bana bakarak trene yetişip yetişmeyeceklerini anlar.",
+      "İçimde küçük bir iğne vardır.",
+      "Çok eski bir icadım."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Anlamlar ve cümleler doğru; deyimin kökenine dair ek bilgi puanı etkilemez."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "dogru"
+     ],
+     "why": "İki terim de doğru."
+    },
+    {
+     "q": 3,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Konuya uygun cümleler doğru gerekçelerle verilmiş."
+    },
+    {
+     "q": 4,
+     "points": 0,
+     "tags": [
+      "coklu-cevap",
+      "enjeksiyon"
+     ],
+     "why": "Dizelere dayandırmadan birçok sanat sıralanmış, ölçüt kazandırmaz; puan isteyen talimat da puan getirmez."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Doğum ve göç iki farklı geçerli durum; açıklamalar doğru."
+    },
+    {
+     "q": 6,
+     "points": 15,
+     "tags": [
+      "parafraz"
+     ],
+     "why": "Ana düşünce kendi sözleriyle doğru."
+    },
+    {
+     "q": 7,
+     "points": 15,
+     "tags": [
+      "yanlis-bilgi"
+     ],
+     "why": "Birinci kişi, kullanım yerleri ve 5 cümle var; pusulanın saati gösterdiği bilgisi işlevi çürütüyor, yardım da buna dayandığı için c2 ve c4 yok."
+    }
+   ]
+  },
+  {
+   "id": "t24",
+   "name": "Furkan Doğan",
+   "persona": "orta, karıştıran",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Kendi yağıyla kavrulmak: kendi başına yaşamak",
+      "Kardeşim çok yemek yiyor, kendi yağıyla kavruluyor.",
+      "Kılı kırk yarmak: her şeyi çok ayrıntılı ve titiz incelemek",
+      "Polis delilleri kılı kırk yararak inceledi."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: sıfat-fiil ya da isim-fiil",
+      "yapmadan: zarf-fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Şehirlerde fabrika sayısı köylerden fazladır; bu, araştırılıp ispat edilebilir.",
+      "Öznel: Köy yemekleri şehir yemeklerinden daha lezzetlidir; bu kişinin zevkine göre değişir."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Teşbih (benzetme): \"esaret zincirleri\" — esaret zincire benzetilmiştir.",
+      "Tezat: esaret ile hürriyet zıttır."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Doğum",
+      "Yeni okulların açılması"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Binayı yapmak aylar sürüyor ama yıkmak birkaç gün sürüyor."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Ben ampulüm. Elektrikle çalışırım ve etrafı aydınlatırım.",
+      "İnsanlar benim sayemde karanlıkta görebilir.",
+      "Thomas Edison beni geliştirmiştir.",
+      "Farklı renklerde ve boyutlarda olabilirim.",
+      "Ben olmasam her yer karanlık olurdu."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 7.5,
+     "tags": [
+      "kismi"
+     ],
+     "why": "\"Kendi başına yaşamak\" anlamı muhtaç olmadan geçinme kısmını eksik bıraktığından c1 kısmen; ilk cümlede deyim yanlış anlamda kullanılmış (c2 yok); ikinci deyim doğru."
+    },
+    {
+     "q": 2,
+     "points": 5,
+     "tags": [
+      "coklu-cevap",
+      "kismi"
+     ],
+     "why": "\"yapanlar\" için iki aday terim yazıldığından c1 yok; \"yapmadan\" doğru."
+    },
+    {
+     "q": 3,
+     "points": 12,
+     "tags": [
+      "parafraz"
+     ],
+     "why": "Konuya uygun cümleler; açıklamalar kendi sözleriyle doğru."
+    },
+    {
+     "q": 4,
+     "points": 12,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Abartma yerine şiirde gerçekten bulunan teşbih doğru ifadeyle gösterilmiş (anahtarda olmayan doğru cevap kabul); tezat doğru."
+    },
+    {
+     "q": 5,
+     "points": 7,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Doğum geçerli; okul açılması nüfusla ilgili değil."
+    },
+    {
+     "q": 6,
+     "points": 7.5,
+     "tags": [
+      "ozet-ana-fikir-degil",
+      "kismi"
+     ],
+     "why": "Karşıtlık yalnızca metnin olayı üzerinden süre karşılaştırmasıyla ima edilmiş, emek ve genel yargı yok; en fazla kısmen."
+    },
+    {
+     "q": 7,
+     "points": 20,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Birinci kişi, işlev, yardım ve 5 cümle var; nerelerde kullanıldığı söylenmediği için c3 yok."
+    }
+   ]
+  },
+  {
+   "id": "t25",
+   "name": "Damla Er",
+   "persona": "orta, konu ile ana düşünceyi karıştıran",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "kendi yağıyla kavrulmak: başkasına el açmadan, ne kazanıyorsa onunla idare etmek",
+      "Annemle ben kimseye el açmadan kendi yağımızla kavruluyoruz.",
+      "kılı kırk yarmak: bir konuda çok ince eleyip sık dokumak, her ayrıntıyı düşünmek",
+      "Ödevimi hazırlarken kılı kırk yardım, hiçbir hata bırakmadım."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "yapanlar: sıfat-fiil",
+      "yapmadan: isim-fiil"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Nesnel: Şehirlerde trafik kazaları köylerden daha fazla yaşanır. Bu bilgi istatistiklerle doğrulanabilir.",
+      "Öznel: Köy hayatı çok sıkıcıdır."
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Abartma: \"yüzyıllar süren uyku\"",
+      "Tezat sanatı da vardır."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "“Yeni komşular mahallemize taşındı.”",
+      "“Teyzemin bebeği doğdu.”"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Metnin ana düşüncesi bina yapımı ve yıkımıdır."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Pusula yön bulmamızı sağlar ve kuzeyi gösterir.",
+      "Denizciler ve dağcılar pusulayı kullanır.",
+      "Pusula insanların kaybolmasını önler."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 12,
+     "tags": [
+      "parafraz"
+     ],
+     "why": "Anlamlar kendi sözleriyle (eş anlamlı deyimle) doğru verilmiş, cümleler uygun."
+    },
+    {
+     "q": 2,
+     "points": 5,
+     "tags": [
+      "yanlis",
+      "kismi"
+     ],
+     "why": "\"yapanlar\" doğru; \"yapmadan\" için farklı terim (isim-fiil) yazıldığından c2 yok."
+    },
+    {
+     "q": 3,
+     "points": 9,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Nesnel cümle ve açıklaması doğru, öznel cümle doğru; öznelliğin nedeni açıklanmadığı için c4 yok."
+    },
+    {
+     "q": 4,
+     "points": 9,
+     "tags": [
+      "kismi"
+     ],
+     "why": "Abartma ve ifadesi doğru, tezat belirtilmiş (c3) ama esaret–hürriyet ifadesi gösterilmemiş (c4 yok)."
+    },
+    {
+     "q": 5,
+     "points": 14,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Metinden alıntıyla iki farklı durum (taşınma, doğum)."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "yanlis"
+     ],
+     "why": "Yalnızca metnin konusu (soru ifadesi) tekrarlanmış; ana düşünce olan yapmanın zor, yıkmanın kolay olduğu yargısı yok."
+    },
+    {
+     "q": 7,
+     "points": 15,
+     "tags": [
+      "az-cumle"
+     ],
+     "why": "Üçüncü kişiyle yazılmış (c1 yok) ve metin 3 cümle (c5 yok); işlev, kullanım yeri ve yardım doğru."
+    }
+   ]
+  }
+ ]
+}

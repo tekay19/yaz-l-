@@ -1,0 +1,649 @@
+{
+  "student": "Emre Çelik",
+  "pages": 1,
+  "total": 100,
+  "max": 100,
+  "percent": 100,
+  "questions": [
+    {
+      "q": 1,
+      "max": 12,
+      "grade": {
+        "q": 1,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "kimsenin kapısını çalmadan, ne varsa onunla yetinip geçinmek demek.",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "Yaşlı balıkçı küçük teknesiyle kendi yağıyla kavruluyor, hiç kimseye el açmıyor.",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "met",
+            "evidence": "bir saç telini kırk parçaya bölecek kadar titiz olmak, her ayrıntıyı incelemek demek.",
+            "slipOnly": false
+          },
+          {
+            "id": "c4",
+            "verdict": "met",
+            "evidence": "Hakem VAR'da pozisyonu kılı kırk yararak izledi.",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Her iki deyimin anlamı ve örnek cümleleri eksiksiz yazılmıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 12,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "“Kendi yağıyla kavrulmak” deyiminin anlamını doğru yazar (elindekiyle geçinip kimseye muhtaç olmamak)",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "kimsenin kapısını çalmadan, ne varsa onunla yetinip geçinmek demek.",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "“Kendi yağıyla kavrulmak” deyimini anlamına uygun bir cümlede kullanır",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Yaşlı balıkçı küçük teknesiyle kendi yağıyla kavruluyor, hiç kimseye el açmıyor.",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "“Kılı kırk yarmak” deyiminin anlamını doğru yazar (çok titiz, ayrıntılı davranmak)",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "bir saç telini kırk parçaya bölecek kadar titiz olmak, her ayrıntıyı incelemek demek.",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c4",
+          "text": "“Kılı kırk yarmak” deyimini anlamına uygun bir cümlede kullanır",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Hakem VAR'da pozisyonu kılı kırk yararak izledi.",
+          "earned": 3,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "\"Kendi yağıyla kavrulmak\" kimsenin kapısını çalmadan, ne varsa onunla yetinip geçinmek demek.",
+          "crossed": false
+        },
+        {
+          "text": "Cümlem: Yaşlı balıkçı küçük teknesiyle kendi yağıyla kavruluyor, hiç kimseye el açmıyor.",
+          "crossed": false
+        },
+        {
+          "text": "\"Kılı kırk yarmak\" bir saç telini kırk parçaya bölecek kadar titiz olmak, her ayrıntıyı incelemek demek.",
+          "crossed": false
+        },
+        {
+          "text": "Cümlem: Hakem VAR'da pozisyonu kılı kırk yararak izledi.",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 2,
+      "max": 10,
+      "grade": {
+        "q": 2,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "yapanlar: sıfat-fiil",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "yapmadan: zarf-fiil",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": true,
+        "resultPath": "valid",
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Fiilimsilerin türleri doğru belirtilmiştir.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 10,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "“yapanlar” için sıfat-fiil (ortaç) yazar",
+          "points": 5,
+          "role": "result",
+          "verdict": "met",
+          "evidence": "yapanlar: sıfat-fiil",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "“yapmadan” için zarf-fiil (bağ-fiil, ulaç) yazar",
+          "points": 5,
+          "role": "result",
+          "verdict": "met",
+          "evidence": "yapmadan: zarf-fiil",
+          "earned": 5,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "yapanlar: sıfat-fiil",
+          "crossed": false
+        },
+        {
+          "text": "yapmadan: zarf-fiil",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 3,
+      "max": 12,
+      "grade": {
+        "q": 3,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "Köylerde hava kirliliği şehirlere göre daha düşük ölçülmektedir.",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "Ölçüm cihazlarıyla doğrulanabildiği için nesneldir.",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "met",
+            "evidence": "Şehrin ışıkları, köyün yıldızlı gecesinin yanında sönük kalır.",
+            "slipOnly": false
+          },
+          {
+            "id": "c4",
+            "verdict": "met",
+            "evidence": "Benim duygularımı ve yorumumu anlattığı için özneldir.",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Nesnel ve öznel cümleler doğru yazılmış ve gerekçeleri açıklanmıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 12,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Konuya uygun nesnel bir cümle yazar",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Köylerde hava kirliliği şehirlere göre daha düşük ölçülmektedir.",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Nesnelliğini kanıtlanabilir / doğrulanabilir olmasıyla açıklar",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Ölçüm cihazlarıyla doğrulanabildiği için nesneldir.",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "Konuya uygun öznel bir cümle yazar",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Şehrin ışıkları, köyün yıldızlı gecesinin yanında sönük kalır.",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c4",
+          "text": "Öznelliğini kişisel duygu / yargı içermesiyle açıklar",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Benim duygularımı ve yorumumu anlattığı için özneldir.",
+          "earned": 3,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Nesnel: Köylerde hava kirliliği şehirlere göre daha düşük ölçülmektedir. Ölçüm cihazlarıyla doğrulanabildiği için nesneldir.",
+          "crossed": false
+        },
+        {
+          "text": "Öznel: Şehrin ışıkları, köyün yıldızlı gecesinin yanında sönük kalır. Benim duygularımı ve yorumumu anlattığı için özneldir.",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 4,
+      "max": 12,
+      "grade": {
+        "q": 4,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "Abartma",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "yüzyıllar süren uykusundan",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "met",
+            "evidence": "Benzetme (teşbih)",
+            "slipOnly": false
+          },
+          {
+            "id": "c4",
+            "verdict": "met",
+            "evidence": "esaret zincirleri",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [
+          "alternative_answer"
+        ],
+        "confidence": "high",
+        "note": "Tezat yerine yönergede kabul edilen benzetme sanatı ve dayanağı doğru yazılmıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 12,
+      "status": "graded",
+      "flags": [
+        "alternative_answer"
+      ],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Abartma (mübalağa) sanatını belirtir",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Abartma",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Abartmayı “yüzyıllar süren uyku” ifadesine dayandırır",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "yüzyıllar süren uykusundan",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "Karşıtlık (tezat, zıtlık) sanatını belirtir",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Benzetme (teşbih)",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c4",
+          "text": "Karşıtlığı “esaret – hürriyet” zıtlığına dayandırır",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "esaret zincirleri",
+          "earned": 3,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Abartma: \"yüzyıllar süren uykusundan\" — bir uyku asla yüzyıllar sürmez.",
+          "crossed": false
+        },
+        {
+          "text": "Benzetme (teşbih): \"esaret zincirleri\" — esaret, insanı bağlayan zincire benzetilmiş.",
+          "crossed": false
+        }
+      ],
+      "attention": [
+        "Anahtarda olmayan bir fikir kabul edildi, kontrol edin"
+      ],
+      "info": []
+    },
+    {
+      "q": 5,
+      "max": 14,
+      "grade": {
+        "q": 5,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "Bir mahallenin nüfusu, oraya yeni ailelerin taşınmasıyla artar.",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "Bir evde yeni bir bebeğin doğmasıyla da nüfus değişir.",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Nüfusu etkileyen iki farklı durum (göç ve doğum) doğru ifade edilmiştir.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 14,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Metinden nüfusu değiştiren birinci geçerli durumu yazar (taşınma, doğum, ölüm vb.)",
+          "points": 7,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Bir mahallenin nüfusu, oraya yeni ailelerin taşınmasıyla artar.",
+          "earned": 7,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Metinden nüfusu değiştiren ikinci, farklı bir geçerli durumu yazar",
+          "points": 7,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Bir evde yeni bir bebeğin doğmasıyla da nüfus değişir.",
+          "earned": 7,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Bir mahallenin nüfusu, oraya yeni ailelerin taşınmasıyla artar.",
+          "crossed": false
+        },
+        {
+          "text": "Bir evde yeni bir bebeğin doğmasıyla da nüfus değişir.",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 6,
+      "max": 15,
+      "grade": {
+        "q": 6,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "emek vererek bir şey yapmak zordur, bozmak ise çok kolaydır",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Ana düşünce eksiksiz ve açık bir biçimde ifade edilmiştir.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 15,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Ana düşünceyi yazar: yapmak zor ve emek ister, yıkmak kolaydır",
+          "points": 15,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "emek vererek bir şey yapmak zordur, bozmak ise çok kolaydır",
+          "earned": 15,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Bir kale yüz yılda kurulur, bir günde yıkılır; emek vererek bir şey yapmak zordur, bozmak ise çok kolaydır.",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 7,
+      "max": 25,
+      "grade": {
+        "q": 7,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "Selam, ben gökyüzünün dürbünü teleskobum!",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "Uzaktaki yıldızları, gezegenleri ve Ay'ın kraterlerini büyütüp yakına getiririm.",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "met",
+            "evidence": "Beni gözlemevlerinde, okulların bilim kulüplerinde ve gökyüzünü seven insanların bahçelerinde bulabilirsiniz.",
+            "slipOnly": false
+          },
+          {
+            "id": "c4",
+            "verdict": "met",
+            "evidence": "İnsanların evreni merak etmesine ve öğrenmesine yardım ediyorum.",
+            "slipOnly": false
+          },
+          {
+            "id": "c5",
+            "verdict": "met",
+            "evidence": "Selam, ben gökyüzünün dürbünü teleskobum! Uzaktaki yıldızları, gezegenleri ve Ay'ın kraterlerini büyütüp yakına getiririm.",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Tüm ölçütler teleskop tanıtımı üzerinden eksiksiz ve en az 5 cümleyle karşılanmıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 25,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Seçtiği nesnenin ağzından kendini tanıtır (birinci tekil kişi)",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Selam, ben gökyüzünün dürbünü teleskobum!",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Ne işe yaradığını doğru anlatır",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Uzaktaki yıldızları, gezegenleri ve Ay'ın kraterlerini büyütüp yakına getiririm.",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "Nerelerde kullanıldığını doğru anlatır",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Beni gözlemevlerinde, okulların bilim kulüplerinde ve gökyüzünü seven insanların bahçelerinde bulabilirsiniz.",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c4",
+          "text": "İnsanlara nasıl yardımcı olduğunu anlatır",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "İnsanların evreni merak etmesine ve öğrenmesine yardım ediyorum.",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c5",
+          "text": "En az 5 cümleden oluşan bilgilendirici bir metin yazar",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Selam, ben gökyüzünün dürbünü teleskobum! Uzaktaki yıldızları, gezegenleri ve Ay'ın kraterlerini büyütüp yakına getiririm.",
+          "earned": 5,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Selam, ben gökyüzünün dürbünü teleskobum!",
+          "crossed": false
+        },
+        {
+          "text": "Uzaktaki yıldızları, gezegenleri ve Ay'ın kraterlerini büyütüp yakına getiririm.",
+          "crossed": false
+        },
+        {
+          "text": "Beni gözlemevlerinde, okulların bilim kulüplerinde ve gökyüzünü seven insanların bahçelerinde bulabilirsiniz.",
+          "crossed": false
+        },
+        {
+          "text": "Gökbilimciler benimle yeni gök cisimleri keşfeder.",
+          "crossed": false
+        },
+        {
+          "text": "Çocuklar ilk kez Satürn'ün halkalarını benimle görünce çok şaşırır.",
+          "crossed": false
+        },
+        {
+          "text": "İnsanların evreni merak etmesine ve öğrenmesine yardım ediyorum.",
+          "crossed": false
+        },
+        {
+          "text": "Bence dünyanın en heyecanlı işini yapıyorum.",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    }
+  ],
+  "expected": null,
+  "usage": {
+    "inputTokens": 5173,
+    "outputTokens": 1902
+  },
+  "ms": 12533
+}

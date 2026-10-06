@@ -1,0 +1,633 @@
+{
+  "student": "Duru Kocabaş",
+  "pages": 1,
+  "total": 60.5,
+  "max": 100,
+  "percent": 61,
+  "questions": [
+    {
+      "q": 1,
+      "max": 12,
+      "grade": {
+        "q": 1,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "partial",
+            "evidence": "Az parayla yaşamak, fakir olmak",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "Ahmet amca kimseden yardım almadan kendi yağıyla kavruluyor.",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "not_met",
+            "evidence": "",
+            "slipOnly": false
+          },
+          {
+            "id": "c4",
+            "verdict": "met",
+            "evidence": "Ödevimi yaparken kılı kırk yardım, her ayrıntıyı kontrol ettim.",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [
+          "wrong_info"
+        ],
+        "confidence": "high",
+        "note": "Deyimlerin anlam tanımları eksik/yanlış ancak cümle içi kullanımları doğrudur.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 7.5,
+      "status": "graded",
+      "flags": [
+        "wrong_info"
+      ],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "“Kendi yağıyla kavrulmak” deyiminin anlamını doğru yazar (elindekiyle geçinip kimseye muhtaç olmamak)",
+          "points": 3,
+          "role": "other",
+          "verdict": "partial",
+          "evidence": "Az parayla yaşamak, fakir olmak",
+          "earned": 1.5,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "“Kendi yağıyla kavrulmak” deyimini anlamına uygun bir cümlede kullanır",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Ahmet amca kimseden yardım almadan kendi yağıyla kavruluyor.",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "“Kılı kırk yarmak” deyiminin anlamını doğru yazar (çok titiz, ayrıntılı davranmak)",
+          "points": 3,
+          "role": "other",
+          "verdict": "not_met",
+          "evidence": "",
+          "earned": 0,
+          "counted": true
+        },
+        {
+          "id": "c4",
+          "text": "“Kılı kırk yarmak” deyimini anlamına uygun bir cümlede kullanır",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Ödevimi yaparken kılı kırk yardım, her ayrıntıyı kontrol ettim.",
+          "earned": 3,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Kendi yağıyla kavrulmak: Az parayla yaşamak, fakir olmak.",
+          "crossed": false
+        },
+        {
+          "text": "Ahmet amca kimseden yardım almadan kendi yağıyla kavruluyor.",
+          "crossed": false
+        },
+        {
+          "text": "Kılı kırk yarmak: Bir şeyi çok uzun süre düşünmek.",
+          "crossed": false
+        },
+        {
+          "text": "Ödevimi yaparken kılı kırk yardım, her ayrıntıyı kontrol ettim.",
+          "crossed": false
+        }
+      ],
+      "attention": [
+        "Cevapta yanlış bilgi var"
+      ],
+      "info": []
+    },
+    {
+      "q": 2,
+      "max": 10,
+      "grade": {
+        "q": 2,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "not_met",
+            "evidence": "",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "not_met",
+            "evidence": "",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": false,
+        "resultPath": "invalid",
+        "firstError": "yapanlar → zarf-fiil",
+        "errorKind": "yontem",
+        "flags": [],
+        "confidence": "high",
+        "note": "Fiilimsi türleri birbiriyle karıştırılarak ters yazılmıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 0,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "“yapanlar” için sıfat-fiil (ortaç) yazar",
+          "points": 5,
+          "role": "result",
+          "verdict": "not_met",
+          "evidence": "",
+          "earned": 0,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "“yapmadan” için zarf-fiil (bağ-fiil, ulaç) yazar",
+          "points": 5,
+          "role": "result",
+          "verdict": "not_met",
+          "evidence": "",
+          "earned": 0,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "yapanlar → zarf-fiil",
+          "crossed": false
+        },
+        {
+          "text": "yapmadan → sıfat-fiil",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 3,
+      "max": 12,
+      "grade": {
+        "q": 3,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "İstanbul Türkiye'nin en kalabalık şehridir.",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "partial",
+            "evidence": "Çünkü bu doğru bir bilgidir.",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "met",
+            "evidence": "Köyde yaşamak sıkıcıdır.",
+            "slipOnly": false
+          },
+          {
+            "id": "c4",
+            "verdict": "met",
+            "evidence": "Çünkü bazı insanlar böyle düşünmez, kişiden kişiye değişir.",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Nesnel ve öznel cümleler doğru kurulmuş, nesnellik açıklaması kanıtlanabilirlik yerine 'doğru bilgi' şeklinde eksik bırakılmıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 10.5,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Konuya uygun nesnel bir cümle yazar",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "İstanbul Türkiye'nin en kalabalık şehridir.",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Nesnelliğini kanıtlanabilir / doğrulanabilir olmasıyla açıklar",
+          "points": 3,
+          "role": "other",
+          "verdict": "partial",
+          "evidence": "Çünkü bu doğru bir bilgidir.",
+          "earned": 1.5,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "Konuya uygun öznel bir cümle yazar",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Köyde yaşamak sıkıcıdır.",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c4",
+          "text": "Öznelliğini kişisel duygu / yargı içermesiyle açıklar",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Çünkü bazı insanlar böyle düşünmez, kişiden kişiye değişir.",
+          "earned": 3,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Nesnel: İstanbul Türkiye'nin en kalabalık şehridir. Çünkü bu doğru bir bilgidir.",
+          "crossed": false
+        },
+        {
+          "text": "Öznel: Köyde yaşamak sıkıcıdır. Çünkü bazı insanlar böyle düşünmez, kişiden kişiye değişir.",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 4,
+      "max": 12,
+      "grade": {
+        "q": 4,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "Abartma",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "not_met",
+            "evidence": "",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "met",
+            "evidence": "Karşıtlık",
+            "slipOnly": false
+          },
+          {
+            "id": "c4",
+            "verdict": "not_met",
+            "evidence": "",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [
+          "wrong_justification"
+        ],
+        "confidence": "high",
+        "note": "Sanat isimleri doğru verilmiş ancak dayandırılan ifadeler yanlıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 6,
+      "status": "graded",
+      "flags": [
+        "wrong_justification"
+      ],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Abartma (mübalağa) sanatını belirtir",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Abartma",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Abartmayı “yüzyıllar süren uyku” ifadesine dayandırır",
+          "points": 3,
+          "role": "other",
+          "verdict": "not_met",
+          "evidence": "",
+          "earned": 0,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "Karşıtlık (tezat, zıtlık) sanatını belirtir",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Karşıtlık",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c4",
+          "text": "Karşıtlığı “esaret – hürriyet” zıtlığına dayandırır",
+          "points": 3,
+          "role": "other",
+          "verdict": "not_met",
+          "evidence": "",
+          "earned": 0,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Abartma: \"Kazanıp özlediği hürriyeti\"",
+          "crossed": false
+        },
+        {
+          "text": "Karşıtlık: \"Uyandı\" ve \"rüya\"",
+          "crossed": false
+        }
+      ],
+      "attention": [
+        "Gerekçe hatalı"
+      ],
+      "info": []
+    },
+    {
+      "q": 5,
+      "max": 14,
+      "grade": {
+        "q": 5,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "Doğum",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "ölüm",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Nüfus bilimi araştırmalarına örnek olabilecek iki farklı durum (doğum ve ölüm) belirtilmiştir.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 14,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Metinden nüfusu değiştiren birinci geçerli durumu yazar (taşınma, doğum, ölüm vb.)",
+          "points": 7,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Doğum",
+          "earned": 7,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Metinden nüfusu değiştiren ikinci, farklı bir geçerli durumu yazar",
+          "points": 7,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "ölüm",
+          "earned": 7,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Doğum ve ölüm",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 6,
+      "max": 15,
+      "grade": {
+        "q": 6,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "not_met",
+            "evidence": "",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [
+          "keywords_only"
+        ],
+        "confidence": "high",
+        "note": "Ana düşünce ifade edilmemiş, yalnızca tek bir kavram yazılmıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 0,
+      "status": "graded",
+      "flags": [
+        "keywords_only"
+      ],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Ana düşünceyi yazar: yapmak zor ve emek ister, yıkmak kolaydır",
+          "points": 15,
+          "role": "other",
+          "verdict": "not_met",
+          "evidence": "",
+          "earned": 0,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Sabır.",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": [
+        "Kavramlar sayılmış, açıklanmamış"
+      ]
+    },
+    {
+      "q": 7,
+      "max": 25,
+      "grade": {
+        "q": 7,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "Ben pusulayım",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "yön bulmaya yararım",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "met",
+            "evidence": "denizde, çölde ve ormanda kullanılırım",
+            "slipOnly": false
+          },
+          {
+            "id": "c4",
+            "verdict": "met",
+            "evidence": "Kaybolan insanlar benim sayemde yollarını bulur.",
+            "slipOnly": false
+          },
+          {
+            "id": "c5",
+            "verdict": "partial",
+            "evidence": "Ben pusulayım ve yön bulmaya yararım. Kuzeyi gösteren iğnem sayesinde denizde, çölde ve ormanda kullanılırım.",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Metin bilgilendirici nitelikte olsa da istenen 5 cümle yerine 3 cümleden oluşmaktadır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 22.5,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Seçtiği nesnenin ağzından kendini tanıtır (birinci tekil kişi)",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Ben pusulayım",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Ne işe yaradığını doğru anlatır",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "yön bulmaya yararım",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "Nerelerde kullanıldığını doğru anlatır",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "denizde, çölde ve ormanda kullanılırım",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c4",
+          "text": "İnsanlara nasıl yardımcı olduğunu anlatır",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Kaybolan insanlar benim sayemde yollarını bulur.",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c5",
+          "text": "En az 5 cümleden oluşan bilgilendirici bir metin yazar",
+          "points": 5,
+          "role": "other",
+          "verdict": "partial",
+          "evidence": "Ben pusulayım ve yön bulmaya yararım. Kuzeyi gösteren iğnem sayesinde denizde, çölde ve ormanda kullanılırım.",
+          "earned": 2.5,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Ben pusulayım ve yön bulmaya yararım. Kuzeyi gösteren iğnem sayesinde denizde, çölde ve ormanda kullanılırım. Kaybolan insanlar benim sayemde yollarını bulur.",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    }
+  ],
+  "expected": null,
+  "usage": {
+    "inputTokens": 4818,
+    "outputTokens": 2488
+  },
+  "ms": 24810
+}

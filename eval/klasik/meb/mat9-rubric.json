@@ -1,0 +1,246 @@
+{
+  "title": "MEB 2025-2026 9. sınıf Matematik ortak yazılı (sabah); rubrik MEB çözümünden öğretmen dağılımı",
+  "source": "https://cdn.eba.gov.tr/yardimcikaynaklar/2025/11/ortaksinav/9S_Mat_2_Don_1_Yaz_sabah_cevap.pdf",
+  "rubric": {
+    "questions": [
+      {
+        "q": 1,
+        "rev": 1,
+        "type": "islem",
+        "prompt": "İnsan kanının 1 litresinde akyuvar 0,06 · 10^8, alyuvar 0,5 · 10^10 tanedir. Toplam sayı K · 10^6 olduğuna göre K'nin değerini işlemlerinizi göstererek bulunuz.",
+        "answer": "0,06 · 10^8 = 6 · 10^6; 0,5 · 10^10 = 5000 · 10^6; 6 · 10^6 + 5000 · 10^6 = 5006 · 10^6, K = 5006",
+        "criteria": [
+          {
+            "id": "c1",
+            "text": "İki sayıyı aynı 10 kuvvetine (ör. 10^6) doğru çevirir ya da eşdeğer geçerli bir yol izler",
+            "points": 5,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c2",
+            "text": "Toplamı geçerli adımlarla K · 10^6 biçimine getirir",
+            "points": 5,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c3",
+            "text": "Sonuç K = 5006 ve öğrencinin kendi geçerli adımlarından çıkıyor",
+            "points": 5,
+            "role": "result",
+            "required": false
+          }
+        ],
+        "accepted": [],
+        "policy": {
+          "workRequired": true,
+          "carryForward": true,
+          "wrongInfoPenalty": false,
+          "style": "balanced"
+        }
+      },
+      {
+        "q": 2,
+        "rev": 1,
+        "type": "islem",
+        "prompt": "1/(√5 − √2) − √2/3 işleminin sonucunu işlemlerinizi göstererek bulunuz.",
+        "answer": "1/(√5−√2) = (√5+√2)/(5−2) = (√5+√2)/3; (√5+√2)/3 − √2/3 = √5/3",
+        "criteria": [
+          {
+            "id": "c1",
+            "text": "Paydayı eşleniğiyle (√5 + √2) genişleterek rasyonel yapar: (√5 + √2)/3",
+            "points": 5,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c2",
+            "text": "Kesirleri geçerli adımlarla birleştirir",
+            "points": 5,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c3",
+            "text": "Sonuç √5/3 ve öğrencinin kendi geçerli adımlarından çıkıyor",
+            "points": 5,
+            "role": "result",
+            "required": false
+          }
+        ],
+        "accepted": [],
+        "policy": {
+          "workRequired": true,
+          "carryForward": true,
+          "wrongInfoPenalty": false,
+          "style": "balanced"
+        }
+      },
+      {
+        "q": 3,
+        "rev": 1,
+        "type": "islem",
+        "prompt": "Kenar uzunlukları 2∛270 m ve ∛80 m olan dikdörtgen bahçe 6 eş dikdörtgene (3 sütun, 2 satır) ayrılmıştır. Bir bölgenin çevresini metre cinsinden işlemlerinizi göstererek bulunuz.",
+        "answer": "2∛270 = 6∛10, ∛80 = 2∛10; bölgenin kenarları 6∛10/3 = 2∛10 ve 2∛10/2 = ∛10; çevre 2(2∛10 + ∛10) = 6∛10 m",
+        "criteria": [
+          {
+            "id": "c1",
+            "text": "Kenarları kök dışına çıkarır (6∛10 ve 2∛10) ya da eşdeğer geçerli bir yol izler",
+            "points": 5,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c2",
+            "text": "Bir bölgenin kenarlarını (2∛10 ve ∛10) ve çevre formülünü doğru kurar",
+            "points": 5,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c3",
+            "text": "Sonuç 6∛10 m ve öğrencinin kendi geçerli adımlarından çıkıyor",
+            "points": 5,
+            "role": "result",
+            "required": false
+          }
+        ],
+        "accepted": [],
+        "policy": {
+          "workRequired": true,
+          "carryForward": true,
+          "wrongInfoPenalty": false,
+          "style": "balanced"
+        }
+      },
+      {
+        "q": 4,
+        "rev": 1,
+        "type": "islem",
+        "prompt": "Karaçamın yetiştiği yükselti aralığı A = [800, 2000], kızılçamın B = [0, 1200]. A ∩ B kümesini aralık gösterimi ile yazınız.",
+        "answer": "A = [800, 2000], B = [0, 1200], A ∩ B = [800, 1200]",
+        "criteria": [
+          {
+            "id": "c1",
+            "text": "A ve B kümelerini aralık olarak doğru yazar ya da ortak kısmı doğru belirler",
+            "points": 5,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c2",
+            "text": "Sonuç [800, 1200] (uç noktalar dahil, kapalı aralık)",
+            "points": 10,
+            "role": "result",
+            "required": false
+          }
+        ],
+        "accepted": [],
+        "policy": {
+          "workRequired": false,
+          "carryForward": true,
+          "wrongInfoPenalty": false,
+          "style": "balanced"
+        }
+      },
+      {
+        "q": 5,
+        "rev": 1,
+        "type": "islem",
+        "prompt": "Lastik basıncı en az 29 psi, en fazla 35 psi olmalıdır. Basınç aralığını mutlak değerli eşitsizlik olarak yazınız.",
+        "answer": "Orta nokta (29+35)/2 = 32, uzaklık |35 − 32| = 3; |x − 32| ≤ 3",
+        "criteria": [
+          {
+            "id": "c1",
+            "text": "Aralığın orta noktasını 32 olarak bulur",
+            "points": 5,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c2",
+            "text": "Orta noktaya uzaklığı 3 olarak bulur",
+            "points": 5,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c3",
+            "text": "Sonuç |x − 32| ≤ 3 (eşitlik dahil)",
+            "points": 5,
+            "role": "result",
+            "required": false
+          }
+        ],
+        "accepted": [],
+        "policy": {
+          "workRequired": false,
+          "carryForward": true,
+          "wrongInfoPenalty": false,
+          "style": "balanced"
+        }
+      },
+      {
+        "q": 6,
+        "rev": 1,
+        "type": "yorum",
+        "prompt": "“Doğal sayılar kümesi çıkarma işlemine göre kapalıdır.” önermesinin yanlış olduğunu karşıt örnek sunarak gösteriniz.",
+        "answer": "a, b ∈ N için a − b ∉ N olan herhangi bir örnek, ör. 3 − 5 = −2 ∉ N",
+        "criteria": [
+          {
+            "id": "c1",
+            "text": "İki doğal sayı ile farklarının doğal sayı olmadığı geçerli bir karşıt örnek verir ve sonucun N'de olmadığını belirtir",
+            "points": 10,
+            "role": "other",
+            "required": false
+          }
+        ],
+        "accepted": [],
+        "policy": {
+          "workRequired": false,
+          "carryForward": true,
+          "wrongInfoPenalty": false,
+          "style": "balanced"
+        }
+      },
+      {
+        "q": 7,
+        "rev": 1,
+        "type": "islem",
+        "prompt": "Mavi kart x cm × 20 cm, sarı kart x cm × 2x cm. Mavi kartın alanı sarıdan 50 cm² fazla olduğuna göre x'i işlemlerinizi göstererek bulunuz.",
+        "answer": "20x = 2x² + 50 → 2x² − 20x + 50 = 0 → x² − 10x + 25 = 0 → (x − 5)² = 0 → x = 5",
+        "criteria": [
+          {
+            "id": "c1",
+            "text": "Alanları (20x ve 2x²) ve 20x = 2x² + 50 denklemini doğru kurar",
+            "points": 5,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c2",
+            "text": "Denklemi geçerli adımlarla çözer (çarpanlara ayırma, formül ya da başka geçerli yol)",
+            "points": 5,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c3",
+            "text": "Sonuç x = 5 ve öğrencinin kendi geçerli adımlarından çıkıyor",
+            "points": 5,
+            "role": "result",
+            "required": false
+          }
+        ],
+        "accepted": [],
+        "policy": {
+          "workRequired": true,
+          "carryForward": true,
+          "wrongInfoPenalty": false,
+          "style": "balanced"
+        }
+      }
+    ]
+  }
+}

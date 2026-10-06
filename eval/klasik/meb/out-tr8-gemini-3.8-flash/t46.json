@@ -1,0 +1,625 @@
+{
+  "student": "Masal Gündoğdu",
+  "pages": 1,
+  "total": 86.5,
+  "max": 100,
+  "percent": 87,
+  "questions": [
+    {
+      "q": 1,
+      "max": 12,
+      "grade": {
+        "q": 1,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "kimsenin kapısını çalmadan elindekiyle yetinip geçinmek demektir.",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "Dağ başındaki o küçük köyde yaşlı çoban, sürüsüyle kendi yağıyla kavruluyordu.",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "met",
+            "evidence": "bir şeyi incecik ayrıntılarına kadar didik didik incelemektir.",
+            "slipOnly": false
+          },
+          {
+            "id": "c4",
+            "verdict": "met",
+            "evidence": "Ressam, tablosundaki her fırça darbesinde kılı kırk yarıyordu.",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Her iki deyimin anlamı ve örnek cümleleri eksiksiz yazılmıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 12,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "“Kendi yağıyla kavrulmak” deyiminin anlamını doğru yazar (elindekiyle geçinip kimseye muhtaç olmamak)",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "kimsenin kapısını çalmadan elindekiyle yetinip geçinmek demektir.",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "“Kendi yağıyla kavrulmak” deyimini anlamına uygun bir cümlede kullanır",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Dağ başındaki o küçük köyde yaşlı çoban, sürüsüyle kendi yağıyla kavruluyordu.",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "“Kılı kırk yarmak” deyiminin anlamını doğru yazar (çok titiz, ayrıntılı davranmak)",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "bir şeyi incecik ayrıntılarına kadar didik didik incelemektir.",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c4",
+          "text": "“Kılı kırk yarmak” deyimini anlamına uygun bir cümlede kullanır",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Ressam, tablosundaki her fırça darbesinde kılı kırk yarıyordu.",
+          "earned": 3,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Kendi yağıyla kavrulmak, kimsenin kapısını çalmadan elindekiyle yetinip geçinmek demektir.",
+          "crossed": false
+        },
+        {
+          "text": "Dağ başındaki o küçük köyde yaşlı çoban, sürüsüyle kendi yağıyla kavruluyordu.",
+          "crossed": false
+        },
+        {
+          "text": "Kılı kırk yarmak ise bir şeyi incecik ayrıntılarına kadar didik didik incelemektir.",
+          "crossed": false
+        },
+        {
+          "text": "Ressam, tablosundaki her fırça darbesinde kılı kırk yarıyordu.",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 2,
+      "max": 10,
+      "grade": {
+        "q": 2,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "sıfatfiil",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "zarffiil",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": true,
+        "resultPath": "valid",
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Fiilimsi türleri doğru belirtilmiştir.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 10,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "“yapanlar” için sıfat-fiil (ortaç) yazar",
+          "points": 5,
+          "role": "result",
+          "verdict": "met",
+          "evidence": "sıfatfiil",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "“yapmadan” için zarf-fiil (bağ-fiil, ulaç) yazar",
+          "points": 5,
+          "role": "result",
+          "verdict": "met",
+          "evidence": "zarffiil",
+          "earned": 5,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "yapanlar: sıfatfiil",
+          "crossed": false
+        },
+        {
+          "text": "yapmadan: zarffiil",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 3,
+      "max": 12,
+      "grade": {
+        "q": 3,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "not_met",
+            "evidence": "",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "Bilimsel olarak kanıtlanmıştır.",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "not_met",
+            "evidence": "",
+            "slipOnly": false
+          },
+          {
+            "id": "c4",
+            "verdict": "met",
+            "evidence": "Benim duygularımı anlatır.",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [
+          "off_topic"
+        ],
+        "confidence": "high",
+        "note": "Cümleler nesnel ve öznel kavramlarını açıklasa da soru kökündeki 'köy ve şehir yaşamı' konusuna uygun yazılmamıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 6,
+      "status": "graded",
+      "flags": [
+        "off_topic"
+      ],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Konuya uygun nesnel bir cümle yazar",
+          "points": 3,
+          "role": "other",
+          "verdict": "not_met",
+          "evidence": "",
+          "earned": 0,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Nesnelliğini kanıtlanabilir / doğrulanabilir olmasıyla açıklar",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Bilimsel olarak kanıtlanmıştır.",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "Konuya uygun öznel bir cümle yazar",
+          "points": 3,
+          "role": "other",
+          "verdict": "not_met",
+          "evidence": "",
+          "earned": 0,
+          "counted": true
+        },
+        {
+          "id": "c4",
+          "text": "Öznelliğini kişisel duygu / yargı içermesiyle açıklar",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Benim duygularımı anlatır.",
+          "earned": 3,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Nesnel: Ay, Dünya'nın etrafında döner. Bilimsel olarak kanıtlanmıştır.",
+          "crossed": false
+        },
+        {
+          "text": "Öznel: Yıldızlı gökyüzü dünyanın en güzel manzarasıdır. Benim duygularımı anlatır.",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": [
+        "Cevap soruyla ilgili değil"
+      ]
+    },
+    {
+      "q": 4,
+      "max": 12,
+      "grade": {
+        "q": 4,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "abartmış",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "\"yüzyıllar süren uyku\"",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "met",
+            "evidence": "tezat",
+            "slipOnly": false
+          },
+          {
+            "id": "c4",
+            "verdict": "met",
+            "evidence": "\"Esaret\" ve \"hürriyet\" zıt kavramlar olduğundan",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Abartma ve tezat sanatları ilgili ifadelerle birlikte doğru tespit edilmiştir.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 12,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Abartma (mübalağa) sanatını belirtir",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "abartmış",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Abartmayı “yüzyıllar süren uyku” ifadesine dayandırır",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "\"yüzyıllar süren uyku\"",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "Karşıtlık (tezat, zıtlık) sanatını belirtir",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "tezat",
+          "earned": 3,
+          "counted": true
+        },
+        {
+          "id": "c4",
+          "text": "Karşıtlığı “esaret – hürriyet” zıtlığına dayandırır",
+          "points": 3,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "\"Esaret\" ve \"hürriyet\" zıt kavramlar olduğundan",
+          "earned": 3,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Şair, esaretin çok uzun sürdüğünü anlatmak için \"yüzyıllar süren uyku\" diyerek abartmış.",
+          "crossed": false
+        },
+        {
+          "text": "\"Esaret\" ve \"hürriyet\" zıt kavramlar olduğundan tezat yapılmış.",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 5,
+      "max": 14,
+      "grade": {
+        "q": 5,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "Karşı apartmana yeni bir ailenin yerleşmesi",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "Mahallede yaşayan bir dedenin hayatını kaybetmesi",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Göç ve ölüm durumlarına uygun iki farklı geçerli örnek verilmiştir.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 14,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Metinden nüfusu değiştiren birinci geçerli durumu yazar (taşınma, doğum, ölüm vb.)",
+          "points": 7,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Karşı apartmana yeni bir ailenin yerleşmesi",
+          "earned": 7,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Metinden nüfusu değiştiren ikinci, farklı bir geçerli durumu yazar",
+          "points": 7,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Mahallede yaşayan bir dedenin hayatını kaybetmesi",
+          "earned": 7,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Karşı apartmana yeni bir ailenin yerleşmesi",
+          "crossed": false
+        },
+        {
+          "text": "Mahallede yaşayan bir dedenin hayatını kaybetmesi",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 6,
+      "max": 15,
+      "grade": {
+        "q": 6,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "partial",
+            "evidence": "Bir apartman aylarca uğraşılarak yapılıyor, sonra eskidiği için dozerlerle birkaç saatte yıkılıyor.",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Ana düşünceyi genel bir yargı olarak ifade etmek yerine metindeki somut örneği aktarmıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 7.5,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Ana düşünceyi yazar: yapmak zor ve emek ister, yıkmak kolaydır",
+          "points": 15,
+          "role": "other",
+          "verdict": "partial",
+          "evidence": "Bir apartman aylarca uğraşılarak yapılıyor, sonra eskidiği için dozerlerle birkaç saatte yıkılıyor.",
+          "earned": 7.5,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Bir apartman aylarca uğraşılarak yapılıyor, sonra eskidiği için dozerlerle birkaç saatte yıkılıyor.",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 7,
+      "max": 25,
+      "grade": {
+        "q": 7,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "Ben, karanlık gecelerin sessiz bekçisi teleskobum.",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "Uzaklardaki yıldızların, gezegenlerin ışığını toplar ve onları sizin gözünüze yaklaştırırım.",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "met",
+            "evidence": "Beni dağ tepelerindeki gözlemevlerinde, okul bahçelerinde ve hatta uzayda bulabilirsiniz.",
+            "slipOnly": false
+          },
+          {
+            "id": "c4",
+            "verdict": "met",
+            "evidence": "Gökbilimciler benimle yeni dünyalar keşfeder.",
+            "slipOnly": false
+          },
+          {
+            "id": "c5",
+            "verdict": "met",
+            "evidence": "Ben, karanlık gecelerin sessiz bekçisi teleskobum. Uzaklardaki yıldızların, gezegenlerin ışığını toplar ve onları sizin gözünüze yaklaştırırım.",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "İstenen tüm unsurları içeren 5 cümlelik metin eksiksiz yazılmıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 25,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Seçtiği nesnenin ağzından kendini tanıtır (birinci tekil kişi)",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Ben, karanlık gecelerin sessiz bekçisi teleskobum.",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Ne işe yaradığını doğru anlatır",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Uzaklardaki yıldızların, gezegenlerin ışığını toplar ve onları sizin gözünüze yaklaştırırım.",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "Nerelerde kullanıldığını doğru anlatır",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Beni dağ tepelerindeki gözlemevlerinde, okul bahçelerinde ve hatta uzayda bulabilirsiniz.",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c4",
+          "text": "İnsanlara nasıl yardımcı olduğunu anlatır",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Gökbilimciler benimle yeni dünyalar keşfeder.",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c5",
+          "text": "En az 5 cümleden oluşan bilgilendirici bir metin yazar",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Ben, karanlık gecelerin sessiz bekçisi teleskobum. Uzaklardaki yıldızların, gezegenlerin ışığını toplar ve onları sizin gözünüze yaklaştırırım.",
+          "earned": 5,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Ben, karanlık gecelerin sessiz bekçisi teleskobum. Uzaklardaki yıldızların, gezegenlerin ışığını toplar ve onları sizin gözünüze yaklaştırırım. Beni dağ tepelerindeki gözlemevlerinde, okul bahçelerinde ve hatta uzayda bulabilirsiniz. Gökbilimciler benimle yeni dünyalar keşfeder. Çocuklar benim sayemde Ay'ın yüzündeki çukurları ilk kez görür ve hayran kalır.",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    }
+  ],
+  "expected": null,
+  "usage": {
+    "inputTokens": 4967,
+    "outputTokens": 2717
+  },
+  "ms": 16080
+}

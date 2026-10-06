@@ -1,0 +1,280 @@
+{
+  "title": "MEB 2025-2026 8. sınıf Türkçe ortak yazılı (sabah); rubrik MEB cevap anahtarındaki puan dağılımı",
+  "source": "https://cdn.eba.gov.tr/yardimcikaynaklar/2025/11/ortaksinav/8S_Turkce_1_Donem_1_Yazili_MEB_SABAH_CEV.pdf",
+  "rubric": {
+    "questions": [
+      {
+        "q": 1,
+        "rev": 1,
+        "type": "yorum",
+        "prompt": "“Kendi yağıyla kavrulmak” ve “kılı kırk yarmak” deyimlerinin cümleye kattığı anlamı yazınız; her birini anlamına uygun bir cümlede kullanınız.",
+        "answer": "Kendi yağıyla kavrulmak: elindekiyle geçinip kimseye muhtaç olmamak; kılı kırk yarmak: titiz ve ayrıntılı incelemek",
+        "criteria": [
+          {
+            "id": "c1",
+            "text": "“Kendi yağıyla kavrulmak” deyiminin anlamını doğru yazar (elindekiyle geçinip kimseye muhtaç olmamak)",
+            "points": 3,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c2",
+            "text": "“Kendi yağıyla kavrulmak” deyimini anlamına uygun bir cümlede kullanır",
+            "points": 3,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c3",
+            "text": "“Kılı kırk yarmak” deyiminin anlamını doğru yazar (çok titiz, ayrıntılı davranmak)",
+            "points": 3,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c4",
+            "text": "“Kılı kırk yarmak” deyimini anlamına uygun bir cümlede kullanır",
+            "points": 3,
+            "role": "other",
+            "required": false
+          }
+        ],
+        "accepted": [],
+        "policy": {
+          "workRequired": false,
+          "carryForward": true,
+          "wrongInfoPenalty": false,
+          "style": "balanced"
+        }
+      },
+      {
+        "q": 2,
+        "rev": 1,
+        "type": "kisa",
+        "prompt": "“Dünya, kötülük yapanlar yüzünden değil; onları hiçbir şey yapmadan seyredenler yüzünden mahvolacaktır.” cümlesindeki “yapanlar” ve “yapmadan” fiilimsilerinin türünü yazınız.",
+        "answer": "yapanlar: sıfat-fiil; yapmadan: zarf-fiil",
+        "criteria": [
+          {
+            "id": "c1",
+            "text": "“yapanlar” için sıfat-fiil (ortaç) yazar",
+            "points": 5,
+            "role": "result",
+            "required": true
+          },
+          {
+            "id": "c2",
+            "text": "“yapmadan” için zarf-fiil (bağ-fiil, ulaç) yazar",
+            "points": 5,
+            "role": "result",
+            "required": true
+          }
+        ],
+        "accepted": [],
+        "policy": {
+          "workRequired": false,
+          "carryForward": true,
+          "wrongInfoPenalty": false,
+          "style": "balanced"
+        }
+      },
+      {
+        "q": 3,
+        "rev": 1,
+        "type": "yorum",
+        "prompt": "“Köy ve şehir yaşamı” konusuna uygun nesnel ve öznel birer cümle yazınız; neden nesnel / öznel olduğunu açıklayınız.",
+        "answer": "Nesnel: kanıtlanabilir bilgi (ör. Şehirlerde betonlaşma artmaktadır); öznel: kişisel yargı (ör. Köy hayatı insana huzur verir)",
+        "criteria": [
+          {
+            "id": "c1",
+            "text": "Konuya uygun nesnel bir cümle yazar",
+            "points": 3,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c2",
+            "text": "Nesnelliğini kanıtlanabilir / doğrulanabilir olmasıyla açıklar",
+            "points": 3,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c3",
+            "text": "Konuya uygun öznel bir cümle yazar",
+            "points": 3,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c4",
+            "text": "Öznelliğini kişisel duygu / yargı içermesiyle açıklar",
+            "points": 3,
+            "role": "other",
+            "required": false
+          }
+        ],
+        "accepted": [],
+        "policy": {
+          "workRequired": false,
+          "carryForward": true,
+          "wrongInfoPenalty": false,
+          "style": "balanced"
+        }
+      },
+      {
+        "q": 4,
+        "rev": 1,
+        "type": "yorum",
+        "prompt": "“Kırıp esaret zincirlerini / Uyandı yüzyıllar süren uykusundan / Kazanıp özlediği hürriyeti / Kurtuldu korkulu rüyasından” dizelerindeki söz sanatlarını ve bulduğunuz ifadeleri yazınız.",
+        "answer": "Abartma (mübalağa): uykunun yüzyıllar sürmesi; karşıtlık (tezat): esaret ile hürriyet",
+        "criteria": [
+          {
+            "id": "c1",
+            "text": "Abartma (mübalağa) sanatını belirtir",
+            "points": 3,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c2",
+            "text": "Abartmayı “yüzyıllar süren uyku” ifadesine dayandırır",
+            "points": 3,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c3",
+            "text": "Karşıtlık (tezat, zıtlık) sanatını belirtir",
+            "points": 3,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c4",
+            "text": "Karşıtlığı “esaret – hürriyet” zıtlığına dayandırır",
+            "points": 3,
+            "role": "other",
+            "required": false
+          }
+        ],
+        "accepted": [
+          {
+            "text": "Abartma ya da karşıtlık yerine dizelerde gerçekten bulunan başka bir söz sanatı (ör. kişileştirme: millet “uyandı”, “kurtuldu”; benzetme / istiare: “esaret zincirleri”, “korkulu rüya”) adıyla ve dayandığı ifadeyle doğru gösterilirse, eksik bıraktığı sanatın iki ölçütünü karşılar.",
+            "example": null,
+            "by": "teacher"
+          }
+        ],
+        "policy": {
+          "workRequired": false,
+          "carryForward": true,
+          "wrongInfoPenalty": false,
+          "style": "balanced"
+        }
+      },
+      {
+        "q": 5,
+        "rev": 1,
+        "type": "yorum",
+        "prompt": "Metne göre nüfus bilimi araştırmalarına örnek olabilecek durumlardan ikisini yazınız.",
+        "answer": "Yeni insanların mahalleye taşınması (göç), çocuk sahibi olunması (doğum), başka şehirlere taşınma (göç), büyüklerin vefatı (ölüm) — herhangi ikisi",
+        "criteria": [
+          {
+            "id": "c1",
+            "text": "Metinden nüfusu değiştiren birinci geçerli durumu yazar (taşınma, doğum, ölüm vb.)",
+            "points": 7,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c2",
+            "text": "Metinden nüfusu değiştiren ikinci, farklı bir geçerli durumu yazar",
+            "points": 7,
+            "role": "other",
+            "required": false
+          }
+        ],
+        "accepted": [],
+        "policy": {
+          "workRequired": false,
+          "carryForward": true,
+          "wrongInfoPenalty": false,
+          "style": "balanced"
+        }
+      },
+      {
+        "q": 6,
+        "rev": 1,
+        "type": "yorum",
+        "prompt": "Bina yapımı ve yıkımı üzerine verilen metnin ana düşüncesini yazınız.",
+        "answer": "Yapmak zor, yıkmak kolaydır; bir şeyi yapmak için harcanan emek, yıkmak için harcanandan çok fazladır",
+        "criteria": [
+          {
+            "id": "c1",
+            "text": "Ana düşünceyi yazar: yapmak zor ve emek ister, yıkmak kolaydır",
+            "points": 15,
+            "role": "other",
+            "required": false
+          }
+        ],
+        "accepted": [],
+        "policy": {
+          "workRequired": false,
+          "carryForward": true,
+          "wrongInfoPenalty": false,
+          "style": "balanced"
+        }
+      },
+      {
+        "q": 7,
+        "rev": 1,
+        "type": "yorum",
+        "prompt": "Teleskop, pusula ya da elektrik ampulünden biri olduğunuzu hayal ederek kendinizi tanıtan, en az 5 cümlelik bilgilendirici bir metin yazınız (ne işe yaradığınız, nerelerde kullanıldığınız, insanlara nasıl yardımcı olduğunuz).",
+        "answer": "Ör. Ben pusulayım; kuzeyi gösteririm, denizciler ve dağcılar kullanır, insanların yön bulmasına yardım ederim…",
+        "criteria": [
+          {
+            "id": "c1",
+            "text": "Seçtiği nesnenin ağzından kendini tanıtır (birinci tekil kişi)",
+            "points": 5,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c2",
+            "text": "Ne işe yaradığını doğru anlatır",
+            "points": 5,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c3",
+            "text": "Nerelerde kullanıldığını doğru anlatır",
+            "points": 5,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c4",
+            "text": "İnsanlara nasıl yardımcı olduğunu anlatır",
+            "points": 5,
+            "role": "other",
+            "required": false
+          },
+          {
+            "id": "c5",
+            "text": "En az 5 cümleden oluşan bilgilendirici bir metin yazar",
+            "points": 5,
+            "role": "other",
+            "required": false
+          }
+        ],
+        "accepted": [],
+        "policy": {
+          "workRequired": false,
+          "carryForward": true,
+          "wrongInfoPenalty": false,
+          "style": "balanced"
+        }
+      }
+    ]
+  }
+}

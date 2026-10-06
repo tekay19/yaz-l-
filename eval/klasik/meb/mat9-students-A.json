@@ -1,0 +1,2972 @@
+{
+ "students": [
+  {
+   "id": "m01",
+   "name": "Elif Yıldız",
+   "persona": "çalışkan, düzenli; her adımı yazar",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "0,06 · 10^8 = 6 · 10^6",
+      "0,5 · 10^10 = 5000 · 10^6",
+      "6 · 10^6 + 5000 · 10^6 = 5006 · 10^6",
+      "K = 5006"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "1/(√5 − √2) = (√5 + √2)/((√5 − √2)(√5 + √2))",
+      "= (√5 + √2)/(5 − 2) = (√5 + √2)/3",
+      "(√5 + √2)/3 − √2/3 = √5/3"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "2∛270 = 2∛(27 · 10) = 2 · 3∛10 = 6∛10",
+      "∛80 = ∛(8 · 10) = 2∛10",
+      "Bölgenin kenarları: 6∛10 / 3 = 2∛10 ve 2∛10 / 2 = ∛10",
+      "Çevre = 2(2∛10 + ∛10) = 2 · 3∛10 = 6∛10 m"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "A = [800, 2000]",
+      "B = [0, 1200]",
+      "A ∩ B = [800, 1200]"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Orta nokta: (29 + 35)/2 = 32",
+      "Uzaklık: 35 − 32 = 3",
+      "|x − 32| ≤ 3"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "3 ∈ N ve 5 ∈ N",
+      "3 − 5 = −2",
+      "−2 ∉ N olduğu için N çıkarma işlemine göre kapalı değildir."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Mavi alan = 20x, sarı alan = x · 2x = 2x²",
+      "20x = 2x² + 50",
+      "2x² − 20x + 50 = 0",
+      "x² − 10x + 25 = 0",
+      "(x − 5)² = 0",
+      "x = 5"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 15,
+     "tags": [
+      "dogru"
+     ],
+     "why": "İki sayıyı 10^6'ya doğru çevirmiş, toplamı K · 10^6 biçimine getirmiş ve K = 5006'yı kendi adımlarından bulmuş; üç ölçüt de karşılanıyor."
+    },
+    {
+     "q": 2,
+     "points": 15,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Paydayı eşleniğiyle rasyonel yapmış, kesirleri birleştirmiş ve √5/3 sonucuna geçerli adımlarla ulaşmış."
+    },
+    {
+     "q": 3,
+     "points": 15,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Kökleri doğru sadeleştirmiş, bölgenin kenarlarını ve çevre formülünü doğru kurmuş, 6∛10 m sonucunu bulmuş."
+    },
+    {
+     "q": 4,
+     "points": 15,
+     "tags": [
+      "dogru"
+     ],
+     "why": "A ve B'yi aralık olarak doğru yazmış ve kesişimi kapalı aralık [800, 1200] olarak bulmuş."
+    },
+    {
+     "q": 5,
+     "points": 15,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Orta noktayı 32, uzaklığı 3 bulmuş ve |x − 32| ≤ 3 eşitsizliğini eşitlik dahil doğru yazmış."
+    },
+    {
+     "q": 6,
+     "points": 10,
+     "tags": [
+      "dogru"
+     ],
+     "why": "İki doğal sayıyla geçerli bir karşıt örnek vermiş ve farkın N'de olmadığını açıkça belirtmiş."
+    },
+    {
+     "q": 7,
+     "points": 15,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Alanları ve 20x = 2x² + 50 denklemini doğru kurmuş, çarpanlara ayırarak çözmüş ve x = 5 bulmuş."
+    }
+   ]
+  },
+  {
+   "id": "m02",
+   "name": "Burak Demir",
+   "persona": "güçlü, yaratıcı; anahtardan farklı yollar dener",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "0,5 · 10^10 = 50 · 10^8",
+      "0,06 · 10^8 + 50 · 10^8 = 50,06 · 10^8",
+      "50,06 · 10^8 = 5006 · 10^6",
+      "K = 5006"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "Önce payda eşitledim:",
+      "1/(√5 − √2) − √2/3 = (3 − √2(√5 − √2)) / (3(√5 − √2))",
+      "= (3 − √10 + 2) / (3(√5 − √2)) = (5 − √10) / (3(√5 − √2))",
+      "5 − √10 = √5(√5 − √2)",
+      "= √5(√5 − √2) / (3(√5 − √2)) = √5/3"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Bir bölgenin uzun kenarı = 2∛270 / 3, kısa kenarı = ∛80 / 2",
+      "2∛270 / 3 = 2 · 3∛10 / 3 = 2∛10",
+      "∛80 / 2 = 2∛10 / 2 = ∛10",
+      "Ç = 2 · (2∛10 + ∛10) = 6∛10 m"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Sayı doğrusunda A'yı 800'den 2000'e, B'yi 0'dan 1200'e taradım.",
+      "İki taramanın çakıştığı yer 800 ile 1200 arası, uçlar dahil.",
+      "A ∩ B = [800, 1200]"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "|x − a| ≤ b ⇒ a − b ≤ x ≤ a + b",
+      "a − b = 29, a + b = 35",
+      "2a = 64 ⇒ a = 32, b = 3",
+      "|x − 32| ≤ 3"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "0 − 1 = −1",
+      "0 ve 1 doğal sayı ama −1 doğal sayı değil.",
+      "Yani önerme yanlış."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "20x = 2x² + 50",
+      "2x² − 20x + 50 = 0",
+      "Δ = (−20)² − 4 · 2 · 50 = 400 − 400 = 0",
+      "x = 20 / (2 · 2) = 5"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 15,
+     "tags": [
+      "farkli-dogru"
+     ],
+     "why": "10^8'e çevirerek eşdeğer geçerli bir yol izlemiş, sonra toplamı doğru biçimde 5006 · 10^6'ya getirmiş; tüm ölçütler karşılanıyor."
+    },
+    {
+     "q": 2,
+     "points": 15,
+     "tags": [
+      "farkli-dogru"
+     ],
+     "why": "Eşlenikle genişletmek yerine payda eşitleyip ortak çarpanı sadeleştirmiş; bu geçerli farklı yol rasyonel hale getirme ve birleştirme ölçütlerini karşılıyor, sonuç √5/3 doğru."
+    },
+    {
+     "q": 3,
+     "points": 15,
+     "tags": [
+      "farkli-dogru"
+     ],
+     "why": "Önce bölmeyi kurup sonra kökleri sadeleştirmiş; eşdeğer geçerli yol, kenarlar ve çevre formülü doğru, sonuç 6∛10 m."
+    },
+    {
+     "q": 4,
+     "points": 15,
+     "tags": [
+      "farkli-dogru"
+     ],
+     "why": "Sayı doğrusuyla ortak kısmı doğru belirlemiş ve sonucu kapalı aralık [800, 1200] olarak yazmış."
+    },
+    {
+     "q": 5,
+     "points": 15,
+     "tags": [
+      "farkli-dogru"
+     ],
+     "why": "Denklem sistemi kurarak orta noktayı 32, uzaklığı 3 bulmuş; geçerli farklı yol, sonuç |x − 32| ≤ 3 doğru."
+    },
+    {
+     "q": 6,
+     "points": 10,
+     "tags": [
+      "farkli-dogru"
+     ],
+     "why": "0 ve 1 doğal sayılarıyla anahtardan farklı ama geçerli bir karşıt örnek vermiş ve −1'in doğal sayı olmadığını belirtmiş."
+    },
+    {
+     "q": 7,
+     "points": 15,
+     "tags": [
+      "farkli-dogru"
+     ],
+     "why": "Denklemi doğru kurmuş, diskriminant formülüyle geçerli biçimde çözmüş ve x = 5 bulmuş."
+    }
+   ]
+  },
+  {
+   "id": "m03",
+   "name": "Zeynep Kaya",
+   "persona": "ortalama, dikkatsiz; yöntem doğru ama hesapta kayıyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "0,06 · 10^8 = 6 · 10^6",
+      "0,5 · 10^10 = 5000 · 10^6",
+      "6 · 10^6 + 5000 · 10^6 = 5060 · 10^6",
+      "K = 5060"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      {
+       "text": "1/(√5 − √2) = 1/√5 − 1/√2",
+       "crossed": true
+      },
+      "1/(√5 − √2) · (√5 + √2)/(√5 + √2) = (√5 + √2)/3",
+      "(√5 + √2)/3 − √2/3 = √5/3"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "2∛270 = 6∛10",
+      "∛80 = 2∛10",
+      "6∛10 / 3 = 3∛10, 2∛10 / 2 = ∛10",
+      "Ç = 2(3∛10 + ∛10) = 8∛10 m"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "A = [800, 2000], B = [0, 1200]",
+      "Kesişim = [800,"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "(29 + 35) / 2 = 31",
+      "35 − 31 = 4",
+      "|x − 31| ≤ 4"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "5 − 8 = −3"
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "20x = 2x² + 50",
+      "2x² − 20x + 50 = 0",
+      "Δ = 400 − 4 · 2 · 50 = 0",
+      "x = 20 / 4 = 4"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 10,
+     "tags": [
+      "islem-hatasi"
+     ],
+     "why": "Çevirmeler ve K · 10^6 biçimi doğru (c1, c2), ancak 6 + 5000'i 5060 toplamış; işlem hatası yalnız sonuç ölçütünü düşürür."
+    },
+    {
+     "q": 2,
+     "points": 15,
+     "tags": [
+      "dogru",
+      "ustu-cizili"
+     ],
+     "why": "Üstü çizili yanlış satır değerlendirilmez; geri kalan çözüm eşlenikle doğru rasyonel yapıp √5/3 sonucuna ulaşıyor."
+    },
+    {
+     "q": 3,
+     "points": 10,
+     "tags": [
+      "islem-hatasi"
+     ],
+     "why": "Kökler doğru, bölge kenarları ve çevre formülü doğru kurulmuş; yalnız 6∛10/3'ü 3∛10 bölmüş, bu işlem hatası sadece sonuç ölçütünü götürür."
+    },
+    {
+     "q": 4,
+     "points": 5,
+     "tags": [
+      "yarim"
+     ],
+     "why": "A ve B'yi doğru yazmış (c1) ama kesişimi yarım bırakmış; sonuç yok."
+    },
+    {
+     "q": 5,
+     "points": 10,
+     "tags": [
+      "islem-hatasi"
+     ],
+     "why": "Orta nokta yöntemi doğru ama 64/2'yi 31 bulmuş; işlem hatasında yöntem ölçütleri tam kalır, sonraki uzaklık hatalı değere göre doğru, yalnız sonuç ölçütü 0."
+    },
+    {
+     "q": 6,
+     "points": 5,
+     "tags": [
+      "yarim"
+     ],
+     "why": "Geçerli bir karşıt örnek vermiş ama sonucun N'de olmadığını belirtmemiş; ölçütün bir parçası eksik, kısmen."
+    },
+    {
+     "q": 7,
+     "points": 10,
+     "tags": [
+      "islem-hatasi"
+     ],
+     "why": "Denklem ve çözüm yöntemi doğru; son adımda 20/4'ü 4 bulmuş, işlem hatası yalnız sonuç ölçütünü götürür."
+    }
+   ]
+  },
+  {
+   "id": "m04",
+   "name": "Mehmet Arslan",
+   "persona": "zayıf; sadece sonuçları yazıyor, işlem göstermiyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "K = 5006"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "√5/3"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "6∛10 m"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "[800, 1200]"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "|x − 32| ≤ 3"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Yanlıştır."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "x = 5"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 0,
+     "tags": [
+      "desteksiz"
+     ],
+     "why": "İşlem şart olan soruda yalnız sonuç yazılmış; kurallara göre sorunun tamamı 0."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "desteksiz"
+     ],
+     "why": "İşlem şart olan soruda yalnız sonuç yazılmış, hiçbir adım yok; puan 0."
+    },
+    {
+     "q": 3,
+     "points": 0,
+     "tags": [
+      "desteksiz"
+     ],
+     "why": "İşlem şart olan soruda yalnız sonuç verilmiş; sorunun tamamı 0."
+    },
+    {
+     "q": 4,
+     "points": 15,
+     "tags": [
+      "desteksiz"
+     ],
+     "why": "İşlem şart olmayan soruda doğru sonuç tek başına tam puan alır."
+    },
+    {
+     "q": 5,
+     "points": 15,
+     "tags": [
+      "desteksiz"
+     ],
+     "why": "İşlem şart olmayan soruda doğru sonuç tek başına tam puan alır."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "desteksiz"
+     ],
+     "why": "Önermenin yanlış olduğunu söylemiş ama karşıt örnek ve gerekçe yok; ölçüt karşılanmıyor."
+    },
+    {
+     "q": 7,
+     "points": 0,
+     "tags": [
+      "desteksiz"
+     ],
+     "why": "İşlem şart olan soruda yalnız sonuç yazılmış; sorunun tamamı 0."
+    }
+   ]
+  },
+  {
+   "id": "m05",
+   "name": "Ayşe Çelik",
+   "persona": "zayıf; kuralları karıştırıyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "0,06 · 10^8 = 0,6 · 10^6",
+      "0,5 · 10^10 = 5 · 10^6",
+      "0,6 · 10^6 + 5 · 10^6 = 5,6 · 10^6",
+      "K = 5,6"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "1/(√5 − √2) · (√5 − √2)/(√5 − √2) = (√5 − √2)/(5 − 2)",
+      "= (√5 − √2)/3",
+      "(√5 − √2)/3 − √2/3 = (√5 − 2√2)/3"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "∛270 = ∛(9 · 30) = 3∛30",
+      "2∛270 = 6∛30",
+      "∛80 = ∛(16 · 5) = 4∛5",
+      "Bölge: 6∛30 / 3 = 2∛30, 4∛5 / 2 = 2∛5",
+      "Ç = 2(2∛30 + 2∛5) = 4∛30 + 4∛5"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "A = [800, 2000]",
+      "B = [0, 1200]",
+      "A ∩ B = [0, 2000]"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "|x − 3| ≤ 32"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "7 − 3 = 4",
+      "4 ∈ N"
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "20x = 2x² − 50",
+      "2x² − 20x − 50 = 0",
+      "x² − 10x − 25 = 0",
+      "Δ = 100 + 100 = 200",
+      "x = (10 ± 10√2)/2 = 5 ± 5√2"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 0,
+     "tags": [
+      "yontem-hatasi"
+     ],
+     "why": "Üs kaydırma kuralını yanlış uygulamış (0,06 · 10^8 = 0,6 · 10^6); yöntem hatası çevirme ölçütünü ve sonraki tüm ölçütleri 0 yapar."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "yontem-hatasi"
+     ],
+     "why": "Eşlenik yerine paydanın kendisiyle genişletmiş (yanlış eşlenik); yöntem hatası c1'i ve sonraki ölçütleri 0 yapar."
+    },
+    {
+     "q": 3,
+     "points": 0,
+     "tags": [
+      "yontem-hatasi"
+     ],
+     "why": "Küp kökü karekök gibi açmış (9'u 3 olarak çıkarmış); kökü yanlış açmak yöntem hatası, c1 ve sonraki ölçütler 0."
+    },
+    {
+     "q": 4,
+     "points": 5,
+     "tags": [
+      "yontem-hatasi"
+     ],
+     "why": "A ve B'yi doğru yazmış (c1), fakat kesişim yerine birleşimi almış; sonuç ölçütü 0."
+    },
+    {
+     "q": 5,
+     "points": 0,
+     "tags": [
+      "yontem-hatasi"
+     ],
+     "why": "Orta nokta ile uzaklığı yer değiştirmiş; ne 32 orta nokta ne 3 uzaklık olarak kullanılmış, sonuç da yanlış."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "karsit-ornek-yanlis"
+     ],
+     "why": "Verdiği örneğin sonucu doğal sayı; bu bir karşıt örnek değil, ölçüt karşılanmıyor."
+    },
+    {
+     "q": 7,
+     "points": 0,
+     "tags": [
+      "yontem-hatasi"
+     ],
+     "why": "Denklemi 20x = 2x² − 50 diye yanlış kurmuş; kurulum yöntem hatası olduğundan c1 ve sonraki tüm ölçütler 0."
+    }
+   ]
+  },
+  {
+   "id": "m06",
+   "name": "Emre Şahin",
+   "persona": "aceleci ama bilgili; adımları birleştiriyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "6 · 10^6 + 5000 · 10^6 = 5006 · 10^6 → K = 5006"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "(√5 + √2)/3 − √2/3 = √5/3"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "6∛10 ve 2∛10 → bölge 2∛10 × ∛10",
+      "Ç = 2(2∛10 + ∛10) = 6∛10"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "800 ile 1200 arası, uçlar dahil → [800, 1200]"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "32 ± 3 → |x − 32| ≤ 3"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "2 − 9 = −7 ∉ N"
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "20x = 2x² + 50 ⇒ (x − 5)² = 0 ⇒ x = 5"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 15,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Çevirmeleri tek satırda birleştirip doğru toplamı yazmış; kısalık eksiklik değil, tüm ölçütler karşılanıyor."
+    },
+    {
+     "q": 2,
+     "points": 15,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Rasyonel hale getirilmiş (√5 + √2)/3 ifadesini yazıp kesirleri birleştirmiş; adımları birleştirmek geçerli, sonuç √5/3."
+    },
+    {
+     "q": 3,
+     "points": 15,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Kök sadeleştirmeleri, bölge kenarları ve çevre formülü kısa ama doğru; sonuç 6∛10."
+    },
+    {
+     "q": 4,
+     "points": 15,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Ortak kısmı kısa bir ifadeyle doğru belirleyip kapalı aralığı yazmış; tam puan."
+    },
+    {
+     "q": 5,
+     "points": 15,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Orta nokta 32 ve uzaklık 3'ü tek satırda gösterip doğru eşitsizliği yazmış."
+    },
+    {
+     "q": 6,
+     "points": 10,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Kısa ama tam: iki doğal sayıyla karşıt örnek ve sonucun N'de olmadığı (∉ N) belirtilmiş."
+    },
+    {
+     "q": 7,
+     "points": 15,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Denklemi doğru kurup çarpanlara ayırmayı birleştirerek yazmış; kısa ama geçerli, x = 5."
+    }
+   ]
+  },
+  {
+   "id": "m07",
+   "name": "Selin Aydın",
+   "persona": "kaygılı; doğru başlıyor ama yarıda bırakıyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "0,06 · 10^8 = 6 · 10^6",
+      "0,5 · 10^10 = 5000 · 10^6",
+      "sonra toplamam lazım ama süre yetmedi"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "1/(√5 − √2) ifadesini eşleniğiyle çarparım",
+      "(√5 + √2)/((√5 − √2)(√5 + √2))"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "2∛270 = 6∛10",
+      "∛80 = 2∛10"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "A = [800, 2000]",
+      "B = [0, 1200]"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Orta nokta = (29 + 35)/2 = 32"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Büyük doğal sayıyı küçükten çıkarırsak sonuç negatif çıkar, negatif sayılar doğal sayı değildir."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Mavi = 20x",
+      "Sarı = 2x²",
+      "20x = 2x² + 50"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 5,
+     "tags": [
+      "yarim"
+     ],
+     "why": "İki sayıyı 10^6'ya doğru çevirmiş (c1) ama toplamı ve K'yi yazmamış."
+    },
+    {
+     "q": 2,
+     "points": 2.5,
+     "tags": [
+      "yarim"
+     ],
+     "why": "Eşlenikle genişletmeye başlamış ama paydayı hesaplayıp (√5 + √2)/3'e ulaşmamış; c1 kısmen."
+    },
+    {
+     "q": 3,
+     "points": 5,
+     "tags": [
+      "yarim"
+     ],
+     "why": "Kenarları doğru sadeleştirmiş (c1), bölge kenarlarına ve çevreye geçmemiş."
+    },
+    {
+     "q": 4,
+     "points": 5,
+     "tags": [
+      "yarim"
+     ],
+     "why": "A ve B'yi aralık olarak doğru yazmış (c1) ama kesişimi bulmamış."
+    },
+    {
+     "q": 5,
+     "points": 5,
+     "tags": [
+      "yarim"
+     ],
+     "why": "Orta noktayı 32 bulmuş, uzaklığı ve eşitsizliği yazmamış."
+    },
+    {
+     "q": 6,
+     "points": 5,
+     "tags": [
+      "yarim"
+     ],
+     "why": "Sonucun N'de olmadığını genel olarak söylemiş ama somut bir karşıt örnek vermemiş; ölçütün bir parçası eksik, kısmen."
+    },
+    {
+     "q": 7,
+     "points": 5,
+     "tags": [
+      "yarim"
+     ],
+     "why": "Alanları ve denklemi doğru kurmuş (c1) ama çözmeye başlamamış."
+    }
+   ]
+  },
+  {
+   "id": "m08",
+   "name": "Can Öztürk",
+   "persona": "ilgisiz; soruları kopyalıyor ya da boş bırakıyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "0,06 · 10^8 + 0,5 · 10^10 = K · 10^6"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "1/(√5 − √2) − √2/3 = ?"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": []
+    },
+    {
+     "q": 4,
+     "lines": []
+    },
+    {
+     "q": 5,
+     "lines": []
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Doğal sayılar kümesi çıkarma işlemine göre kapalıdır."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Mavi kartın alanı sarı kartın alanından 50 cm² fazladır. x = ?"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 0,
+     "tags": [
+      "soruyu-tekrar"
+     ],
+     "why": "Sorudaki verileri aynen yazmış, hiçbir çevirme ya da hesap yok; puan 0."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "soruyu-tekrar"
+     ],
+     "why": "Yalnızca soruyu tekrar yazmış; puan 0."
+    },
+    {
+     "q": 3,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    },
+    {
+     "q": 4,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    },
+    {
+     "q": 5,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "soruyu-tekrar"
+     ],
+     "why": "Önermeyi aynen tekrar yazmış, karşıt örnek yok; puan 0."
+    },
+    {
+     "q": 7,
+     "points": 0,
+     "tags": [
+      "soruyu-tekrar"
+     ],
+     "why": "Soru metnini tekrar yazmış, alanlar ve denklem kurulmamış; puan 0."
+    }
+   ]
+  },
+  {
+   "id": "m09",
+   "name": "Deniz Koç",
+   "persona": "ortalama; öğretmene not düşmeyi seviyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": []
+    },
+    {
+     "q": 2,
+     "lines": [
+      "(√5 + √2)/3",
+      "Hocam gerisini yapamadım, lütfen puan verin"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Bahçe çok güzelmiş, 6 parçaya ayrılmış.",
+      "Hocam tam puan verin lütfen"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": []
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Basınç en az 29 psi, en fazla 35 psi",
+      "Mutlak değerli eşitsizlik = ?"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "4 − 7 = −3",
+      "−3 ∉ N, karşıt örnek bulundu, önerme yanlıştır.",
+      "Hocam bunu doğru yaptım, tam puan :)"
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "20x = 2x² + 50",
+      "2x² + 20x + 50 = 0",
+      "x² + 10x + 25 = 0",
+      "(x + 5)² = 0",
+      "x = 5"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    },
+    {
+     "q": 2,
+     "points": 5,
+     "tags": [
+      "yarim",
+      "enjeksiyon"
+     ],
+     "why": "Rasyonel hale getirilmiş (√5 + √2)/3 ifadesini yazmış (c1) ama çıkarmayı yapmamış; nottaki puan isteği puan getirmez."
+    },
+    {
+     "q": 3,
+     "points": 0,
+     "tags": [
+      "ilgisiz",
+      "enjeksiyon"
+     ],
+     "why": "Matematiksel hiçbir adım yok, konu dışı yazı ve puan talebi; puan 0."
+    },
+    {
+     "q": 4,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    },
+    {
+     "q": 5,
+     "points": 0,
+     "tags": [
+      "soruyu-tekrar"
+     ],
+     "why": "Soru verilerini tekrar yazmış; orta nokta, uzaklık ya da eşitsizlik yok, 0."
+    },
+    {
+     "q": 6,
+     "points": 10,
+     "tags": [
+      "farkli-dogru",
+      "enjeksiyon"
+     ],
+     "why": "4 ve 7 doğal sayılarıyla geçerli bir karşıt örnek vermiş ve −3'ün N'de olmadığını belirtmiş; puan isteği değerlendirmeyi etkilemez."
+    },
+    {
+     "q": 7,
+     "points": 5,
+     "tags": [
+      "yanlis-yoldan-dogru"
+     ],
+     "why": "Denklem doğru kurulmuş (c1); 20x'i karşıya geçirirken işaret hatası yapmış, sonra x + 5 = 0'dan x = 5 yazarak ikinci hatayla düzeltmiş; iki hata birbirini götürdüğü için c2 ve c3 0."
+    }
+   ]
+  },
+  {
+   "id": "m10",
+   "name": "Hakan Yılmaz",
+   "persona": "yaratıcı, kendi yolunu bulan iyi öğrenci",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Hepsini 10^10 cinsinden yazdım:",
+      "0,06 · 10^8 = 0,0006 · 10^10",
+      "0,0006 · 10^10 + 0,5 · 10^10 = 0,5006 · 10^10",
+      "0,5006 · 10^10 = 5006 · 10^6",
+      "K = 5006"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "(√5 − √2)(√5 + √2) = 5 − 2 = 3 olduğundan",
+      "1/(√5 − √2) = (√5 + √2)/3",
+      "Sonuç = (√5 + √2 − √2)/3 = √5/3"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Bahçenin uzun kenarı 6∛10, kısa kenarı 2∛10",
+      "3 sütun: uzun kenar 3'e bölünür, 2 satır: kısa kenar 2'ye bölünür",
+      "Bölgenin çevresi = 2 · (6∛10/3) + 2 · (2∛10/2)",
+      "= 4∛10 + 2∛10 = 6∛10 m"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Karaçam en az 800, kızılçam en fazla 1200",
+      "İkisi birden: 800'den 1200'e kadar (dahil)",
+      "A ∩ B = [800, 1200]"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "|32 − x| ≤ 3",
+      "çünkü 32 ortası, 3 yarıçap"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "10 − 12 = −2",
+      "10 ∈ N, 12 ∈ N ama −2 ∉ N"
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "20x = 2x² + 50",
+      "x = 5 deneyelim: 20 · 5 = 100, 2 · 25 + 50 = 100 ✓",
+      "x² − 10x + 25 = (x − 5)² olduğu için başka kök yok",
+      "x = 5"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 15,
+     "tags": [
+      "farkli-dogru"
+     ],
+     "why": "10^10'a çevirerek eşdeğer geçerli yol izlemiş, toplamı K · 10^6 biçimine getirip K = 5006 bulmuş."
+    },
+    {
+     "q": 2,
+     "points": 15,
+     "tags": [
+      "farkli-dogru"
+     ],
+     "why": "Önce eşlenik çarpımını hesaplayıp rasyonel hale getirmiş, kesirleri birleştirip √5/3 bulmuş."
+    },
+    {
+     "q": 3,
+     "points": 15,
+     "tags": [
+      "farkli-dogru"
+     ],
+     "why": "Bahçenin kenarlarından yola çıkıp bölme yönlerini doğru kurmuş; çevre formülü geçerli, sonuç 6∛10 m."
+    },
+    {
+     "q": 4,
+     "points": 15,
+     "tags": [
+      "farkli-dogru"
+     ],
+     "why": "Ortak kısmı sözel akıl yürütmeyle doğru belirlemiş ve [800, 1200] yazmış."
+    },
+    {
+     "q": 5,
+     "points": 15,
+     "tags": [
+      "farkli-dogru"
+     ],
+     "why": "Orta nokta 32 ve uzaklık 3 belirtilmiş; |32 − x| ≤ 3 eşdeğer biçim olduğundan sonuç doğru."
+    },
+    {
+     "q": 6,
+     "points": 10,
+     "tags": [
+      "farkli-dogru"
+     ],
+     "why": "Farklı ama geçerli bir karşıt örnek vermiş ve farkın N'de olmadığını belirtmiş."
+    },
+    {
+     "q": 7,
+     "points": 15,
+     "tags": [
+      "farkli-dogru"
+     ],
+     "why": "Denklemi doğru kurmuş, deneme-doğrulama ile kökü bulup tek kök olduğunu gerekçelendirmiş; geçerli farklı yol."
+    }
+   ]
+  },
+  {
+   "id": "m11",
+   "name": "Fatma Kurt",
+   "persona": "zayıf; konu dışı ve anlamsız şeyler yazıyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Akyuvar vücudu mikroplara karşı korur.",
+      "Alyuvar oksijen taşır."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "Kökler zor :(",
+      "√√√ = ?"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Bahçeye domates ekilebilir.",
+      "∛ ∛ ∛"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "A = karaçam, B = kızılçam",
+      "A ∩ B = ?"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Lastik basıncı önemlidir, kaza olmaması için kontrol edilmelidir."
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Doğal sayılar doğada bulunan sayılardır."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "x = 20 + 2 + 50 = 72"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 0,
+     "tags": [
+      "ilgisiz"
+     ],
+     "why": "Biyoloji bilgisi yazmış, matematiksel işlem yok; konu dışı, 0."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "ilgisiz"
+     ],
+     "why": "Anlamsız yazı, hiçbir işlem yok; 0."
+    },
+    {
+     "q": 3,
+     "points": 0,
+     "tags": [
+      "ilgisiz"
+     ],
+     "why": "Konu dışı ve anlamsız yazı; hiçbir ölçüt karşılanmıyor."
+    },
+    {
+     "q": 4,
+     "points": 0,
+     "tags": [
+      "soruyu-tekrar"
+     ],
+     "why": "Sorudaki tanımları tekrar etmiş, aralık ya da kesişim yazmamış; 0."
+    },
+    {
+     "q": 5,
+     "points": 0,
+     "tags": [
+      "ilgisiz"
+     ],
+     "why": "Konu dışı yorum; matematiksel cevap yok, 0."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "ilgisiz"
+     ],
+     "why": "Konuyla ilgisiz ve yanlış bir tanım; karşıt örnek yok, 0."
+    },
+    {
+     "q": 7,
+     "points": 0,
+     "tags": [
+      "ilgisiz"
+     ],
+     "why": "Sorudaki sayıları anlamsızca toplamış; alan ya da denklem kurulmamış, 0."
+    }
+   ]
+  },
+  {
+   "id": "m12",
+   "name": "Oğuz Polat",
+   "persona": "dikkatsiz; doğru sonuca yanlış adımlardan varıyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "0,06 · 10^8 = 6 · 10^6",
+      "0,5 · 10^10 = 5000 · 10^6",
+      "6 · 10^6 + 5000 · 10^6 = 5006 · 10^12",
+      "K = 5006"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "1/(√5 − √2) = (√5 + √2)/(5 + 2) = (√5 + √2)/7",
+      "(√5 + √2)/7 − √2/3 = √5/3"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "2∛270 = 6∛10, ∛80 = 2∛10",
+      "Bölge kenarları: 6∛10 / 2 = 3∛10 ve 2∛10 / 3",
+      "Ç = 3∛10 + 3∛10 = 6∛10 m"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "A = [800, 2000], B = [0, 1200]",
+      "2000 − 800 = 1200 olduğundan",
+      "A ∩ B = [800, 1200]"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "35 − 29 = 6",
+      "6 / 2 = 3 → orta nokta 3",
+      "Uzaklık = 35 − 3 = 32",
+      "|x − 32| ≤ 3"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Çıkarma işlemi toplama işleminin tersidir."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "20x = 2x² + 50",
+      "x² = 10x − 25",
+      "Her iki tarafın karekökü: x = √(10x) − 5",
+      "x = 10 − 5 = 5"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 5,
+     "tags": [
+      "yanlis-yoldan-dogru"
+     ],
+     "why": "Çevirmeler doğru (c1), fakat toplarken üsleri toplamış (10^12); bu yöntem hatası c2'yi götürür, K = 5006 geçersiz adımdan geldiği için c3 de 0."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "yanlis-yoldan-dogru"
+     ],
+     "why": "Paydayı 5 + 2 alarak eşlenik çarpımını yanlış hesaplamış (yöntem hatası), sonra yanlış birleştirmeyle √5/3'e atlamış; doğru sonuç geçersiz adımlardan geldiği için 0."
+    },
+    {
+     "q": 3,
+     "points": 5,
+     "tags": [
+      "yanlis-yoldan-dogru"
+     ],
+     "why": "Kökler doğru (c1), ama bölme yönlerini karıştırıp yanlış çevre formülü kurmuş; 6∛10 geçersiz adımlardan geldiği için c2 ve c3 0."
+    },
+    {
+     "q": 4,
+     "points": 5,
+     "tags": [
+      "yanlis-yoldan-dogru"
+     ],
+     "why": "A ve B doğru yazılmış (c1); ancak kesişimi anlamsız bir çıkarmayla gerekçelendirmiş, sonuç geçersiz adımdan geldiği için c2 0."
+    },
+    {
+     "q": 5,
+     "points": 0,
+     "tags": [
+      "yanlis-yoldan-dogru"
+     ],
+     "why": "Orta noktayı 3, uzaklığı 32 bulmuş; iki hata birbirini götürüp doğru eşitsizlik çıkmış, bu yüzden hiçbir ölçüt karşılanmıyor."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "ilgisiz"
+     ],
+     "why": "Soruyla ilgisiz bir genel bilgi; karşıt örnek yok, 0."
+    },
+    {
+     "q": 7,
+     "points": 5,
+     "tags": [
+      "yanlis-yoldan-dogru"
+     ],
+     "why": "Denklem doğru kurulmuş (c1); karekökü terim terim almak yanlış kural, x = 5 geçersiz adımdan geldiği için c2 ve c3 0."
+    }
+   ]
+  },
+  {
+   "id": "m13",
+   "name": "Gizem Aksoy",
+   "persona": "iyi öğrenci ama kararsız; birden çok cevap yazıyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "0,06 · 10^8 = 6 · 10^6",
+      "0,5 · 10^10 = 5000 · 10^6",
+      "Toplam 5006 · 10^6",
+      "K = 5006 ya da 506"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "Eşleniğiyle genişletiyorum:",
+      "1/(√5 − √2) = (√5 + √2)/((√5)² − (√2)²) = (√5 + √2)/3",
+      "(√5 + √2)/3 − √2/3 = (√5 + √2 − √2)/3",
+      "= √5/3 (ya da √5/9 olabilir)"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "2∛270 = 6∛10, ∛80 = 2∛10",
+      "Bölge: 2∛10 ve ∛10",
+      "Ç = 2(2∛10 + ∛10)",
+      "Cevap: 6∛10 m veya 3∛10 m"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "A = [800, 2000], B = [0, 1200]",
+      "A ∩ B = [800, 1200] ya da (800, 1200)"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "32 − 29 = 3 ve 35 − 32 = 3",
+      "Orta nokta 32, uzaklık 3",
+      "|x − 32| ≤ 3 veya |x + 32| ≤ 3"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "7 − 3 = 4 ya da 3 − 7 = −4 ∉ N"
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "20x = 2x² + 50",
+      "2x² − 20x + 50 = 0",
+      "x² − 10x + 25 = 0",
+      "(x − 5)² = 0",
+      "x = 5 ya da x = −5"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 10,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "Çevirme ve toplam doğru (c1, c2), ama sonuçta iki aday cevap sıralamış; sonuç ölçütü 0."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "Rasyonel yapma ve birleştirme doğru (c1, c2), ama sonuç için ikinci bir aday eklemiş; birden çok aday cevapta sonuç ölçütü 0."
+    },
+    {
+     "q": 3,
+     "points": 10,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "Sadeleştirme, kenarlar ve çevre formülü doğru (c1, c2), ancak iki aday sonuç yazdığı için sonuç ölçütü 0."
+    },
+    {
+     "q": 4,
+     "points": 5,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "A ve B doğru (c1), fakat sonuç için iki aday aralık sıralamış; sonuç ölçütü 0."
+    },
+    {
+     "q": 5,
+     "points": 10,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "Orta nokta 32 ve uzaklık 3 doğru (c1, c2), ama iki aday eşitsizlik sıralamış; sonuç ölçütü 0."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "coklu-cevap",
+      "karsit-ornek-yanlis"
+     ],
+     "why": "Biri karşıt örnek olmayan iki aday örnek sıralamış; birden çok aday cevapta ölçüt 0."
+    },
+    {
+     "q": 7,
+     "points": 10,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "Kurulum ve çözüm adımları doğru (c1, c2), ama sonuçta iki aday değer yazmış; sonuç ölçütü 0."
+    }
+   ]
+  },
+  {
+   "id": "m14",
+   "name": "Kerem Özdemir",
+   "persona": "ortalama; yanlışını fark edip üstünü çiziyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      {
+       "text": "0,06 · 10^8 = 0,6 · 10^6",
+       "crossed": true
+      },
+      "0,06 · 10^8 = 6 · 10^6",
+      "0,5 · 10^10 = 5000 · 10^6",
+      "6 · 10^6 + 5000 · 10^6 = 5006 · 10^6",
+      "K = 5006"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "1/(√5 − √2) = (√5 + √2)/(5 − 2) = (√5 + √2)/2",
+      "(√5 + √2)/2 − √2/3 = (3√5 + 3√2 − 2√2)/6",
+      "= (3√5 + √2)/6"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      {
+       "text": "∛270 = 9∛30",
+       "crossed": true
+      },
+      "2∛270 = 2 · 3∛10 = 6∛10",
+      "∛80 = 2∛10",
+      "Bölge: 2∛10 × ∛10",
+      "Ç = 2(2∛10 + ∛10) = 6∛10 m"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "A = [800, 2000]",
+      "B = [0, 1020]",
+      "A ∩ B = [800, 1020]"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      {
+       "text": "|x − 32| < 3",
+       "crossed": true
+      },
+      "|x − 32| ≤ 3"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      {
+       "text": "8 − 2 = 6",
+       "crossed": true
+      },
+      "2 − 8 = −6",
+      "−6 doğal sayı değil, kapalı değil."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      {
+       "text": "20x + 50 = 2x²",
+       "crossed": true
+      },
+      "Mavi: 20x cm², sarı: 2x² cm²",
+      "20x − 2x² = 50",
+      "2x² − 20x + 50 = 0 → x² − 10x + 25 = 0",
+      "(x − 5)² = 0 → x = 5"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 15,
+     "tags": [
+      "dogru",
+      "ustu-cizili"
+     ],
+     "why": "Üstü çizili yanlış satır değerlendirilmez; kalan çözüm eksiksiz ve doğru."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "islem-hatasi"
+     ],
+     "why": "Eşlenikle doğru genişletmiş ama 5 − 2'yi 2 yazmış; işlem hatası, birleştirme hatalı değere göre doğru, yalnız sonuç ölçütü 0."
+    },
+    {
+     "q": 3,
+     "points": 15,
+     "tags": [
+      "dogru",
+      "ustu-cizili"
+     ],
+     "why": "Çizilmiş yanlış satır sayılmaz; kalan adımlar doğru, sonuç 6∛10 m."
+    },
+    {
+     "q": 4,
+     "points": 5,
+     "tags": [
+      "islem-hatasi"
+     ],
+     "why": "1200'ü 1020 diye kopyalamış (sayı kopyalama hatası); kurulum ölçütü tam kalır, kesişim yöntemi doğru ama sonuç yanlış."
+    },
+    {
+     "q": 5,
+     "points": 15,
+     "tags": [
+      "desteksiz",
+      "ustu-cizili"
+     ],
+     "why": "Çizili satır değerlendirilmez; işlem şart olmayan soruda doğru sonuç tek başına tam puan."
+    },
+    {
+     "q": 6,
+     "points": 10,
+     "tags": [
+      "dogru",
+      "ustu-cizili"
+     ],
+     "why": "Çizili örnek sayılmaz; kalan karşıt örnek geçerli ve sonucun N'de olmadığı belirtilmiş."
+    },
+    {
+     "q": 7,
+     "points": 15,
+     "tags": [
+      "dogru",
+      "ustu-cizili"
+     ],
+     "why": "Çizili yanlış denklem değerlendirilmez; alanlar ve denklem doğru, çarpanlara ayırarak x = 5 bulmuş."
+    }
+   ]
+  },
+  {
+   "id": "m15",
+   "name": "Nisa Erdoğan",
+   "persona": "ortalama; kuralları karıştırıyor, son soruya vakit kalmıyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "0,06 · 10^8 = 6 · 10^5",
+      "0,5 · 10^10 = 5000 · 10^6",
+      "6 · 10^5 + 5000 · 10^6 = 5006 · 10^6",
+      "K = 5006"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "1/(√5 − √2) = (√5 + √2)/3",
+      "(√5 + √2)/3 − √2/3 = (√5 + √2 − √2)/9 = √5/9"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "2∛270 = 6∛10",
+      "∛80 = ∛(16 · 5) = 4∛5",
+      "Bölge: 2∛10 ve 2∛5",
+      "Ç = 2(2∛10 + 2∛5) = 4∛10 + 4∛5 m"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      {
+       "text": "A ∩ B = [0, 1200]",
+       "crossed": true
+      },
+      "Karaçam 800–2000, kızılçam 0–1200 arası",
+      "İkisinin de olduğu yer 800 ile 1200 arası",
+      "A ∩ B = [800, 1200]"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Orta nokta (29 + 35)/2 = 32",
+      "Uzaklık 35 − 32 = 3",
+      "|x − 32| < 3"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "5 − 2 = 3 ya da 2 − 5 = −3 ∉ N"
+     ]
+    },
+    {
+     "q": 7,
+     "lines": []
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 0,
+     "tags": [
+      "yanlis-yoldan-dogru"
+     ],
+     "why": "0,06 · 10^8'i 6 · 10^5 diye yanlış çevirmiş (yöntem hatası), sonra farklı kuvvetleri geçersiz biçimde toplayıp 5006'ya ulaşmış; doğru sonuç geçersiz adımlardan geldiği için tüm ölçütler 0."
+    },
+    {
+     "q": 2,
+     "points": 5,
+     "tags": [
+      "yontem-hatasi"
+     ],
+     "why": "Rasyonel hale getirme doğru (c1); eşit paydalı kesirleri çıkarırken paydaları çarpmış, yöntem hatası c2 ve c3'ü 0 yapar."
+    },
+    {
+     "q": 3,
+     "points": 0,
+     "tags": [
+      "yontem-hatasi"
+     ],
+     "why": "∛80'i karekök gibi açmış (16'dan 4 çıkarmış); kökü yanlış açmak yöntem hatası, c1 ve sonraki ölçütler 0."
+    },
+    {
+     "q": 4,
+     "points": 15,
+     "tags": [
+      "dogru",
+      "ustu-cizili"
+     ],
+     "why": "Çizili satır sayılmaz; ortak kısmı doğru belirlemiş ve [800, 1200] kapalı aralığını yazmış."
+    },
+    {
+     "q": 5,
+     "points": 10,
+     "tags": [
+      "yontem-hatasi"
+     ],
+     "why": "Orta nokta ve uzaklık doğru (c1, c2), ama eşitliği dışarıda bırakmış; sonuç yanlış olduğundan c3 0."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "Biri karşıt örnek olmayan iki aday örnek sıralamış; birden çok aday cevapta ölçüt 0."
+    },
+    {
+     "q": 7,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    }
+   ]
+  },
+  {
+   "id": "m16",
+   "name": "Ali Güneş",
+   "persona": "güçlü, az yazan öğrenci",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "0,06 · 10^8 = 6 · 10^6",
+      "0,5 · 10^10 = 5 · 10^9 = 5000 · 10^6",
+      "Toplam = 5006 · 10^6 = 5,006 · 10^9",
+      "K = 5006"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "1/(√5 − √2) = (√5 + √2)/3",
+      "√5/3"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Bölge: 6∛10/3 = 2∛10, 2∛10/2 = ∛10",
+      "Ç = 2(2∛10 + ∛10) = 6∛10 m"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "A ∩ B = [800, 2000] ∩ [0, 1200] = [800, 1200]"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "|x − 32| ≤ 3"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "6 − 10 = −4 ∉ N ⇒ kapalı değil"
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "20x = 2x² + 50",
+      "2x² − 20x + 50 = 0 → 2(x − 5)² = 0",
+      "x = 5 ya da x = 0"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 15,
+     "tags": [
+      "farkli-dogru"
+     ],
+     "why": "Ara adımda 10^9 kullanıp toplamı eşdeğer biçimde de yazmış; K = 5006 geçerli adımlardan çıkıyor."
+    },
+    {
+     "q": 2,
+     "points": 15,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Rasyonel hale getirmeyi ve birleştirmeyi kısa yazmış; ana fikir doğru, kısalık eksiklik değil."
+    },
+    {
+     "q": 3,
+     "points": 15,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Sadeleştirilmiş kenarları (6∛10, 2∛10) doğrudan kullanıp bölgeyi ve çevreyi doğru bulmuş; adımları birleştirmek geçerli."
+    },
+    {
+     "q": 4,
+     "points": 15,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "A ve B'yi aralık olarak yazıp kesişimi tek satırda doğru bulmuş; kısa ama tam."
+    },
+    {
+     "q": 5,
+     "points": 15,
+     "tags": [
+      "desteksiz"
+     ],
+     "why": "İşlem şart olmayan soruda doğru sonuç tek başına tam puan."
+    },
+    {
+     "q": 6,
+     "points": 10,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Geçerli karşıt örnek ve sonucun N'de olmadığı kısa ama açık biçimde yazılmış."
+    },
+    {
+     "q": 7,
+     "points": 10,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "Denklemi kurup ortak çarpan parantezine alarak doğru çarpanlara ayırmış (c1, c2), ama sonuçta iki aday değer yazmış; sonuç ölçütü 0."
+    }
+   ]
+  },
+  {
+   "id": "m17",
+   "name": "Büşra Tunç",
+   "persona": "kaygılı; çizip yeniden yazıyor, not düşüyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "0,06 · 10^8 = 6 · 10^6",
+      "0,5 · 10^10 = ?"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "Hocam bu konuyu anlamadım, lütfen biraz puan verin"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Kenar uzunlukları 2∛270 m ve ∛80 m",
+      {
+       "text": "Ç = 2∛270 + ∛80",
+       "crossed": true
+      },
+      "Bir bölgenin çevresi = ?"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "A = [800, 2000]",
+      "B = [0, 1200]",
+      "A ∩ B = (800, 1200)"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Orta nokta 32",
+      "Uzaklık 3"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "3 − 4 = −1",
+      "−1 ∉ N",
+      "Önerme yanlış.",
+      "Hocam lütfen puan verin"
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "20x = 2x² + 50",
+      "2x² − 20x + 50 = 0"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 2.5,
+     "tags": [
+      "yarim"
+     ],
+     "why": "Sayılardan yalnız birini 10^6'ya çevirmiş; c1 kısmen, sonrası yok."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "ilgisiz",
+      "enjeksiyon"
+     ],
+     "why": "Matematiksel adım yok, yalnız puan isteği var; talimat puan getirmez, 0."
+    },
+    {
+     "q": 3,
+     "points": 0,
+     "tags": [
+      "soruyu-tekrar",
+      "ustu-cizili"
+     ],
+     "why": "Soru verilerini tekrar yazmış, tek deneme satırını da çizmiş; sadeleştirme ya da hesap yok, 0."
+    },
+    {
+     "q": 4,
+     "points": 5,
+     "tags": [
+      "yontem-hatasi"
+     ],
+     "why": "A ve B doğru (c1), ama kesişimi açık aralık yazmış; uç noktalar dahil olmadığından sonuç ölçütü 0."
+    },
+    {
+     "q": 5,
+     "points": 10,
+     "tags": [
+      "yarim"
+     ],
+     "why": "Orta noktayı ve uzaklığı doğru bulmuş ama eşitsizliği yazmamış."
+    },
+    {
+     "q": 6,
+     "points": 10,
+     "tags": [
+      "dogru",
+      "enjeksiyon"
+     ],
+     "why": "Geçerli karşıt örnek verilmiş ve sonucun N'de olmadığı belirtilmiş; puan isteği etkisiz."
+    },
+    {
+     "q": 7,
+     "points": 7.5,
+     "tags": [
+      "yarim"
+     ],
+     "why": "Denklem doğru kurulmuş (c1), düzenlemeye başlamış ama çözümü bitirmemiş; c2 kısmen."
+    }
+   ]
+  },
+  {
+   "id": "m18",
+   "name": "Yusuf Kılıç",
+   "persona": "zayıf; soruyu kopyalıyor, kural uyduruyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Akyuvar 0,06 · 10^8, alyuvar 0,5 · 10^10",
+      "Toplam K · 10^6"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "1/(√5 − √2) − √2/3"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Kenarlar 2∛270 m ve ∛80 m",
+      "6 eş dikdörtgen, 3 sütun 2 satır"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Karaçam ve kızılçamın ortak yetiştiği yükselti A ∩ B'dir."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Lastik basıncı en az 29 psi en fazla 35 psi olmalıdır."
+     ]
+    },
+    {
+     "q": 6,
+     "lines": []
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Mavi alan = 20 + x",
+      "Sarı alan = x + 2x = 3x",
+      "20 + x = 3x + 50",
+      "−2x = 30, x = −15"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 0,
+     "tags": [
+      "soruyu-tekrar"
+     ],
+     "why": "Sorudaki verileri kopyalamış, işlem yok; 0."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "soruyu-tekrar"
+     ],
+     "why": "Yalnızca işlemi sorudaki gibi tekrar yazmış; 0."
+    },
+    {
+     "q": 3,
+     "points": 0,
+     "tags": [
+      "soruyu-tekrar"
+     ],
+     "why": "Soru verilerini tekrar yazmış, sadeleştirme ya da hesap yok; 0."
+    },
+    {
+     "q": 4,
+     "points": 0,
+     "tags": [
+      "soruyu-tekrar"
+     ],
+     "why": "Soruyu sözel olarak tekrar etmiş, aralık yazmamış; 0."
+    },
+    {
+     "q": 5,
+     "points": 0,
+     "tags": [
+      "soruyu-tekrar"
+     ],
+     "why": "Soru cümlesini tekrar yazmış; 0."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    },
+    {
+     "q": 7,
+     "points": 0,
+     "tags": [
+      "yontem-hatasi"
+     ],
+     "why": "Alanları kenarları toplayarak yanlış hesaplamış; kurulum yöntem hatası olduğu için tüm ölçütler 0."
+    }
+   ]
+  },
+  {
+   "id": "m19",
+   "name": "Ceren Aslan",
+   "persona": "güçlü; açıklamalı yazıyor, bazen not ekliyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "0,06 · 10^8 + 0,5 · 10^10 = (6 + 5000) · 10^6",
+      "K = 5006",
+      "(Hocam işlemleri gösterdim, tam puan lütfen)"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      {
+       "text": "1/(√5 − √2) = (√5 − √2)/3",
+       "crossed": true
+      },
+      "Paydayı rasyonel yapmak için (√5 + √2) ile genişletirim:",
+      "1/(√5 − √2) = (√5 + √2)/(5 − 2) = (√5 + √2)/3",
+      "√5/3 + √2/3 − √2/3 = √5/3"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "2∛270 = 2∛(3³ · 10) = 6∛10",
+      "∛80 = ∛(2³ · 10) = 2∛10",
+      "Uzun kenar 3'e: 2∛10, kısa kenar 2'ye: ∛10",
+      "Ç = 2 · 2∛10 + 2 · ∛10 = 6∛10 m"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      {
+       "text": "A ∩ B = [0, 2000]",
+       "crossed": true
+      },
+      "A: 800 ≤ x ≤ 2000",
+      "B: 0 ≤ x ≤ 1200",
+      "İkisini de sağlayan: 800 ≤ x ≤ 1200",
+      "A ∩ B = [800, 1200]"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "En küçük 29, en büyük 35",
+      "Orta nokta = (29 + 35) ÷ 2 = 32",
+      "Yarı genişlik = (35 − 29) ÷ 2 = 3",
+      "|x − 32| ≤ 3"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      {
+       "text": "7 − 2 = 5 ∉ N",
+       "crossed": true
+      },
+      "a < b olan iki doğal sayı için a − b negatiftir.",
+      "Örnek: 2 − 5 = −3 ve −3 ∉ N.",
+      "Bu yüzden N çıkarmaya göre kapalı değildir."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      {
+       "text": "2x² = 20x + 50",
+       "crossed": true
+      },
+      "20x = 2x² + 50 → x² − 10x + 25 = 0",
+      "x = (10 ± √(100 − 100))/2 = 10/2 = 5"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 15,
+     "tags": [
+      "kisa-dogru",
+      "enjeksiyon"
+     ],
+     "why": "Çevirmeleri parantez içinde birleştirerek kısa ama doğru yazmış; K = 5006 geçerli adımdan çıkıyor, puan talebi değerlendirmeyi etkilemez."
+    },
+    {
+     "q": 2,
+     "points": 15,
+     "tags": [
+      "dogru",
+      "ustu-cizili"
+     ],
+     "why": "Çizili yanlış satır sayılmaz; eşlenikle rasyonel yapmış, kesirleri ayırarak birleştirmiş, √5/3 bulmuş."
+    },
+    {
+     "q": 3,
+     "points": 15,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Kökleri doğru çıkarmış, bölgenin kenarlarını ve çevresini doğru bulmuş."
+    },
+    {
+     "q": 4,
+     "points": 15,
+     "tags": [
+      "farkli-dogru",
+      "ustu-cizili"
+     ],
+     "why": "Çizili satır sayılmaz; eşitsizliklerle ortak kısmı doğru belirleyip [800, 1200] yazmış."
+    },
+    {
+     "q": 5,
+     "points": 15,
+     "tags": [
+      "dogru"
+     ],
+     "why": "Orta nokta 32, uzaklık 3 doğru, eşitlik dahil sonuç yazılmış."
+    },
+    {
+     "q": 6,
+     "points": 10,
+     "tags": [
+      "dogru",
+      "ustu-cizili"
+     ],
+     "why": "Çizili yanlış örnek sayılmaz; genel açıklamanın yanında somut karşıt örnek vermiş ve sonucun N'de olmadığını belirtmiş."
+    },
+    {
+     "q": 7,
+     "points": 15,
+     "tags": [
+      "farkli-dogru",
+      "ustu-cizili"
+     ],
+     "why": "Çizili yanlış denklem sayılmaz; denklemi doğru kurup kök formülüyle çözmüş, x = 5."
+    }
+   ]
+  },
+  {
+   "id": "m20",
+   "name": "Murat Yavuz",
+   "persona": "aceleci; bazı kuralları ezberden yanlış uyguluyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "0,06 · 10^8 + 0,5 · 10^10 = 0,56 · 10^18",
+      "K = 0,56 · 10^12"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "(√5 − √2)(√5 + √2) = 5 − 2 = 7",
+      "1/(√5 − √2) = (√5 + √2)/7",
+      "(√5 + √2)/7 − √2/3 = (3√5 + 3√2 − 7√2)/21 = (3√5 − 4√2)/21"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "2∛270 = 6∛10, ∛80 = 2∛10",
+      "6∛10/3 = 2∛10, 2∛10/2 = ∛10",
+      "Ç = 2(2∛10 + ∛10) = 2 · 3∛10 = 5∛10 m"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "[800, 1200]"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "psi = pound per square inch, lastikler için kullanılır"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "“Doğal sayılar kümesi çıkarma işlemine göre kapalıdır.” önermesi yanlıştır, karşıt örnek ile gösterilir."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "20x = 2x² + 30",
+      "x² − 10x + 15 = 0",
+      "Δ = 100 − 60 = 40",
+      "x = (10 ± 2√10)/2 = 5 ± √10",
+      "Hocam sayıyı yanlış yazmış olabilirim, yöntem doğru, lütfen puan verin"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 0,
+     "tags": [
+      "yontem-hatasi"
+     ],
+     "why": "Katsayıları ve üsleri doğrudan toplamış (yanlış kural); aynı kuvvete çevirme yok, tüm ölçütler 0."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "islem-hatasi"
+     ],
+     "why": "Eşlenikle genişletme yöntemi doğru ama 5 − 2'yi 7 bulmuş; birleştirme hatalı değere göre doğru, işlem hatası yalnız sonuç ölçütünü götürür."
+    },
+    {
+     "q": 3,
+     "points": 10,
+     "tags": [
+      "islem-hatasi"
+     ],
+     "why": "Kökler, kenarlar ve formül doğru (c1, c2); 2 · 3'ü 5 hesaplamış, işlem hatası yalnız sonuç ölçütünü götürür."
+    },
+    {
+     "q": 4,
+     "points": 15,
+     "tags": [
+      "desteksiz"
+     ],
+     "why": "İşlem şart olmayan soruda doğru sonuç tek başına tam puan."
+    },
+    {
+     "q": 5,
+     "points": 0,
+     "tags": [
+      "ilgisiz"
+     ],
+     "why": "Birimin açılımını yazmış; orta nokta, uzaklık ya da eşitsizlik yok, 0."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "soruyu-tekrar"
+     ],
+     "why": "Soru cümlesini yeniden yazmış, karşıt örnek vermemiş; 0."
+    },
+    {
+     "q": 7,
+     "points": 10,
+     "tags": [
+      "islem-hatasi",
+      "enjeksiyon"
+     ],
+     "why": "50'yi 30 diye kopyalamış (sayı kopyalama hatası); kurulum ve çözüm yöntemi hatalı değere göre doğru, yalnız sonuç ölçütü 0; puan isteği etkisiz."
+    }
+   ]
+  },
+  {
+   "id": "m21",
+   "name": "Esra Bulut",
+   "persona": "ortalama, dürüst; bilmediği yerde duruyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "10^8 cinsinden: 0,5 · 10^10 = 50 · 10^8",
+      "0,06 · 10^8 + 50 · 10^8 = 50,06 · 10^8",
+      "50,06 · 10^8 = 5006 · 10^6",
+      "K = 5006 ya da 50,06"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": []
+    },
+    {
+     "q": 3,
+     "lines": [
+      "2∛270 = 6∛10"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "A = [800, 2000]",
+      "B = [0, 1200]",
+      "A ∩ B = [800, 1020]"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "29 ile 35'in ortası 32, 32'ye uzaklık en fazla 3",
+      "|x − 32| ≤ 3"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "4 − 9 = −5"
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "20x = 2x² + 50",
+      "x² − 10x + 25 = (x − 5)² = 0 → x = 5"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 10,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "10^8 üzerinden geçerli yolla çevirip toplamı K · 10^6 biçimine getirmiş (c1, c2), ama sonuçta iki aday yazmış; sonuç ölçütü 0."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    },
+    {
+     "q": 3,
+     "points": 2.5,
+     "tags": [
+      "yarim"
+     ],
+     "why": "Yalnız bir kenarı sadeleştirmiş; c1 kısmen, devamı yok."
+    },
+    {
+     "q": 4,
+     "points": 5,
+     "tags": [
+      "islem-hatasi"
+     ],
+     "why": "A ve B doğru (c1), ama sonuçta 1200'ü 1020 yazmış; sonuç yanlış olduğundan c2 0."
+    },
+    {
+     "q": 5,
+     "points": 15,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Orta nokta ve uzaklığı kısa ama doğru söylemiş, sonuç doğru."
+    },
+    {
+     "q": 6,
+     "points": 5,
+     "tags": [
+      "yarim"
+     ],
+     "why": "Geçerli karşıt örnek ama sonucun N'de olmadığını belirtmemiş; kısmen."
+    },
+    {
+     "q": 7,
+     "points": 15,
+     "tags": [
+      "kisa-dogru"
+     ],
+     "why": "Denklemi doğru kurmuş, 2'ye bölme ve tam kareyi tek satırda birleştirerek x = 5 bulmuş; kısa ama geçerli."
+    }
+   ]
+  },
+  {
+   "id": "m22",
+   "name": "Tolga Acar",
+   "persona": "dikkatsiz; hesapta kayıyor, bazen kural karıştırıyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      {
+       "text": "0,06 · 10^8 = 6 · 10^10",
+       "crossed": true
+      },
+      "0,06 · 10^8 = 0,06 · 100 · 10^6 = 60 · 10^6",
+      "0,5 · 10^10 = 5000 · 10^6",
+      "60 · 10^6 + 5000 · 10^6 = 5060 · 10^6",
+      "K = 5060"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "1/(√5 − √2) = (√5 − √2)/3",
+      "(√5 − √2)/3 + √2/3 = √5/3"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "2∛270 = ∛(8 · 270) = ∛2160 = ∛(216 · 10) = 6∛10",
+      "∛80 = 2∛10",
+      "Kısa kenar ∛10, uzun kenar 2∛10",
+      "Ç = 2∛10 + 2∛10 + ∛10 + ∛10",
+      "Cevap: 6∛10 m ya da 6∛30 m"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "A = [800, 2000], B = [0, 1200]",
+      "Ortak kısım 800'den 1200'e",
+      "A ∩ B = [800, 1200] veya [800, 1200)"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      {
+       "text": "Orta: (29 + 35)/2 = 30",
+       "crossed": true
+      },
+      "Orta: (29 + 35)/2 = 33",
+      "Uzaklık: 35 − 33 = 2",
+      "|x − 33| ≤ 2"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": []
+    },
+    {
+     "q": 7,
+     "lines": [
+      "x = 5 cm"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 10,
+     "tags": [
+      "islem-hatasi",
+      "ustu-cizili"
+     ],
+     "why": "Çizili satır sayılmaz; çevirme yöntemi doğru ama 0,06 · 100'ü 60 hesaplamış (çarpma hatası); c1 ve c2 tam, yalnız sonuç ölçütü 0."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "yanlis-yoldan-dogru"
+     ],
+     "why": "Eşleniği yanlış almış (yöntem hatası), sonra çıkarmayı toplamaya çevirerek ikinci hatayla √5/3'e ulaşmış; iki hata birbirini götürdüğü için tüm ölçütler 0."
+    },
+    {
+     "q": 3,
+     "points": 10,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "Katsayıyı köke sokarak geçerli yoldan sadeleştirmiş, kenarlar ve çevre doğru kurulmuş (c1, c2); ama iki aday sonuç yazdığı için sonuç ölçütü 0."
+    },
+    {
+     "q": 4,
+     "points": 5,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "Ortak kısmı belirlemiş (c1), ama iki aday aralık yazmış; sonuç ölçütü 0."
+    },
+    {
+     "q": 5,
+     "points": 10,
+     "tags": [
+      "islem-hatasi",
+      "ustu-cizili"
+     ],
+     "why": "Çizili satır sayılmaz; orta nokta yöntemi doğru ama 64/2'yi 33 bulmuş; işlem hatası, uzaklık hatalı değere göre doğru, yalnız sonuç ölçütü 0."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    },
+    {
+     "q": 7,
+     "points": 0,
+     "tags": [
+      "desteksiz"
+     ],
+     "why": "İşlem şart olan soruda yalnız sonuç yazılmış; sorunun tamamı 0."
+    }
+   ]
+  },
+  {
+   "id": "m23",
+   "name": "Sevgi Doğan",
+   "persona": "ortalamanın altında; kararsız",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "Kanda milyonlarca hücre var, sayılamaz."
+     ]
+    },
+    {
+     "q": 2,
+     "lines": []
+    },
+    {
+     "q": 3,
+     "lines": []
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Çam ağaçları her mevsim yeşildir."
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "Orta nokta 32, uzaklık 3",
+      "|x − 32| ≤ 3 ya da |x − 32| < 3"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Doğal sayılarda çıkarma her zaman yapılamaz çünkü sonuç negatif olabilir, negatif sayı N'de değildir."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Mavi kart: x cm ve 20 cm",
+      "Sarı kart: x cm ve 2x cm",
+      "Mavi alan − sarı alan = 50"
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 0,
+     "tags": [
+      "ilgisiz"
+     ],
+     "why": "Konu dışı yorum, matematiksel işlem yok; 0."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    },
+    {
+     "q": 3,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    },
+    {
+     "q": 4,
+     "points": 0,
+     "tags": [
+      "ilgisiz"
+     ],
+     "why": "Konu dışı bilgi; aralık ya da kesişim yok, 0."
+    },
+    {
+     "q": 5,
+     "points": 10,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "Orta nokta ve uzaklık doğru (c1, c2), ama iki aday eşitsizlik sıralamış; sonuç ölçütü 0."
+    },
+    {
+     "q": 6,
+     "points": 5,
+     "tags": [
+      "yarim"
+     ],
+     "why": "Sonucun N dışına çıkabileceğini genel olarak açıklamış ama somut karşıt örnek vermemiş; kısmen."
+    },
+    {
+     "q": 7,
+     "points": 0,
+     "tags": [
+      "soruyu-tekrar"
+     ],
+     "why": "Soru verilerini tekrar yazmış; alanlar (20x, 2x²) ve denklem kurulmamış, 0."
+    }
+   ]
+  },
+  {
+   "id": "m24",
+   "name": "Arda Çetin",
+   "persona": "dağınık; bazı soruları atlıyor, hataları bazen birbirini götürüyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": []
+    },
+    {
+     "q": 2,
+     "lines": [
+      "1/(√5 − √2) = (√5 + √2)/3",
+      "(√5 + √2)/3 − √2/3 = √5/3",
+      "Sonuç √5/3 veya √5/9"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "2∛270 = ∛540",
+      "∛540 = 6∛10 (540 = 216 · 10 diye düşündüm)",
+      "∛80 = 2∛10",
+      "Bölge: 2∛10 ve ∛10, Ç = 2(2∛10 + ∛10) = 6∛10 m"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Ortak kısım = 2000 − 1200 = 800 ile 1200",
+      "A ∩ B = [800, 1200]"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": []
+    },
+    {
+     "q": 6,
+     "lines": [
+      "3 ÷ 5 = 0,6 ∉ N"
+     ]
+    },
+    {
+     "q": 7,
+     "lines": [
+      "Mavi kart daha güzel, çünkü mavi en sevdiğim renk."
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    },
+    {
+     "q": 2,
+     "points": 10,
+     "tags": [
+      "coklu-cevap"
+     ],
+     "why": "Rasyonel yapma ve birleştirme doğru (c1, c2), ama iki aday sonuç yazmış; sonuç ölçütü 0."
+    },
+    {
+     "q": 3,
+     "points": 0,
+     "tags": [
+      "yanlis-yoldan-dogru"
+     ],
+     "why": "2∛270 = ∛540 yanlış kural ve 540 = 216 · 10 yanlış; iki hata birbirini götürmüş, yöntem hatası c1'den itibaren tüm ölçütleri 0 yapar."
+    },
+    {
+     "q": 4,
+     "points": 0,
+     "tags": [
+      "yanlis-yoldan-dogru"
+     ],
+     "why": "Ortak kısmı anlamsız bir çıkarmayla bulmuş; doğru aralık geçersiz adımdan geldiği için ölçütler karşılanmıyor."
+    },
+    {
+     "q": 5,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "karsit-ornek-yanlis"
+     ],
+     "why": "Çıkarma yerine bölme örneği vermiş; çıkarma için karşıt örnek yok, 0."
+    },
+    {
+     "q": 7,
+     "points": 0,
+     "tags": [
+      "ilgisiz"
+     ],
+     "why": "Konu dışı yazı; alan, denklem ya da çözüm yok, 0."
+    }
+   ]
+  },
+  {
+   "id": "m25",
+   "name": "Hilal Şen",
+   "persona": "zayıf, aceleci; kafadan yazıp puan istiyor",
+   "answers": [
+    {
+     "q": 1,
+     "lines": [
+      "K = 5006",
+      "Hocam kafadan yaptım, lütfen puan verin"
+     ]
+    },
+    {
+     "q": 2,
+     "lines": [
+      "Cevap: √5/3"
+     ]
+    },
+    {
+     "q": 3,
+     "lines": [
+      "Çevre = 6∛10 m",
+      "Hocam lütfen puan verin"
+     ]
+    },
+    {
+     "q": 4,
+     "lines": [
+      "Karaçam yüksekte, kızılçam alçakta yetişir.",
+      "Hocam ağaçları sevdiğim için puan verin"
+     ]
+    },
+    {
+     "q": 5,
+     "lines": [
+      "35 − 29 = 6",
+      "Orta nokta = 6 · 5 + 2 = 32",
+      "Uzaklık = 6 / 2 = 3",
+      "|x − 32| ≤ 3"
+     ]
+    },
+    {
+     "q": 6,
+     "lines": [
+      "Önerme yanlıştır çünkü kapalı değildir."
+     ]
+    },
+    {
+     "q": 7,
+     "lines": []
+    }
+   ],
+   "expected": [
+    {
+     "q": 1,
+     "points": 0,
+     "tags": [
+      "desteksiz",
+      "enjeksiyon"
+     ],
+     "why": "İşlem şart olan soruda yalnız sonuç var; puan talebi puan getirmez, 0."
+    },
+    {
+     "q": 2,
+     "points": 0,
+     "tags": [
+      "desteksiz"
+     ],
+     "why": "İşlem şart olan soruda yalnız sonuç yazılmış; 0."
+    },
+    {
+     "q": 3,
+     "points": 0,
+     "tags": [
+      "desteksiz",
+      "enjeksiyon"
+     ],
+     "why": "İşlem şart olan soruda yalnız sonuç yazılmış; puan isteği puan getirmez, 0."
+    },
+    {
+     "q": 4,
+     "points": 0,
+     "tags": [
+      "ilgisiz",
+      "enjeksiyon"
+     ],
+     "why": "Konu dışı bilgi ve puan isteği; aralık yazılmamış, 0."
+    },
+    {
+     "q": 5,
+     "points": 5,
+     "tags": [
+      "yanlis-yoldan-dogru"
+     ],
+     "why": "Uzaklığı (35 − 29)/2 = 3 olarak geçerli bulmuş (c2), ama 32'ye anlamsız bir işlemle ulaşmış; orta nokta ve sonuç geçersiz adımdan geldiği için c1 ve c3 0."
+    },
+    {
+     "q": 6,
+     "points": 0,
+     "tags": [
+      "desteksiz"
+     ],
+     "why": "Yalnızca yargıyı tekrar etmiş; karşıt örnek ya da gerekçe yok, 0."
+    },
+    {
+     "q": 7,
+     "points": 0,
+     "tags": [
+      "bos"
+     ],
+     "why": "Cevap boş."
+    }
+   ]
+  }
+ ]
+}

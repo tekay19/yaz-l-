@@ -1,0 +1,625 @@
+{
+  "student": "Zeynep Aksoy",
+  "pages": 1,
+  "total": 90,
+  "max": 100,
+  "percent": 90,
+  "questions": [
+    {
+      "q": 1,
+      "max": 15,
+      "grade": {
+        "q": 1,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "0,5 · 10^10 = 50 · 10^8",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "0,06 · 10^8 + 50 · 10^8 = 50,06 · 10^8\n4. 50,06 · 10^8 = 5006 · 10^6",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "met",
+            "evidence": "K = 5006",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": true,
+        "resultPath": "valid",
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Kuvvetler 10^8 tabanında eşitlenip daha sonra 10^6 biçimine dönüştürülerek doğru sonuca ulaşılmıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 15,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "İki sayıyı aynı 10 kuvvetine (ör. 10^6) doğru çevirir ya da eşdeğer geçerli bir yol izler",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "0,5 · 10^10 = 50 · 10^8",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Toplamı geçerli adımlarla K · 10^6 biçimine getirir",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "0,06 · 10^8 + 50 · 10^8 = 50,06 · 10^8\n4. 50,06 · 10^8 = 5006 · 10^6",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "Sonuç K = 5006 ve öğrencinin kendi geçerli adımlarından çıkıyor",
+          "points": 5,
+          "role": "result",
+          "verdict": "met",
+          "evidence": "K = 5006",
+          "earned": 5,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Hepsini 10^8 cinsinden yazayım:",
+          "crossed": false
+        },
+        {
+          "text": "0,5 · 10^10 = 50 · 10^8",
+          "crossed": false
+        },
+        {
+          "text": "0,06 · 10^8 + 50 · 10^8 = 50,06 · 10^8",
+          "crossed": false
+        },
+        {
+          "text": "50,06 · 10^8 = 5006 · 10^6",
+          "crossed": false
+        },
+        {
+          "text": "K = 5006",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 2,
+      "max": 15,
+      "grade": {
+        "q": 2,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "5 − √10 = √5(√5 − √2)\n6. = √5(√5 − √2) / (3(√5 − √2))",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "1/(√5 − √2) − √2/3 = (3 − √2(√5 − √2)) / (3(√5 − √2))",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "met",
+            "evidence": "√5/3",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": true,
+        "resultPath": "valid",
+        "firstError": null,
+        "errorKind": null,
+        "flags": [
+          "alternative_path"
+        ],
+        "confidence": "high",
+        "note": "Eşlenikle çarpmak yerine payda eşitleyip payı çarpanlarına ayırarak sadeleştirme yöntemiyle doğru sonuca ulaşmıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 15,
+      "status": "graded",
+      "flags": [
+        "alternative_path"
+      ],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Paydayı eşleniğiyle (√5 + √2) genişleterek rasyonel yapar: (√5 + √2)/3",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "5 − √10 = √5(√5 − √2)\n6. = √5(√5 − √2) / (3(√5 − √2))",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Kesirleri geçerli adımlarla birleştirir",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "1/(√5 − √2) − √2/3 = (3 − √2(√5 − √2)) / (3(√5 − √2))",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "Sonuç √5/3 ve öğrencinin kendi geçerli adımlarından çıkıyor",
+          "points": 5,
+          "role": "result",
+          "verdict": "met",
+          "evidence": "√5/3",
+          "earned": 5,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Önce paydaları eşitledim:",
+          "crossed": false
+        },
+        {
+          "text": "1/(√5 − √2) − √2/3 = (3 − √2(√5 − √2)) / (3(√5 − √2))",
+          "crossed": false
+        },
+        {
+          "text": "= (3 − √10 + 2) / (3(√5 − √2))",
+          "crossed": false
+        },
+        {
+          "text": "= (5 − √10) / (3(√5 − √2))",
+          "crossed": false
+        },
+        {
+          "text": "5 − √10 = √5(√5 − √2)",
+          "crossed": false
+        },
+        {
+          "text": "= √5(√5 − √2) / (3(√5 − √2)) = √5/3",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": [
+        "Anahtardan farklı bir yöntem"
+      ]
+    },
+    {
+      "q": 3,
+      "max": 15,
+      "grade": {
+        "q": 3,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "uzun kenar = 2∛270 = 2 · 3∛10 = 6∛10\n3. kısa kenar = ∛80 = 2∛10",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "Bir bölgenin çevresi = 2 · (uzun/3 + kısa/2) = 2 · uzun/3 + kısa",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "met",
+            "evidence": "6∛10 m",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": true,
+        "resultPath": "valid",
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Kenar uzunlukları doğru sadeleştirilmiş ve çevre formülü dağıtılarak geçerli adımlarla doğru sonuca ulaşılmıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 15,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Kenarları kök dışına çıkarır (6∛10 ve 2∛10) ya da eşdeğer geçerli bir yol izler",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "uzun kenar = 2∛270 = 2 · 3∛10 = 6∛10\n3. kısa kenar = ∛80 = 2∛10",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Bir bölgenin kenarlarını (2∛10 ve ∛10) ve çevre formülünü doğru kurar",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Bir bölgenin çevresi = 2 · (uzun/3 + kısa/2) = 2 · uzun/3 + kısa",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "Sonuç 6∛10 m ve öğrencinin kendi geçerli adımlarından çıkıyor",
+          "points": 5,
+          "role": "result",
+          "verdict": "met",
+          "evidence": "6∛10 m",
+          "earned": 5,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "Bir bölgenin çevresi = 2 · (uzun/3 + kısa/2) = 2 · uzun/3 + kısa",
+          "crossed": false
+        },
+        {
+          "text": "uzun kenar = 2∛270 = 2 · 3∛10 = 6∛10",
+          "crossed": false
+        },
+        {
+          "text": "kısa kenar = ∛80 = 2∛10",
+          "crossed": false
+        },
+        {
+          "text": "Ç = 2 · 6∛10 / 3 + 2∛10 = 4∛10 + 2∛10 = 6∛10 m",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 4,
+      "max": 15,
+      "grade": {
+        "q": 4,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "ikisinde de olan: 800 ≤ x ≤ 1200",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "partial",
+            "evidence": "800 ≤ x ≤ 1200",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": false,
+        "resultPath": "valid",
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "low",
+        "note": "Aralık ve sınırlar doğru bulunmuş ancak soru kökündeki aralık gösterimi yerine eşitsizlik biçiminde yazılmıştır.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 5,
+      "status": "graded",
+      "flags": [
+        "low_confidence"
+      ],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "A ve B kümelerini aralık olarak doğru yazar ya da ortak kısmı doğru belirler",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "ikisinde de olan: 800 ≤ x ≤ 1200",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Sonuç [800, 1200] (uç noktalar dahil, kapalı aralık)",
+          "points": 10,
+          "role": "result",
+          "verdict": "partial",
+          "evidence": "800 ≤ x ≤ 1200",
+          "earned": 0,
+          "counted": false
+        }
+      ],
+      "lines": [
+        {
+          "text": "A: 800 ≤ x ≤ 2000",
+          "crossed": false
+        },
+        {
+          "text": "B: 0 ≤ x ≤ 1200",
+          "crossed": false
+        },
+        {
+          "text": "ikisinde de olan: 800 ≤ x ≤ 1200",
+          "crossed": false
+        }
+      ],
+      "attention": [
+        "Emin değil, kontrol edin"
+      ],
+      "info": []
+    },
+    {
+      "q": 5,
+      "max": 15,
+      "grade": {
+        "q": 5,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "32 orta nokta",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "−3 ≤ x − 32 ≤ 3",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "met",
+            "evidence": "|x − 32| ≤ 3",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": true,
+        "resultPath": "valid",
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Orta nokta ve uzaklık kullanılarak mutlak değerli eşitsizlik doğru şekilde kurulmuştur.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 15,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Aralığın orta noktasını 32 olarak bulur",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "32 orta nokta",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Orta noktaya uzaklığı 3 olarak bulur",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "−3 ≤ x − 32 ≤ 3",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "Sonuç |x − 32| ≤ 3 (eşitlik dahil)",
+          "points": 5,
+          "role": "result",
+          "verdict": "met",
+          "evidence": "|x − 32| ≤ 3",
+          "earned": 5,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "29 ≤ x ≤ 35",
+          "crossed": false
+        },
+        {
+          "text": "her taraftan 32 çıkarırsam (32 orta nokta):",
+          "crossed": false
+        },
+        {
+          "text": "−3 ≤ x − 32 ≤ 3",
+          "crossed": false
+        },
+        {
+          "text": "|x − 32| ≤ 3",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 6,
+      "max": 10,
+      "grade": {
+        "q": 6,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "0 ∈ N, 1 ∈ N\n2. 0 − 1 = −1 ∉ N",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": null,
+        "resultPath": null,
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Geçerli bir karşıt örnek verilerek önermenin yanlışlığı gösterilmiştir.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 10,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "İki doğal sayı ile farklarının doğal sayı olmadığı geçerli bir karşıt örnek verir ve sonucun N'de olmadığını belirtir",
+          "points": 10,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "0 ∈ N, 1 ∈ N\n2. 0 − 1 = −1 ∉ N",
+          "earned": 10,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "0 ∈ N, 1 ∈ N",
+          "crossed": false
+        },
+        {
+          "text": "0 − 1 = −1 ∉ N",
+          "crossed": false
+        },
+        {
+          "text": "Karşıt örnek bulundu, önerme yanlış.",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    },
+    {
+      "q": 7,
+      "max": 15,
+      "grade": {
+        "q": 7,
+        "rev": 1,
+        "criteria": [
+          {
+            "id": "c1",
+            "verdict": "met",
+            "evidence": "20x − 2x² = 50",
+            "slipOnly": false
+          },
+          {
+            "id": "c2",
+            "verdict": "met",
+            "evidence": "Δ = b² − 4ac = 400 − 4 · 2 · 50 = 0\n4. x = 20 / (2 · 2) = 5",
+            "slipOnly": false
+          },
+          {
+            "id": "c3",
+            "verdict": "met",
+            "evidence": "x = 20 / (2 · 2) = 5",
+            "slipOnly": false
+          }
+        ],
+        "resultCorrect": true,
+        "resultPath": "valid",
+        "firstError": null,
+        "errorKind": null,
+        "flags": [],
+        "confidence": "high",
+        "note": "Denklem diskriminant yöntemiyle eksiksiz ve doğru çözülmüştür.",
+        "failed": false,
+        "textOnly": false
+      },
+      "points": 15,
+      "status": "graded",
+      "flags": [],
+      "criteria": [
+        {
+          "id": "c1",
+          "text": "Alanları (20x ve 2x²) ve 20x = 2x² + 50 denklemini doğru kurar",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "20x − 2x² = 50",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c2",
+          "text": "Denklemi geçerli adımlarla çözer (çarpanlara ayırma, formül ya da başka geçerli yol)",
+          "points": 5,
+          "role": "other",
+          "verdict": "met",
+          "evidence": "Δ = b² − 4ac = 400 − 4 · 2 · 50 = 0\n4. x = 20 / (2 · 2) = 5",
+          "earned": 5,
+          "counted": true
+        },
+        {
+          "id": "c3",
+          "text": "Sonuç x = 5 ve öğrencinin kendi geçerli adımlarından çıkıyor",
+          "points": 5,
+          "role": "result",
+          "verdict": "met",
+          "evidence": "x = 20 / (2 · 2) = 5",
+          "earned": 5,
+          "counted": true
+        }
+      ],
+      "lines": [
+        {
+          "text": "20x − 2x² = 50",
+          "crossed": false
+        },
+        {
+          "text": "2x² − 20x + 50 = 0",
+          "crossed": false
+        },
+        {
+          "text": "Δ = b² − 4ac = 400 − 4 · 2 · 50 = 0",
+          "crossed": false
+        },
+        {
+          "text": "x = 20 / (2 · 2) = 5",
+          "crossed": false
+        }
+      ],
+      "attention": [],
+      "info": []
+    }
+  ],
+  "expected": null,
+  "usage": {
+    "inputTokens": 5404,
+    "outputTokens": 4789
+  },
+  "ms": 26097
+}
