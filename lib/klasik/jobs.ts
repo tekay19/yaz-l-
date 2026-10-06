@@ -10,6 +10,7 @@ import { rubricOf, sheetStudent } from '@/lib/report/klasik';
 import { answerText, mergeSheets, type Sheet, strayWriting } from './sheets';
 import { FLAG_TEXT, INFO_FLAGS, attentionFlags, scoreSheet, type QuestionScore, type ScoreFlag } from './score';
 import { RubricInput, amendRubric, fromInput, rubricProblems } from './rubric';
+import { MAX_KEY_TEXT, MAX_TEACHER_NOTE } from '@/lib/limits';
 
 // What the klasik screens can do to a job. Every function checks the job's
 // state itself and throws KlasikError with a Turkish message the route
@@ -22,12 +23,17 @@ const fail = (status: number, message: string): never => {
   throw new KlasikError(status, message);
 };
 
-export const MAX_KEY_TEXT = 20_000;
-export const MAX_KEY_PAGES = 10;
 
 export async function setKeyText(db: Db, job: Job, text: string) {
   if (!['draft', 'rubric'].includes(job.status)) fail(409, 'Bu aşamada anahtar değiştirilemez.');
   await db.update(jobs).set({ keyText: text.slice(0, MAX_KEY_TEXT) }).where(eq(jobs.id, job.id));
+}
+
+// the teacher's note to the reader and grader; fixed once the exam is sent,
+// so every page is read under the same note
+export async function setTeacherNote(db: Db, job: Job, note: string) {
+  if (job.status !== 'draft') fail(409, 'Gönderilmiş sınavın notu değiştirilemez.');
+  await db.update(jobs).set({ teacherNote: note.trim().slice(0, MAX_TEACHER_NOTE) }).where(eq(jobs.id, job.id));
 }
 
 export function rubricView(job: Job) {
@@ -70,13 +76,16 @@ export async function redraftRubric(db: Db, job: Job) {
     .where(and(eq(jobs.id, job.id), eq(jobs.status, 'rubric')));
 }
 
-async function sheetsOf(db: Db, jobId: string) {
-  const rows = await db.select().from(pages).where(and(eq(pages.jobId, jobId), eq(pages.kind, 'student'))).orderBy(asc(pages.seq));
-  return { rows, ...mergeSheets(rows) };
+// pages are grouped into sheets by the names on them, matched to the roster
+type JobRef = { id: string; roster: string[] };
+
+async function sheetsOf(db: Db, job: JobRef) {
+  const rows = await db.select().from(pages).where(and(eq(pages.jobId, job.id), eq(pages.kind, 'student'))).orderBy(asc(pages.seq));
+  return { rows, ...mergeSheets(rows, job.roster) };
 }
 
-async function findSheet(db: Db, jobId: string, pageId: string): Promise<Sheet> {
-  const { sheets } = await sheetsOf(db, jobId);
+async function findSheet(db: Db, job: JobRef, pageId: string): Promise<Sheet> {
+  const { sheets } = await sheetsOf(db, job);
   return sheets.find((s) => s.pageId === pageId) ?? fail(404, 'Kâğıt bulunamadı.');
 }
 
@@ -86,7 +95,7 @@ async function findSheet(db: Db, jobId: string, pageId: string): Promise<Sheet> 
 // are corrected too.
 export async function acceptAnswer(db: Db, job: Job, input: { pageId: string; q: number; note: string }) {
   if (job.status !== 'review') fail(409, 'Sınav kontrol aşamasında değil.');
-  const sheet = await findSheet(db, job.id, input.pageId);
+  const sheet = await findSheet(db, job, input.pageId);
   const example = answerText(sheet.read.answers.find((a) => a.q === input.q)).trim();
   if (!example) fail(400, 'Bu soruda kabul edilecek bir cevap yok.');
   await db.transaction(async (tx) => {
@@ -116,7 +125,7 @@ export async function saveKlasikOverride(db: Db, job: Job, pageId: string, body:
   const rubric = rubricOf(job);
   const asked = [...(patch.points ?? []).map((p) => p.q), ...(patch.texts ?? []).map((t) => t.q)];
   if (asked.some((q) => !rubric.questions.some((x) => x.q === q))) fail(400, 'Rubrikte böyle bir soru yok.');
-  const sheet = await findSheet(db, job.id, pageId);
+  const sheet = await findSheet(db, job, pageId);
 
   const prev: PageOverride = sheet.override;
   const points = new Map((prev.points ?? []).map((p) => [p.q, p]));
@@ -146,7 +155,7 @@ export async function saveKlasikOverride(db: Db, job: Job, pageId: string, body:
 // After grading gave up on a sheet: try again.
 export async function requestRegrade(db: Db, job: Job, pageId: string) {
   if (job.status !== 'review') fail(409, 'Sınav kontrol aşamasında değil.');
-  const sheet = await findSheet(db, job.id, pageId);
+  const sheet = await findSheet(db, job, pageId);
   await db.update(pages).set({ gradedRev: 0, gradeAttempts: 0, gradeLeaseUntil: null }).where(eq(pages.id, sheet.pageId));
 }
 
@@ -175,7 +184,7 @@ export type KlasikReview = {
 
 export async function klasikReviewView(db: Db, job: Job): Promise<KlasikReview> {
   const rubric = rubricOf(job);
-  const { rows, sheets, failed } = await sheetsOf(db, job.id);
+  const { rows, sheets, failed } = await sheetsOf(db, job);
   const hasPhoto = new Set(rows.filter((p) => p.filePath).map((p) => p.id));
   const view: ReviewSheet[] = sheets.map((s) => {
     const sc = scoreSheet(rubric, s);

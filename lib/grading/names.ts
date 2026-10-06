@@ -40,3 +40,31 @@ export function matchRoster(name: string | null, roster: string[]): string | nul
   }
   return best && best.sim >= THRESHOLD ? best.entry : null;
 }
+
+// A name shortened on a later page ("M. Kaya", "Elif Y."): the one roster
+// entry whose surname and first-name initial (or first name and surname
+// initial) it fits. Null when none or several fit — never a guess.
+export function matchInitials(name: string, roster: string[]): string | null {
+  const w = name.toLocaleLowerCase('tr').replace(/\./g, '. ').split(/\s+/).map(normalizeName).filter(Boolean);
+  if (w.length < 2) return null;
+  const [first, lastWord] = [w[0], w[w.length - 1]];
+  const fits = roster.filter((entry) => {
+    const e = normalizeName(entry).split(' ');
+    if (e.length < 2) return false;
+    const [ef, el] = [e[0], e[e.length - 1]];
+    return (first.length === 1 && first === ef[0] && lastWord === el)
+      || (lastWord.length === 1 && first === ef && lastWord === el[0]);
+  });
+  return fits.length === 1 ? fits[0] : null;
+}
+
+// "Ad: Elif Yıldız", "Adı Soyadı: …", "İsim - …": the label is not the name
+const LABEL = /^\s*(ad[ıi]?\s*(soyad[ıi]?)?|isim|öğrenci)\s*[:\-–]\s*/iu;
+export const stripNameLabel = (name: string) => name.replace(LABEL, '').trim();
+
+// The roster entry a written name stands for, written in full or shortened.
+export function rosterName(name: string | null, roster: string[]): string | null {
+  const n = name ? stripNameLabel(name) : '';
+  if (!n || !roster.length) return null;
+  return matchRoster(n, roster) ?? matchInitials(n, roster);
+}

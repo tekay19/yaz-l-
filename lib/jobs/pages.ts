@@ -4,7 +4,7 @@ import type { Db } from '@/db/client';
 import { jobs, pages } from '@/db/schema';
 import type { Storage } from '@/lib/storage';
 
-export const MAX_STUDENT_PAGES = 200;
+export { MAX_STUDENT_PAGES } from '@/lib/limits';
 export const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
 
 export async function createJob(

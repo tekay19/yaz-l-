@@ -72,7 +72,7 @@ export async function draftPendingRubrics({ db, reader }: Deps, now = new Date()
       rubric = emptyRubric(); // nothing readable: the teacher types the key or builds the rubric
     } else {
       try {
-        const { read } = await reader.draftRubric({ keyText, maxPoints: job.klasikMax });
+        const { read } = await reader.draftRubric({ keyText, maxPoints: job.klasikMax, note: job.teacherNote });
         rubric = normalizeDraft(read, job.klasikMax);
       } catch (e) {
         console.error('[klasik] rubric_draft_failed', id, e instanceof Error ? e.message : e);
@@ -118,7 +118,7 @@ export async function gradePending(deps: Deps, limit: number, now = new Date()):
   const work: Promise<void>[] = [];
   for (const job of due) {
     const rows = await db.select().from(pages).where(and(eq(pages.jobId, job.id), eq(pages.kind, 'student')));
-    for (const sheet of mergeSheets(rows).sheets) {
+    for (const sheet of mergeSheets(rows, job.roster).sheets) {
       if (work.length >= limit) break;
       if (sheet.gradedRev >= job.rubricRev) {
         await syncBackPages(db, sheet, job.rubricRev); // heals a sheet whose back pages lagged
@@ -169,7 +169,7 @@ async function gradeSheet({ db, storage, reader }: Deps, job: Job, sheet: Sheet,
     if (todo.length) {
       const answers = todo.map((rq) => sheet.read.answers.find((a) => a.q === rq.q)!);
       const images = answers.some((a) => a.hasFigure) ? await loadPhotos(storage, sheet.filePaths) : [];
-      const out = await gradeInChunks(reader, { questions: todo, answers, images });
+      const out = await gradeInChunks(reader, { questions: todo, answers, images, note: job.teacherNote });
       fresh = todo.map((rq, i) => {
         const o = out.read.questions.find((x) => x.q === rq.q);
         if (!o) throw new Error(`grade_missing_q${rq.q}`); // retried: a partial answer is not a grade

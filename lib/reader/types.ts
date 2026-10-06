@@ -5,7 +5,7 @@ import {
   type GradeOutput, type RubricDraft,
 } from './schemas';
 import { KEY_SYSTEM, KEY_USER, STUDENT_SYSTEM, studentUser } from './prompts';
-import { GRADE_SYSTEM, KLASIK_READ_SYSTEM, KLASIK_READ_USER, RUBRIC_SYSTEM, gradeUser, rubricUser } from './klasik-prompts';
+import { GRADE_SYSTEM, KLASIK_READ_SYSTEM, KLASIK_READ_USER, RUBRIC_SYSTEM, gradeUser, rubricUser, teacherNote } from './klasik-prompts';
 import { effortFor, type CallKind, type Effort } from './config';
 
 export type { Effort } from './config';
@@ -13,10 +13,11 @@ export type Usage = { inputTokens: number; outputTokens: number };
 export type Reader = {
   readKey(image: Buffer): Promise<{ read: KeyRead; usage: Usage }>;
   readStudent(image: Buffer, questionCount: number): Promise<{ read: StudentRead; usage: Usage }>;
-  // klasik: copy a page down, draft a rubric from the key, judge answers
-  readKlasik(image: Buffer): Promise<{ read: KlasikRead; usage: Usage }>;
-  draftRubric(input: { keyText: string; maxPoints: number[] }): Promise<{ read: RubricDraft; usage: Usage }>;
-  gradeKlasik(input: { questions: RubricQuestion[]; answers: KlasikAnswer[]; images: Buffer[] }): Promise<{ read: GradeOutput; usage: Usage }>;
+  // klasik: copy a page down, draft a rubric from the key, judge answers;
+  // `note` is the teacher's own note on the exam, if any
+  readKlasik(image: Buffer, note?: string): Promise<{ read: KlasikRead; usage: Usage }>;
+  draftRubric(input: { keyText: string; maxPoints: number[]; note?: string }): Promise<{ read: RubricDraft; usage: Usage }>;
+  gradeKlasik(input: { questions: RubricQuestion[]; answers: KlasikAnswer[]; images: Buffer[]; note?: string }): Promise<{ read: GradeOutput; usage: Usage }>;
 };
 export class ReadRefused extends Error {}
 // The answer hit the output limit and its JSON is cut off; asking again with
@@ -39,12 +40,12 @@ export function buildReader(ask: Ask, opts: { effort?: Effort } = {}): Reader {
     readKey: (image) => ask(KEY_SYSTEM, [{ image }, { text: KEY_USER }], KeyReadSchema, 'answer_key', effort('optik')),
     readStudent: (image, questionCount) =>
       ask(STUDENT_SYSTEM, [{ image }, { text: studentUser(questionCount) }], StudentReadSchema, 'student_sheet', effort('optik')),
-    readKlasik: (image) =>
-      ask(KLASIK_READ_SYSTEM, [{ image }, { text: KLASIK_READ_USER }], KlasikReadSchema, 'klasik_page', effort('klasik-read')),
-    draftRubric: ({ keyText, maxPoints }) =>
-      ask(RUBRIC_SYSTEM, [{ text: rubricUser(keyText, maxPoints) }], RubricDraftSchema, 'klasik_rubric', effort('klasik-grade')),
-    gradeKlasik: ({ questions, answers, images }) =>
-      ask(GRADE_SYSTEM, [...images.map((image) => ({ image })), { text: gradeUser(questions, answers, images.length > 0) }],
+    readKlasik: (image, note) =>
+      ask(KLASIK_READ_SYSTEM, [{ image }, { text: KLASIK_READ_USER + teacherNote(note) }], KlasikReadSchema, 'klasik_page', effort('klasik-read')),
+    draftRubric: ({ keyText, maxPoints, note }) =>
+      ask(RUBRIC_SYSTEM, [{ text: rubricUser(keyText, maxPoints) + teacherNote(note) }], RubricDraftSchema, 'klasik_rubric', effort('klasik-grade')),
+    gradeKlasik: ({ questions, answers, images, note }) =>
+      ask(GRADE_SYSTEM, [...images.map((image) => ({ image })), { text: gradeUser(questions, answers, images.length > 0) + teacherNote(note) }],
         GradeOutputSchema, 'klasik_grade', effort('klasik-grade')),
   };
 }

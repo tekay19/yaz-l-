@@ -50,6 +50,8 @@ export const jobs = pgTable('jobs', {
   // klasik: the typed answer key, the rubric the teacher approves, and the
   // bookkeeping of drafting it, waiting for it and grading against it
   keyText: text('key_text').notNull().default(''),
+  // the teacher's optional note to the reader and grader ("cevaplar arkada devam ediyor")
+  teacherNote: text('teacher_note').notNull().default(''),
   rubric: jsonb('rubric').$type<Rubric>(),
   rubricRev: integer('rubric_rev').notNull().default(0),
   rubricApprovedAt: ts('rubric_approved_at'),

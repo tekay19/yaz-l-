@@ -16,6 +16,7 @@ export async function gradeInChunks(reader: Reader, input: Input, size = GRADE_C
     questions: idx.map((i) => input.questions[i]),
     answers: idx.map((i) => input.answers[i]),
     images: idx.some((i) => input.answers[i].hasFigure) ? input.images : [],
+    note: input.note,
   })));
   return {
     read: { questions: outs.flatMap((o) => o.read.questions) },

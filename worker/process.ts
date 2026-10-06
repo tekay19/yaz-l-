@@ -18,10 +18,10 @@ export async function processPage({ db, storage, reader }: WorkerDeps, page: Cla
   try {
     if (!page.filePath) throw new ReadRefused('file_missing');
     const image = await storage.read(page.filePath);
-    const [job] = await db.select({ mode: jobs.mode }).from(jobs).where(eq(jobs.id, page.jobId));
+    const [job] = await db.select({ mode: jobs.mode, teacherNote: jobs.teacherNote }).from(jobs).where(eq(jobs.id, page.jobId));
     if (job?.mode === 'klasik') {
       // copied down literally, key or student; the rubric and the grades come later
-      const { read, usage } = await reader.readKlasik(image);
+      const { read, usage } = await reader.readKlasik(image, job.teacherNote);
       const empty = page.kind === 'key' && !read.answers.some((a) => a.lines.length);
       if (read.unreadable || empty) await failPage(db, page, page.kind === 'key' ? 'key_empty' : 'unreadable', false);
       else await completePage(db, page, { type: page.kind === 'key' ? 'klasik-key' : 'klasik-student', read }, usage);

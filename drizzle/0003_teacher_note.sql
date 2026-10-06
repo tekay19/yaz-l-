@@ -1,0 +1,1 @@
+ALTER TABLE "jobs" ADD COLUMN "teacher_note" text DEFAULT '' NOT NULL;

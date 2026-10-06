@@ -22,6 +22,13 @@
       "when": 1790761099334,
       "tag": "0002_klasik_rubric",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791303205878,
+      "tag": "0003_teacher_note",
+      "breakpoints": true
     }
   ]
 }

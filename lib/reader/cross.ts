@@ -57,8 +57,8 @@ const add = (a: Usage, b: Usage): Usage => ({ inputTokens: a.inputTokens + b.inp
 // readKlasik through both readers at once; if the second fails, the first
 // reading stands as it is (the page is not held back for a check).
 export function crossReadKlasik(first: Reader, second: Reader): Reader['readKlasik'] {
-  return async (image) => {
-    const [a, b] = await Promise.allSettled([first.readKlasik(image), second.readKlasik(image)]);
+  return async (image, note) => {
+    const [a, b] = await Promise.allSettled([first.readKlasik(image, note), second.readKlasik(image, note)]);
     if (a.status === 'rejected') {
       if (b.status === 'fulfilled') return b.value; // the other reader stands in
       throw a.reason;

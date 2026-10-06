@@ -20,3 +20,21 @@ describe('the "result in the asked form" setting', () => {
     expect(RubricInput.parse({ questions: [q()] }).questions[0].policy.formRequired).toBeUndefined();
   });
 });
+
+describe("the teacher's note", () => {
+  it('reaches reading, drafting and grading, and is left out when empty', async () => {
+    const { buildReader } = await import('@/lib/reader/types');
+    const seen: string[] = [];
+    const reader = buildReader(async (_system, parts) => {
+      seen.push(parts.map((p) => ('text' in p ? p.text : '')).join(''));
+      return { read: {} as never, usage: { inputTokens: 0, outputTokens: 0 } };
+    });
+    const note = 'Cevaplar kâğıdın arkasında devam edebilir.';
+    await reader.readKlasik(Buffer.from(''), note);
+    await reader.draftRubric({ keyText: '1) x = 4', maxPoints: [10], note });
+    await reader.gradeKlasik({ questions: [q()], answers: [answer], images: [], note });
+    await reader.gradeKlasik({ questions: [q()], answers: [answer], images: [], note: '  ' });
+    expect(seen.slice(0, 3).every((t) => t.includes(note))).toBe(true);
+    expect(seen[3]).not.toContain("teacher's notes");
+  });
+});

@@ -1,5 +1,5 @@
 import type { jobs, pages } from '@/db/schema';
-import { looksLikeName, matchRoster } from '@/lib/grading/names';
+import { looksLikeName, rosterName, stripNameLabel } from '@/lib/grading/names';
 import { scoreBuckets } from '@/lib/grading/stats';
 import { mergeSheets, type Sheet, strayWriting } from '@/lib/klasik/sheets';
 import { FLAG_TEXT, attentionFlags, questionMax, scoreSheet } from '@/lib/klasik/score';
@@ -15,19 +15,19 @@ type PageRow = typeof pages.$inferSelect;
 export function sheetStudent(sheet: Sheet, roster: string[]): { student: string | null; flags: string[] } {
   if (sheet.override.studentName) return { student: sheet.override.studentName, flags: [] };
   const read = sheet.read;
-  const matched = roster.length ? matchRoster(read.studentName, roster) : null;
+  const matched = rosterName(read.studentName, roster);
   const flags: string[] = [];
   if (!read.studentName) flags.push('İsim okunamadı');
   else if (roster.length && !matched) flags.push('İsim sınıf listesinde yok');
   else if (!roster.length && (read.nameConfidence === 'low' || !looksLikeName(read.studentName))) flags.push('İsim net okunamadı');
-  return { student: matched ?? read.studentName, flags };
+  return { student: matched ?? (read.studentName && stripNameLabel(read.studentName)), flags };
 }
 
 export const rubricOf = (job: Job): Rubric => job.rubric ?? { questions: [] };
 
 export function buildKlasikInput(job: Job, all: PageRow[]): ReportInput {
   const rubric = rubricOf(job);
-  const { sheets, failed } = mergeSheets(all.filter((p) => p.kind === 'student'));
+  const { sheets, failed } = mergeSheets(all.filter((p) => p.kind === 'student'), job.roster);
   const rows: ReportRow[] = sheets.map((s) => {
     const sc = scoreSheet(rubric, s);
     const who = sheetStudent(s, job.roster);

@@ -70,6 +70,71 @@ describe('mergeSheets', () => {
     expect(failed.map((f) => f.seq)).toEqual([2]);
   });
 
+  // a four-page exam, the student's name on every page
+  const ans = (...qs: number[]) => qs.map((q) => ({ q, lines: lines(`${q}. cevap`), unclear: false, hasFigure: false }));
+
+  it('joins the pages of a student by the name on them, in any upload order', () => {
+    // photographed in stacks: every first page, then every second page
+    const { sheets } = mergeSheets([
+      page(1, { studentName: 'Elif Yıldız', answers: ans(1, 2) }),
+      page(2, { studentName: 'Mert Kaya', answers: ans(1, 2) }),
+      page(3, { studentName: 'Ad: Elif Yildiz', answers: ans(3, 4) }), // labelled, and without the Turkish letters
+      page(4, { studentName: 'M. Kaya', answers: ans(3, 4) }),     // shortened on the later page
+    ], ['Elif Yıldız', 'Mert Kaya']);
+    expect(sheets.map((s) => s.pageIds)).toEqual([['p1', 'p3'], ['p2', 'p4']]);
+    // without a roster the written names themselves group the pages
+    const { sheets: bare } = mergeSheets([page(1, { studentName: 'Mert Kaya', answers: ans(1) }), page(2, { studentName: 'Ali Can', answers: ans(1) }), page(3, { studentName: 'mert kaya', answers: ans(2) })]);
+    expect(bare.map((s) => s.pageIds)).toEqual([['p1', 'p3'], ['p2']]);
+    // a shortening two roster entries fit is no match: that page stays apart for the teacher
+    const { sheets: twoMs } = mergeSheets([page(1, { studentName: 'Mert Kaya', answers: ans(1) }), page(2, { studentName: 'M. Kaya', answers: ans(1) })], ['Mert Kaya', 'Melis Kaya']);
+    expect(twoMs.map((s) => s.pageIds)).toEqual([['p1'], ['p2']]);
+  });
+
+  it('continues an unsigned later page, but not one that answers the same questions again', () => {
+    const { sheets } = mergeSheets([
+      page(1, { studentName: 'Elif', answers: ans(1, 2) }),
+      page(2, { isBackSide: true, answers: ans(3, 4) }), // Elif's next page, no name on it
+      page(3, { isBackSide: true, answers: ans(4, 5) }), // and the next: question 4 runs on
+      page(4, { answers: ans(1, 2) }),          // a first page under an empty name field: someone else
+    ]);
+    expect(sheets.map((s) => s.pageIds)).toEqual([['p1', 'p2', 'p3'], ['p4']]);
+    expect(sheets[0].read.answers.map((a) => a.q)).toEqual([1, 2, 3, 4, 5]);
+  });
+
+  it('never puts two first pages on one sheet, even when one of them is blank', () => {
+    // Elif left her first page empty; the next student forgot to sign theirs
+    const { sheets } = mergeSheets([
+      page(1, { studentName: 'Elif', answers: [] }),
+      page(2, { answers: ans(1) }),
+      page(3, { isBackSide: true, answers: ans(2, 3) }),
+    ]);
+    expect(sheets.map((s) => s.pageIds)).toEqual([['p1'], ['p2', 'p3']]);
+  });
+
+  it('sorts pages photographed in stacks: every first page, then every second page', () => {
+    const front = (seq: number, studentName: string | null) => page(seq, { studentName, answers: ans(1, 2) });
+    const back = (seq: number, studentName: string | null = null) => page(seq, { isBackSide: true, studentName, answers: ans(3, 4) });
+    const { sheets } = mergeSheets([
+      front(1, 'Elif Yıldız'), front(2, 'Mert Kaya'), front(3, null), // the third forgot to sign the first page
+      back(4), back(5), back(6, 'Ad: Zeynep Arslan'),                  // ... and signed the second
+    ], ['Elif Yıldız', 'Mert Kaya', 'Zeynep Arslan']);
+    expect(sheets.map((s) => s.pageIds)).toEqual([['p1', 'p4'], ['p2', 'p5'], ['p3', 'p6']]);
+    expect(sheets[2].read.studentName).toBe('Ad: Zeynep Arslan');
+    // student by student, the same pages stay with the page before them
+    const { sheets: inOrder } = mergeSheets([front(1, 'Elif Yıldız'), back(2), front(3, 'Mert Kaya'), back(4)], ['Elif Yıldız', 'Mert Kaya']);
+    expect(inOrder.map((s) => s.pageIds)).toEqual([['p1', 'p2'], ['p3', 'p4']]);
+  });
+
+  it('lets a name written only on a later page sign the pages before it', () => {
+    const { sheets } = mergeSheets([
+      page(1, { studentName: 'Elif', answers: ans(1, 2) }),
+      page(2, { answers: ans(1, 2) }),          // name field left empty
+      page(3, { isBackSide: true, studentName: 'Zeynep', nameConfidence: 'high', answers: ans(3, 4) }), // signed in the margin
+    ]);
+    expect(sheets.map((s) => s.pageIds)).toEqual([['p1'], ['p2', 'p3']]);
+    expect(sheets[1].read.studentName).toBe('Zeynep');
+  });
+
   it('lets the teacher\'s transcription fix replace or add an answer', () => {
     const { sheets } = mergeSheets([
       page(1, { answers: [{ q: 1, lines: [{ text: 'x = 3', crossed: true }, { text: 'x = [?]', crossed: false }], unclear: true, hasFigure: false }] },
