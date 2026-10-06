@@ -92,6 +92,8 @@ export function scoreQuestion(
 
   const flags = new Set<ScoreFlag>(g.flags);
   if (answer.hasFigure) flags.add('figure');
+  // the reader was unsure, or two readers disagreed: the teacher checks the reading
+  if (answer.unclear) flags.add('unclear_reading');
   if (g.textOnly) flags.add('text_only');
   if (g.confidence === 'low') flags.add('low_confidence');
 

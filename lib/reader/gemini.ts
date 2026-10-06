@@ -36,8 +36,7 @@ function jsonSchema(schema: z.ZodType) {
   return rest;
 }
 
-const transport = (doFetch: GeminiFetch, key: string): Ask => async (system, parts, schema, _name, effort) => {
-  const model = geminiModel();
+const transport = (doFetch: GeminiFetch, key: string, model: string): Ask => async (system, parts, schema, _name, effort) => {
   const body = JSON.stringify({
     systemInstruction: { parts: [{ text: system }] },
     contents: [{
@@ -91,8 +90,8 @@ const transport = (doFetch: GeminiFetch, key: string): Ask => async (system, par
 
 export function createGeminiReader(
   doFetch: GeminiFetch = (url, init) => fetch(url, init),
-  opts: { effort?: Effort; key?: string } = {},
+  opts: { effort?: Effort; key?: string; model?: string } = {},
 ): Reader {
   const key = opts.key ?? process.env.GEMINI_API_KEY ?? '';
-  return buildReader(transport(doFetch, key), opts);
+  return buildReader(transport(doFetch, key, opts.model ?? geminiModel()), opts);
 }

@@ -1,0 +1,64 @@
+import { describe, expect, it } from 'vitest';
+import { crossReadKlasik, reconcile, sameReading } from '@/lib/reader/cross';
+import { roles } from '@/lib/reader';
+import { fakeReader, usage } from '../helpers/reader';
+import type { KlasikRead } from '@/lib/types';
+
+const ln = (...t: string[]) => t.map((text) => ({ text, crossed: false }));
+const page = (answers: KlasikRead['answers'], name: string | null = 'Elif Yıldız'): KlasikRead =>
+  ({ isBackSide: false, studentName: name, nameConfidence: 'high', unreadable: false, answers });
+const a = (q: number, ...t: string[]) => ({ q, lines: ln(...t), unclear: false, hasFigure: false });
+
+describe('cross-reading', () => {
+  it('treats spacing, case and punctuation as the same reading, but never a different number', () => {
+    expect(sameReading('3x = 16 + 5', '3x=16+5')).toBe(true);
+    expect(sameReading('Buharlaşma: su ısınır.', 'buharlaşma su ısınır')).toBe(true);
+    expect(sameReading('x = 25', 'x = 2,5')).toBe(false);
+    expect(sameReading('36 + 64 = 110', '36 + 64 = 100')).toBe(false);
+    expect(sameReading('Mitokondri', 'Mitekondri')).toBe(true); // one letter in ten: same for grading
+    expect(sameReading('Mitokondri', 'Ribozom')).toBe(false);
+  });
+
+  it('marks the answers the readers disagree on and keeps the second reading', () => {
+    const r = reconcile(
+      page([a(1, '3x = 21', 'x = 7'), a(2, '240 * 25 / 100 = 50'), a(3, 'c = 10 cm')]),
+      page([a(1, '3x=21', 'x=7'), a(2, '240 * 25 / 100 = 60'), a(4, 'Mitokondri')]),
+    );
+    expect(r.answers.map((x) => [x.q, x.unclear, x.altText ?? null])).toEqual([
+      [1, false, null],
+      [2, true, '240 * 25 / 100 = 60'],
+      [3, true, ''], // the second reader did not see it
+      [4, true, ''], // only the second reader saw it
+    ]);
+  });
+
+  it('lowers the name confidence when the readers read different names', () => {
+    expect(reconcile(page([], 'Elif Yıldız'), page([], 'Elif Yılmaz')).nameConfidence).toBe('low');
+    expect(reconcile(page([], 'Elif Yıldız'), page([], 'elif yıldız')).nameConfidence).toBe('high');
+  });
+
+  it('reads with both at once and lets one stand in when the other fails', async () => {
+    const first = fakeReader({ readKlasik: async () => ({ read: page([a(1, 'x = 7')]), usage }) });
+    const second = fakeReader({ readKlasik: async () => ({ read: page([a(1, 'x = 1')]), usage }) });
+    const both = await crossReadKlasik(first, second)(Buffer.from('jpg'));
+    expect(both.read.answers[0]).toMatchObject({ unclear: true, altText: 'x = 1' });
+    expect(both.usage).toEqual({ inputTokens: 20, outputTokens: 10 });
+    const broken = fakeReader({ readKlasik: async () => { throw new Error('quota'); } });
+    expect((await crossReadKlasik(first, broken)(Buffer.from('jpg'))).read.answers[0].unclear).toBe(false);
+    expect((await crossReadKlasik(broken, second)(Buffer.from('jpg'))).read.answers[0].lines[0].text).toBe('x = 1');
+  });
+});
+
+describe('model roles', () => {
+  it('runs everything on one model by default, as before', () => {
+    expect(roles({ GRADER_PROVIDER: 'openai', GRADER_MODEL: 'gpt-x' })).toEqual({
+      reader: { provider: 'openai', model: 'gpt-x' }, grader: { provider: 'openai', model: 'gpt-x' }, cross: null,
+    });
+  });
+  it('splits reading, grading and the second reading', () => {
+    const r = roles({ READER_PROVIDER: 'gemini', GRADER_PROVIDER: 'openai', GRADER_MODEL: 'gpt-x', CROSS_READ_PROVIDER: 'openai' });
+    expect(r.reader).toEqual({ provider: 'gemini', model: 'gemini-3.8-flash' }); // never the grader's model on another vendor
+    expect(r.grader).toEqual({ provider: 'openai', model: 'gpt-x' });
+    expect(r.cross).toEqual({ provider: 'openai', model: 'gpt-5.6-terra' });
+  });
+});

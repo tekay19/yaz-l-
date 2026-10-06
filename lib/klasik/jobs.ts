@@ -161,7 +161,7 @@ export async function regradesPending(db: Db, job: Pick<Job, 'id' | 'rubricRev'>
 
 export type ReviewNote = { code: ScoreFlag; text: string; attention: boolean };
 export type ReviewQuestion = Omit<QuestionScore, 'flags'> & {
-  lines: KlasikLine[]; unclear: boolean; hasFigure: boolean; note: string; firstError: string | null; notes: ReviewNote[];
+  lines: KlasikLine[]; unclear: boolean; hasFigure: boolean; altText: string | null; note: string; firstError: string | null; notes: ReviewNote[];
 };
 export type ReviewSheet = {
   pageId: string; seqs: number[]; student: string; nameFlags: string[];
@@ -184,7 +184,7 @@ export async function klasikReviewView(db: Db, job: Job): Promise<KlasikReview> 
       const a = s.read.answers.find((x) => x.q === q.q);
       const attention = new Set(attentionFlags({ ...q, flags }));
       return {
-        ...q, lines: a?.lines ?? [], unclear: a?.unclear ?? false, hasFigure: a?.hasFigure ?? false,
+        ...q, lines: a?.lines ?? [], unclear: a?.unclear ?? false, hasFigure: a?.hasFigure ?? false, altText: a?.altText ?? null,
         note: q.grade?.note ?? '', firstError: q.grade?.firstError ?? null,
         notes: flags.filter((f) => f !== 'pending').map((f) => ({ code: f, text: FLAG_TEXT[f], attention: attention.has(f) && !INFO_FLAGS.has(f) })),
       };

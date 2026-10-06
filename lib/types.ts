@@ -24,7 +24,8 @@ export type StudentRead = {
 // sees the key, and the grade never carries points: code computes them.
 
 export type KlasikLine = { text: string; crossed: boolean };
-export type KlasikAnswer = { q: number; lines: KlasikLine[]; unclear: boolean; hasFigure: boolean };
+// altText: a second reader's different reading of the answer (cross-read)
+export type KlasikAnswer = { q: number; lines: KlasikLine[]; unclear: boolean; hasFigure: boolean; altText?: string };
 export type KlasikRead = {
   isBackSide: boolean;
   studentName: string | null;

@@ -8,9 +8,9 @@ export type MessagesClient = { beta: { messages: { create(params: any): Promise<
 
 export const graderModel = () => process.env.GRADER_MODEL || 'claude-opus-5';
 
-const transport = (client: MessagesClient): Ask => async (system, parts, schema, _name, effort) => {
+const transport = (client: MessagesClient, model: string): Ask => async (system, parts, schema, _name, effort) => {
   const res = await client.beta.messages.create({
-    model: graderModel(),
+    model,
     max_tokens: 16000,
     thinking: { type: 'adaptive' },
     output_config: { effort, format: betaZodOutputFormat(schema) },
@@ -41,5 +41,5 @@ const transport = (client: MessagesClient): Ask => async (system, parts, schema,
 
 export const createClaudeReader = (
   client: MessagesClient = new Anthropic(clientOptions()) as unknown as MessagesClient,
-  opts: { effort?: Effort } = {},
-): Reader => buildReader(transport(client), opts);
+  opts: { effort?: Effort; model?: string } = {},
+): Reader => buildReader(transport(client, opts.model ?? graderModel()), opts);

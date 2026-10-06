@@ -207,6 +207,11 @@ function QuestionBlock({ api, jobId, pageId, question: q, onChanged }: {
           {q.lines.length ? q.lines.map((l, i) => (
             <div key={i} className={l.crossed ? 'klasik-line crossed' : 'klasik-line'}>{l.text}</div>
           )) : <div className="klasik-line muted">(cevap yok)</div>}
+          {q.altText !== null && q.altText !== undefined && (
+            <div className="tiny muted" style={{ marginTop: 6 }}>
+              İkinci okuma{q.altText ? `: ${q.altText}` : ' bu cevabı görmedi'} — fotoğrafa bakıp gerekirse okumayı düzeltin.
+            </div>
+          )}
           <button type="button" className="console-link" onClick={() => setEditing(true)}>okumayı düzelt</button>
         </div>
       )}

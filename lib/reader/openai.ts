@@ -12,9 +12,9 @@ export type ResponsesClient = { responses: { create(params: any): Promise<any> }
 
 export const openaiModel = () => process.env.GRADER_MODEL || 'gpt-5.1';
 
-const transport = (client: ResponsesClient): Ask => async (system, parts, schema, name, effort) => {
+const transport = (client: ResponsesClient, model: string): Ask => async (system, parts, schema, name, effort) => {
   const res = await client.responses.create({
-    model: openaiModel(),
+    model,
     max_output_tokens: 16000,
     reasoning: { effort },
     instructions: system,
@@ -39,5 +39,5 @@ const transport = (client: ResponsesClient): Ask => async (system, parts, schema
 
 export const createOpenAIReader = (
   client: ResponsesClient = new OpenAI(clientOptions()) as unknown as ResponsesClient,
-  opts: { effort?: Effort } = {},
-): Reader => buildReader(transport(client), opts);
+  opts: { effort?: Effort; model?: string } = {},
+): Reader => buildReader(transport(client, opts.model ?? openaiModel()), opts);
