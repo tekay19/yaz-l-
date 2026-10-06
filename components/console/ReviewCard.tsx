@@ -1,10 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { OPTIONS } from '@/lib/types';
 import type { Api, Correction, Review, ReviewRow } from './api';
 import { flaggedQuestions, keyQuestions, nameFlagged } from './flags';
-
-const OPTIONS = ['A', 'B', 'C', 'D', 'E'];
 
 export default function ReviewCard({ api, jobId, onApproved }: { api: Api; jobId: string; onApproved: () => void }) {
   const [data, setData] = useState<Review | null>(null);
@@ -83,6 +82,9 @@ type RowProps = { api: Api; jobId: string; row: ReviewRow; onSaved: () => void }
 
 function RowEditor({ api, jobId, row, onSaved }: RowProps) {
   const [name, setName] = useState(row.student);
+  // a roster re-match renames the row; without this a later mark fix would
+  // send the old name back and undo the match
+  useEffect(() => setName(row.student), [row.student]);
   const [questions, setQuestions] = useState<number[]>(() => flaggedQuestions(row.flags));
   const [extra, setExtra] = useState('');
   // only questions the teacher actually touched are sent back

@@ -48,6 +48,7 @@ export default function Pricing() {
           </ul>
 
           <button
+            data-pack-btn
             type="button"
             className="btn btn-buy btn-block"
             style={{ marginTop: 22 }}

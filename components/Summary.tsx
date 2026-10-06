@@ -9,7 +9,6 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { tl } from '@/lib/packs';
 import { usePlan } from '@/lib/usePlan';
 import PriceTag from './PriceTag';
 import { hasRequiredUpload, useUpload } from '@/lib/useUpload';

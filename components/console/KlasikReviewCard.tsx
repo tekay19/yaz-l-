@@ -95,8 +95,12 @@ export default function KlasikReviewCard({ api, jobId, onApproved }: Props) {
   );
 }
 
+// an empty field is not 0, and Turkish keyboards type "2,5"
+const parsePoints = (s: string) => (s.trim() ? Number(s.trim().replace(',', '.')) : NaN);
+
 function SheetCard({ api, jobId, sheet, onChanged }: { api: Api; jobId: string; sheet: ReviewSheet; onChanged: () => void }) {
   const [name, setName] = useState(sheet.student);
+  useEffect(() => setName(sheet.student), [sheet.student]);
   const [note, setNote] = useState<{ ok: boolean; text: string } | null>(null);
 
   async function saveName() {
@@ -154,7 +158,7 @@ function QuestionBlock({ api, jobId, pageId, question: q, onChanged }: {
   };
 
   async function savePoints(value: number | null) {
-    if (value !== null && (!Number.isFinite(value) || value < 0 || value > q.max)) {
+    if (value !== null && (Number.isNaN(value) || value < 0 || value > q.max)) {
       setMsg({ ok: false, text: `Puan 0 ile ${q.max} arasında olmalı.` });
       return;
     }
@@ -226,9 +230,9 @@ function QuestionBlock({ api, jobId, pageId, question: q, onChanged }: {
       )}
 
       <div className="console-row">
-        <input className="klasik-input pts" type="number" min={0} max={q.max} step={0.5} value={points}
+        <input className="klasik-input pts" inputMode="decimal" value={points}
           onChange={(e) => setPoints(e.target.value)} aria-label="Puan" />
-        <button type="button" className="btn btn-ghost btn-sm" onClick={() => savePoints(Number(points))}>Puanı kaydet</button>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={() => savePoints(parsePoints(points))}>Puanı kaydet</button>
         {q.status === 'teacher' && <button type="button" className="console-link" onClick={() => savePoints(null)}>öneriye dön</button>}
         {q.lines.some((l) => !l.crossed) && q.status !== 'teacher' && (
           <button type="button" className="btn btn-ghost btn-sm" onClick={accept}>Bu cevabı kabul et, rubriğe ekle</button>

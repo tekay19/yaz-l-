@@ -14,6 +14,7 @@ type Props = { api: Api; job: JobView; onChanged: () => void; onSubmitted: () =>
 export default function DraftJob({ api, job, onChanged, onSubmitted }: Props) {
   const next = useRef(0);
   const [uploads, setUploads] = useState<Upload[]>([]);
+  const uploading = uploads.some((u) => u.state === 'up');
   const [roster, setRoster] = useState('');
   const [rosterNote, setRosterNote] = useState<Note>(null);
   const [consent, setConsent] = useState(false);
@@ -155,8 +156,9 @@ export default function DraftJob({ api, job, onChanged, onSubmitted }: Props) {
           Sınıf listesi olmadan devam et: isimler yalnız fotoğraftan okunur, bir listeyle karşılaştırılmaz.
         </label>
       )}
+      {uploading && <p className="tiny muted">Yüklemeler bitince gönderebilirsiniz.</p>}
       <div className="console-row">
-        <button type="button" className="btn btn-primary btn-sm" disabled={!consent || busy || (askNoRoster && !noRoster)} onClick={submit}>Sınavı gönder</button>
+        <button type="button" className="btn btn-primary btn-sm" disabled={!consent || busy || uploading || (askNoRoster && !noRoster)} onClick={submit}>Sınavı gönder</button>
       </div>
       {submitNote && <p className={`console-banner ${submitNote.ok ? 'ok' : 'err'}`}>{submitNote.text}</p>}
     </div>

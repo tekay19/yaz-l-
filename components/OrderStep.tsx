@@ -3,7 +3,8 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { tl } from '@/lib/packs';
+import type { PackName } from '@/lib/packs';
+import { track } from '@/lib/tracking';
 import { usePlan } from '@/lib/usePlan';
 import PriceTag from './PriceTag';
 import { hasRequiredUpload, useUpload } from '@/lib/useUpload';
@@ -15,6 +16,11 @@ export default function OrderStep() {
   const router = useRouter();
   const [plan, choose] = usePlan();
   const { upload, ready } = useUpload();
+
+  function pick(name: PackName) {
+    choose(name);
+    track('pack_click', 'odeme', name);
+  }
 
   useEffect(() => {
     if (ready && !hasRequiredUpload(upload)) router.replace('/yukle');
@@ -31,7 +37,7 @@ export default function OrderStep() {
           kodunuzu göremez veya saklayamaz.
         </p>
 
-        <section aria-label="Paket seçimi" style={{ padding: '36px 0 0' }}><h2 style={{ marginBottom: 28 }}>Paketinizi seçin</h2><PackageOptions selected={plan.name} onSelect={choose} minimumPages={upload.count} /></section>
+        <section aria-label="Paket seçimi" style={{ padding: '36px 0 0' }}><h2 style={{ marginBottom: 28 }}>Paketinizi seçin</h2><PackageOptions selected={plan.name} onSelect={pick} minimumPages={upload.count} /></section>
         <div className="checkout" style={{ marginTop: 36 }}>
           <div>
             <div className="card">

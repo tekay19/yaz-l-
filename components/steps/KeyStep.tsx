@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import WizardShell from '../WizardShell';
 import Thumb from '../Thumb';
@@ -24,15 +24,22 @@ const MODES: Record<ExamMode, { label: string; title: string; hint: string }> = 
 export default function KeyStep() {
   const router = useRouter();
   const toast = useToast();
-  const stored = typeof window === 'undefined' ? null : readUpload();
-
-  const [mode, setMode] = useState<ExamMode>(stored?.mode ?? 'optik');
+  const [mode, setMode] = useState<ExamMode>('optik');
   const [file, setFile] = useState<File | null>(null);
-  const [savedName, setSavedName] = useState<string | null>(stored?.key ?? null);
-  const [receipt, setReceipt] = useState<string | null>(stored?.receipt ?? null);
+  const [savedName, setSavedName] = useState<string | null>(null);
+  const [receipt, setReceipt] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+
+  // the server renders the defaults; a stored session is restored after
+  // hydration so the first client render matches the server markup
+  useEffect(() => {
+    const stored = readUpload();
+    setMode(stored.mode);
+    setSavedName(stored.key);
+    setReceipt(stored.receipt);
+  }, []);
 
   const copy = MODES[mode];
   const picked = Boolean(file || savedName);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import type { Api, JobView } from './api';
 import DraftJob from './DraftJob';
 import ReviewCard from './ReviewCard';
@@ -27,6 +27,10 @@ export default function JobFlow({ api, klasik, onBalanceChange }: { api: Api; kl
   const [title, setTitle] = useState('');
   const [mode, setMode] = useState<'optik' | 'klasik'>('optik');
   const [error, setError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  // a poll still in flight when the teacher opens another job must not
+  // bring the old one back on screen
+  const openId = useRef<string | null>(null);
 
   const loadJobs = useCallback(async () => {
     const r = await api.listJobs();
@@ -34,7 +38,9 @@ export default function JobFlow({ api, klasik, onBalanceChange }: { api: Api; kl
   }, [api]);
 
   const reload = useCallback(async (id: string) => {
+    openId.current = id;
     const r = await api.job(id);
+    if (openId.current !== id) return null;
     if (r.ok) setCurrent(r.data);
     else setError(r.error);
     return r.ok ? r.data : null;
@@ -58,8 +64,11 @@ export default function JobFlow({ api, klasik, onBalanceChange }: { api: Api; kl
 
   async function create(e: FormEvent) {
     e.preventDefault();
+    if (creating) return;
     setError(null);
+    setCreating(true);
     const r = await api.createJob(title, klasik ? mode : 'optik');
+    setCreating(false);
     if (!r.ok) {
       setError(r.error);
       return;
@@ -96,7 +105,7 @@ export default function JobFlow({ api, klasik, onBalanceChange }: { api: Api; kl
             <label htmlFor="console-title">Başlık</label>
             <input id="console-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="9-B Matematik 1. yazılı" />
           </div>
-          <button type="submit" className="btn btn-primary btn-sm console-end">Oluştur</button>
+          <button type="submit" className="btn btn-primary btn-sm console-end" disabled={creating}>Oluştur</button>
         </form>
         {error && <p className="console-banner err">{error}</p>}
       </section>
@@ -143,7 +152,7 @@ export default function JobFlow({ api, klasik, onBalanceChange }: { api: Api; kl
                     <td>{j.title || 'Adsız sınav'}</td>
                     <td>{STATUS[j.status] ?? j.status}</td>
                     <td>{j.pages.students} ({j.pages.read} / {j.pages.failed})</td>
-                    <td><button type="button" className="btn btn-ghost btn-sm" onClick={() => setCurrent(j)}>Aç</button></td>
+                    <td><button type="button" className="btn btn-ghost btn-sm" onClick={() => reload(j.id)}>Aç</button></td>
                   </tr>
                 ))}
               </tbody>

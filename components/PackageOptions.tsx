@@ -21,6 +21,7 @@ export default function PackageOptions({ selected, onSelect, minimumPages = 0 }:
           <p className="pack-unit">{pack.pages} sayfa · sayfası ₺{perPage(pack)}</p>
           <ul>{pack.blurb.map((line) => <li key={line}><Check />{line}</li>)}</ul>
           <button
+            data-pack-btn
             type="button"
             className={`btn btn-block ${pack.was || pack.featured ? 'btn-buy' : 'btn-ghost'}`}
             aria-pressed={selected === pack.name}
