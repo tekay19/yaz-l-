@@ -2,7 +2,10 @@ import {
   pgTable, pgEnum, uuid, text, integer, timestamp, jsonb, doublePrecision,
   uniqueIndex, index,
 } from 'drizzle-orm/pg-core';
-import type { KlasikGrade, PageOverride, PageResult, Rubric } from '@/lib/types';
+import type { GradingStyle, KlasikGrade, PageOverride, PageResult, Rubric } from '@/lib/types';
+
+// a teacher's defaults for new exams, set on the settings screen
+export type UserSettings = { style?: GradingStyle; note?: string };
 
 const ts = (name: string) => timestamp(name, { withTimezone: true });
 
@@ -17,8 +20,20 @@ export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   email: text('email').notNull().unique(),
   pageBalance: integer('page_balance').notNull().default(0),
+  settings: jsonb('settings').$type<UserSettings>().notNull().default({}),
   createdAt: ts('created_at').notNull().defaultNow(),
 });
+
+// A teacher's saved class lists (9-A, 9-B), picked in the upload wizard
+// instead of pasting the roster for every exam.
+export const classes = pgTable('classes', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  students: jsonb('students').$type<string[]>().notNull().default([]),
+  createdAt: ts('created_at').notNull().defaultNow(),
+  updatedAt: ts('updated_at').notNull().defaultNow(),
+}, (t) => [uniqueIndex('classes_user_name').on(t.userId, t.name)]);
 
 export const loginTokens = pgTable('login_tokens', {
   tokenHash: text('token_hash').primaryKey(),

@@ -8,6 +8,7 @@ import { ledger } from '@/db/schema';
 import { buildReportInput } from '@/lib/report/input';
 import { buildWorkbook } from '@/lib/report/excel';
 import { buildSummaryPdf } from '@/lib/report/pdf';
+import { safeName } from '@/lib/report/common';
 import { RUBRIC_EXPIRE_DAYS } from '@/lib/klasik/worker';
 import { RESULT_TTL_DAYS, removePhotos } from '@/lib/retention';
 
@@ -17,7 +18,6 @@ const RETRY_MS = 5 * 60 * 1000;
 // report (with the unsure places listed) instead of nothing, and the photos
 // are deleted days before the retention backstop.
 export const REVIEW_AUTO_DELIVER_DAYS = 3;
-const safeName = (s: string) => s.replace(/[^\p{L}\p{N} _-]/gu, '').trim().slice(0, 60) || 'sinav';
 
 // pages already given back for a job under its first refund key
 async function refundedFor(db: Db, jobId: string): Promise<number> {

@@ -18,5 +18,5 @@ export async function POST(req: Request) {
       })
     : 'unknown';
   const q = result === 'paid' ? 'ok' : 'hata';
-  return Response.redirect(`${process.env.APP_URL}/hesap?odeme=${q}`, 303);
+  return Response.redirect(`${process.env.APP_URL}/hesap/paket?odeme=${q}`, 303);
 }

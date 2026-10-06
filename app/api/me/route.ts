@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   const userId = await currentUserId();
   if (!userId) return unauthorized();
-  const [u] = await getDb().select({ email: users.email, pageBalance: users.pageBalance })
+  const [u] = await getDb().select({ email: users.email, pageBalance: users.pageBalance, settings: users.settings })
     .from(users).where(eq(users.id, userId));
   if (!u) return unauthorized();
   return Response.json({ ...u, klasik: process.env.KLASIK_ENABLED === 'true' }, { headers: { 'Cache-Control': 'no-store' } });

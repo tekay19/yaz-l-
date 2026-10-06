@@ -5,6 +5,8 @@ import { jobs, pages } from '@/db/schema';
 export type JobStatusView = {
   id: string; title: string; mode: 'optik' | 'klasik'; status: string;
   pages: { key: number; students: number; read: number; failed: number };
+  // klasik: the teacher approved the rubric (a 'processing' job is then being graded)
+  rubricApproved: boolean;
   createdAt: string;
 };
 
@@ -17,6 +19,7 @@ async function views(db: Db, rows: (typeof jobs.$inferSelect)[]): Promise<JobSta
     const students = mine.filter((p) => p.kind === 'student');
     return {
       id: j.id, title: j.title, mode: j.mode, status: j.status, createdAt: j.createdAt.toISOString(),
+      rubricApproved: Boolean(j.rubricApprovedAt),
       pages: {
         key: mine.length - students.length,
         students: students.length,

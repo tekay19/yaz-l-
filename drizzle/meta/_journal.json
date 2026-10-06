@@ -29,6 +29,13 @@
       "when": 1791303205878,
       "tag": "0003_teacher_note",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791304157075,
+      "tag": "0004_classes_settings",
+      "breakpoints": true
     }
   ]
 }

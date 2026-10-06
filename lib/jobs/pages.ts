@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { and, count, eq, max } from 'drizzle-orm';
 import type { Db } from '@/db/client';
-import { jobs, pages } from '@/db/schema';
+import { jobs, pages, users } from '@/db/schema';
 import type { Storage } from '@/lib/storage';
 
 export { MAX_STUDENT_PAGES } from '@/lib/limits';
@@ -12,11 +12,14 @@ export async function createJob(
   userId: string,
   input: { title: string; mode: 'optik' | 'klasik'; klasikMax?: number[] },
 ) {
+  // the teacher's default note starts every new klasik exam; the wizard can change it
+  const [u] = await db.select({ settings: users.settings }).from(users).where(eq(users.id, userId));
   const [job] = await db.insert(jobs).values({
     userId,
     title: input.title.trim().slice(0, 120),
     mode: input.mode,
     klasikMax: input.klasikMax ?? [],
+    teacherNote: input.mode === 'klasik' ? u?.settings.note ?? '' : '',
   }).returning({ id: jobs.id });
   return job;
 }

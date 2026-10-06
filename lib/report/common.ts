@@ -24,3 +24,6 @@ export function flagDuplicateNames(rows: ReportRow[]) {
     if (group.length > 1) for (const r of group) r.flags.unshift(DUPLICATE_NAME);
   }
 }
+
+// a report file name from the exam title, safe in a mail attachment or a download
+export const safeName = (s: string) => s.replace(/[^\p{L}\p{N} _-]/gu, '').trim().slice(0, 60) || 'sinav';

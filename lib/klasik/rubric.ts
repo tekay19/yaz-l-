@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { GRADING_STYLES, type AcceptedPath, type Rubric, type RubricQuestion } from '@/lib/types';
+import { GRADING_STYLES, type AcceptedPath, type GradingStyle, type Rubric, type RubricQuestion } from '@/lib/types';
 import type { RubricDraft } from '@/lib/reader/schemas';
 import { halfPoints } from './score';
 
@@ -90,7 +90,7 @@ function fitCriteria<T extends { points: number; role: string }>(crits: T[], max
 // The model's draft → a rubric the teacher can approve as it is: each
 // question carries the teacher's maximum (10 when none was given), its
 // criteria add up to it, and the policies start at the agreed defaults.
-export function normalizeDraft(draft: RubricDraft, maxPoints: number[]): Rubric {
+export function normalizeDraft(draft: RubricDraft, maxPoints: number[], style: GradingStyle = 'balanced'): Rubric {
   const seen = new Set<number>();
   const questions: RubricQuestion[] = [];
   for (const d of [...draft.questions].sort((a, b) => a.q - b.q)) {
@@ -112,7 +112,7 @@ export function normalizeDraft(draft: RubricDraft, maxPoints: number[]): Rubric 
       })),
       accepted: d.accepted.map((t) => t.trim()).filter(Boolean).slice(0, MAX_ACCEPTED)
         .map((text) => ({ text: text.slice(0, 500), example: null, by: 'ai' as const })),
-      policy: { workRequired: d.type === 'islem' ? d.workRequired : false, carryForward: true, wrongInfoPenalty: false, style: 'balanced' },
+      policy: { workRequired: d.type === 'islem' ? d.workRequired : false, carryForward: true, wrongInfoPenalty: false, style },
     });
     if (questions.length >= MAX_QUESTIONS) break;
   }

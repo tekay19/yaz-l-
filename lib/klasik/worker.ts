@@ -1,6 +1,6 @@
 import { and, asc, count, eq, inArray, isNotNull, isNull, lt, or, sql } from 'drizzle-orm';
 import type { Db } from '@/db/client';
-import { jobs, pages } from '@/db/schema';
+import { jobs, pages, users } from '@/db/schema';
 import type { Storage } from '@/lib/storage';
 import type { Reader, Usage } from '@/lib/reader/types';
 import { refundPages } from '@/lib/credits';
@@ -73,7 +73,9 @@ export async function draftPendingRubrics({ db, reader }: Deps, now = new Date()
     } else {
       try {
         const { read } = await reader.draftRubric({ keyText, maxPoints: job.klasikMax, note: job.teacherNote });
-        rubric = normalizeDraft(read, job.klasikMax);
+        // the teacher's default grading style starts every question
+        const [owner] = await db.select({ settings: users.settings }).from(users).where(eq(users.id, job.userId));
+        rubric = normalizeDraft(read, job.klasikMax, owner?.settings.style);
       } catch (e) {
         console.error('[klasik] rubric_draft_failed', id, e instanceof Error ? e.message : e);
         if (job.rubricDraftAttempts >= RUBRIC_MAX_ATTEMPTS) rubric = emptyRubric();
