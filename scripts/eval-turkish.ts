@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createReader, readerModel } from '@/lib/reader';
+import { spent, withBudget } from './budget';
 import type { Usage } from '@/lib/reader/types';
 import { normalizeImage } from '@/lib/images';
 import { DEMO_RUBRIC } from '@/lib/demo/exam';
@@ -47,7 +48,7 @@ function edits(a: string, b: string): number {
 const flat = (s: string) => s.normalize('NFC').replace(/\s+/g, ' ').replace(/\s*([=+\-*/^(),.:])\s*/g, '$1').trim();
 
 async function main() {
-  const reader = createReader();
+  const reader = withBudget(createReader());
   const model = readerModel();
   const out = path.join(DIR, `out-${model}`);
   const folders = (await fs.readdir(DIR)).filter((f) => /^s\d\d-/.test(f)).sort();
@@ -154,5 +155,7 @@ async function main() {
   await fs.writeFile(path.join(out, 'report.md'), md);
   console.log(md);
 }
+
+process.on('exit', () => { const l = spent(); if (l.calls) console.log(`Harcama (toplam): $${l.usd.toFixed(3)} · ${l.calls} çağrı`); });
 
 main().catch((e) => { console.error(e); process.exit(1); });

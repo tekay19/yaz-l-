@@ -1,13 +1,15 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createReader, readerModel } from '@/lib/reader';
+import { spent, withBudget } from './budget';
 import type { Usage } from '@/lib/reader/types';
 import { normalizeImage } from '@/lib/images';
 import { mergeSheets, type SheetPage } from '@/lib/klasik/sheets';
 import { normalizeDraft } from '@/lib/klasik/rubric';
 import { failedGrade, toGrade } from '@/lib/klasik/grade';
+import { gradeInChunks } from '@/lib/klasik/chunks';
 import { INFO_FLAGS, scoreSheet } from '@/lib/klasik/score';
-import type { KlasikGrade, KlasikRead, Rubric } from '@/lib/types';
+import type { GradingStyle, KlasikGrade, KlasikRead, Rubric } from '@/lib/types';
 
 // Real handwritten exams end to end: photo → transcription → rubric → points,
 // against a teacher's marks. Set: "A Dataset of Digitized Student Examination
@@ -94,7 +96,7 @@ async function main() {
   // HW_ONLY=1,2,3 limits the run to these students
   const only = (process.env.HW_ONLY || '').split(',').filter(Boolean).map(Number);
   if (only.length) for (const sid of [...pages.keys()]) if (!only.includes(sid)) pages.delete(sid);
-  const reader = createReader();
+  const reader = withBudget(createReader());
   console.log(`model ${readerModel()} · ${pages.size} öğrenci · ${[...pages.values()].flat().length} sayfa`);
 
   // 1. read every page (cached)
@@ -122,7 +124,12 @@ async function main() {
     await writeJson(rubricFile, { draft, rubric: normalizeDraft(draft, maxPoints) });
   }
   const { rubric: full } = await readJson<{ rubric: Rubric }>(rubricFile);
-  const rubric: Rubric = { questions: full.questions.filter((q) => SHORT.includes(q.q)) };
+  // HW_STYLE=strict|balanced|lenient grades with that style (its own cache)
+  const style = (process.env.HW_STYLE || 'balanced') as GradingStyle;
+  const rubric: Rubric = {
+    questions: full.questions.filter((q) => SHORT.includes(q.q)).map((q) => ({ ...q, policy: { ...q.policy, style } })),
+  };
+  const gradesDir = style === 'balanced' ? 'grades' : `grades-${style}`;
 
   // 3. grade each student's paper (cached)
   const students = [...pages.keys()].sort((a, b) => a - b);
@@ -141,14 +148,14 @@ async function main() {
       result: { type: 'klasik-student', read: { ...read, isBackSide: i > 0 } }, override: null, grade: null, gradedRev: 0, gradeAttempts: 0,
     }));
     const sheet = mergeSheets(rows).sheets[0];
-    const gradeFile = path.join(OUT, 'grades', `s${String(sid).padStart(2, '0')}.json`);
+    const gradeFile = path.join(OUT, gradesDir, `s${String(sid).padStart(2, '0')}.json`);
     let grade: KlasikGrade;
     if (await exists(gradeFile)) grade = await readJson(gradeFile);
     else {
       const todo = rubric.questions.filter((rq) => sheet.read.answers.some((a) => a.q === rq.q && a.lines.some((l) => !l.crossed && l.text.trim())));
       try {
         const answers = todo.map((rq) => sheet.read.answers.find((a) => a.q === rq.q)!);
-        const res = todo.length ? await reader.gradeKlasik({ questions: todo, answers, images: [] }) : null;
+        const res = todo.length ? await gradeInChunks(reader, { questions: todo, answers, images: [] }) : null;
         grade = { questions: todo.map((rq) => {
           const o = res?.read.questions.find((x) => x.q === rq.q);
           return o ? toGrade(rq, o, false) : failedGrade(rq);
@@ -165,7 +172,7 @@ async function main() {
 
   // 4. compare
   const done = sheets.filter((s): s is NonNullable<typeof s> => Boolean(s));
-  const lines: string[] = [`# El yazısı sınav testi — ${readerModel()}`, '',
+  const lines: string[] = [`# El yazısı sınav testi — ${readerModel()} · puanlama tarzı: ${style}`, '',
     `Öğrenci: ${done.length}/${students.length} · okunamayan sayfa: ${readFails} · puanlanamayan kâğıt: ${gradeFails}`, ''];
 
   // reading: the MCQ letters have an exact ground truth
@@ -245,8 +252,10 @@ async function main() {
   const tokens = [...pages.values()].flat().length;
   lines.push('', `Sayfa: ${tokens}`);
   const md = lines.join('\n');
-  await fs.writeFile(path.join(OUT, 'report.md'), md);
+  await fs.writeFile(path.join(OUT, style === 'balanced' ? 'report.md' : `report-${style}.md`), md);
   console.log(md.split('## Uyarısız ayrışanlar')[0]);
 }
+
+process.on('exit', () => { const l = spent(); if (l.calls) console.log(`Harcama (toplam): $${l.usd.toFixed(3)} · ${l.calls} çağrı`); });
 
 main().catch((e) => { console.error(e); process.exit(1); });

@@ -2,6 +2,7 @@ import type { KlasikGrade, KlasikRead, Rubric } from '@/lib/types';
 import type { Reader, Usage } from '@/lib/reader/types';
 import { answerText, mergeSheets, type SheetPage } from '@/lib/klasik/sheets';
 import { failedGrade, toGrade } from '@/lib/klasik/grade';
+import { gradeInChunks } from '@/lib/klasik/chunks';
 import { FLAG_TEXT, INFO_FLAGS, attentionFlags, scoreSheet, type QuestionScore } from '@/lib/klasik/score';
 import { expectedFor, type Expected } from './exam';
 
@@ -38,7 +39,7 @@ export async function gradeDemoSheets(reader: Reader, rubric: Rubric, reads: Kla
     let grade: KlasikGrade = { questions: [] };
     if (todo.length) {
       const answers = todo.map((rq) => answerOf(rq.q)!);
-      const res = await reader.gradeKlasik({ questions: todo, answers, images: [] });
+      const res = await gradeInChunks(reader, { questions: todo, answers, images: [] });
       usage = res.usage;
       grade = {
         questions: todo.map((rq, i) => {

@@ -8,6 +8,7 @@ import { LEASE_MS, retryBackoffMs } from '@/lib/queue';
 import type { PageResult, QuestionGrade, Rubric } from '@/lib/types';
 import { answerText, mergeSheets, type Sheet } from './sheets';
 import { failedGrade, toGrade } from './grade';
+import { gradeInChunks } from './chunks';
 import { emptyRubric, normalizeDraft } from './rubric';
 
 // The klasik steps of the worker loop, each a job-level pass like delivery:
@@ -168,7 +169,7 @@ async function gradeSheet({ db, storage, reader }: Deps, job: Job, sheet: Sheet,
     if (todo.length) {
       const answers = todo.map((rq) => sheet.read.answers.find((a) => a.q === rq.q)!);
       const images = answers.some((a) => a.hasFigure) ? await loadPhotos(storage, sheet.filePaths) : [];
-      const out = await reader.gradeKlasik({ questions: todo, answers, images });
+      const out = await gradeInChunks(reader, { questions: todo, answers, images });
       fresh = todo.map((rq, i) => {
         const o = out.read.questions.find((x) => x.q === rq.q);
         if (!o) throw new Error(`grade_missing_q${rq.q}`); // retried: a partial answer is not a grade

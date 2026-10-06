@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import { createReader } from '@/lib/reader';
+import { spent, withBudget } from './budget';
 import { toGrade } from '@/lib/klasik/grade';
 import { scoreQuestion } from '@/lib/klasik/score';
 import { asAnswer, klasikCriteria, klasikSummary, type KlasikResult, type KlasikSet } from '@/lib/eval/klasik-metrics';
@@ -20,7 +21,7 @@ const prices = {
 async function main() {
   const file = process.argv[2] || 'eval/klasik/cases.json';
   const set = JSON.parse(await fs.readFile(file, 'utf8')) as KlasikSet;
-  const reader = createReader();
+  const reader = withBudget(createReader());
   const results: KlasikResult[] = [];
 
   for (const c of set.cases) {
@@ -50,6 +51,8 @@ async function main() {
     console.log(`${c.pass === null ? '?' : c.pass ? 'GEÇTİ' : 'KALDI'}  ${c.label}: ${c.value ?? 'yok'} (${c.limit})`);
   }
 }
+
+process.on('exit', () => { const l = spent(); if (l.calls) console.log(`Harcama (toplam): $${l.usd.toFixed(3)} · ${l.calls} çağrı`); });
 
 main().catch((e) => {
   console.error(e);

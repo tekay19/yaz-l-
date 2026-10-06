@@ -174,3 +174,24 @@ describe('quoteFound and the prompt line numbers', () => {
     expect(quoteFound('2. x = 5', 'x = 4')).toBe(false);
   });
 });
+
+describe('gradeInChunks', () => {
+  it('grades a long sheet a few questions per call, in parallel, and joins the verdicts', async () => {
+    const { gradeInChunks } = await import('@/lib/klasik/chunks');
+    const calls: number[][] = [];
+    const reader: any = {
+      gradeKlasik: async ({ questions, images }: any) => {
+        calls.push(questions.map((q: any) => q.q));
+        return { read: { questions: questions.map((q: any) => ({ q: q.q, images: images.length })) }, usage: { inputTokens: 10, outputTokens: 1 } };
+      },
+    };
+    const qs = Array.from({ length: 12 }, (_, i) => ({ q: i + 1 }));
+    const answers = qs.map((q) => ({ q: q.q, lines: [], unclear: false, hasFigure: q.q === 7 }));
+    const out = await gradeInChunks(reader, { questions: qs as any, answers, images: [Buffer.from('jpg')] }, 5);
+    expect(calls).toEqual([[1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12]]);
+    expect(out.read.questions.map((q: any) => q.q)).toEqual(qs.map((q) => q.q));
+    // only the group with a figure gets the photos
+    expect(out.read.questions.map((q: any) => q.images)).toEqual([0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0]);
+    expect(out.usage).toEqual({ inputTokens: 30, outputTokens: 3 });
+  });
+});

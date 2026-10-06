@@ -855,9 +855,10 @@
       "id": "s10-q1",
       "q": 1,
       "tags": [
+        "hata-tasima",
         "benzer-yanlis"
       ],
-      "teacher": 9,
+      "teacher": 12,
       "lines": [
         "3x - 5 = 16",
         "3x = 21",

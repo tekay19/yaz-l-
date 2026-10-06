@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { Reader } from '@/lib/reader/types';
 import { createReader } from '@/lib/reader';
+import { spent, withBudget } from './budget';
 import { GRADE_SYSTEM, RUBRIC_SYSTEM, gradeUser, rubricUser } from '@/lib/reader/klasik-prompts';
 import { GradeOutputSchema, RubricDraftSchema, type GradeOutput, type RubricDraft } from '@/lib/reader/schemas';
 import { normalizeDraft } from '@/lib/klasik/rubric';
@@ -263,7 +264,7 @@ async function main() {
     return console.log(`${items.length} puanlama istemi, ${Math.ceil(items.length / BATCH)} dosya → ${DIR}/prompts/`);
   }
   if (cmd === 'score' || cmd === 'live') {
-    const reader = cmd === 'live' ? createReader() : await replayReader(cases);
+    const reader = cmd === 'live' ? withBudget(createReader()) : await replayReader(cases);
     const results = await grade(reader, cases);
     await write(`${OUT}/results-${cmd}.json`, results);
     const md = report(results, cases);
@@ -274,5 +275,7 @@ async function main() {
   }
   console.log('kullanım: fetch | rubric-prompts | grade-prompts | live | score');
 }
+
+process.on('exit', () => { const l = spent(); if (l.calls) console.log(`Harcama (toplam): $${l.usd.toFixed(3)} · ${l.calls} çağrı`); });
 
 main().catch((e) => { console.error(e); process.exit(1); });

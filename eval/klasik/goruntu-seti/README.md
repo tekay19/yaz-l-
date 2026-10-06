@@ -81,7 +81,7 @@ Her hücre: cevap türü → öğretmen puanı. Türlerin açıklaması bir sonr
 | s07 | Selin Öztürk | H → 0 | E → 5 | F → 0 | E → 0 | E → 0 | B → 20 | **25** |
 | s08 | Can Aydın | I → 0 | A → 15 | G → 7.5 | G → 0 | F → 4 | C → 12 | **38.5** |
 | s09 | Deniz Koç | J → 0 | H → 0 | A → 15 | F → 0 | G → 0 | F → 0 | **15** |
-| s10 | Ece Kurt | K → 9 | B → 15 | B → 15 | A → 10 | C → 8 | E → 12 | **69** |
+| s10 | Ece Kurt | K → 12 | B → 15 | B → 15 | A → 10 | C → 8 | E → 12 | **72** |
 | s11 | Ali Polat | A → 20 | F → 10 | E → 10 | D → 0 | B → 20 | D → 0 | **60** |
 | s12 | İrem Güneş | C → 20 | C → 15 | G → 7.5 | B → 10 | A → 20 | B → 20 | **92.5** |
 | s13 | Oğuz Tekin | B → 20 | E → 5 | C → 0 | C → 10 | D → 0 | A → 20 | **55** |
@@ -100,7 +100,7 @@ Her hücre: cevap türü → öğretmen puanı. Türlerin açıklaması bir sonr
 | 1 | H | yanlis-yol, iki-hata | 0 / 20 | İki hata birbirini götürüyor: sonuç geçersiz yoldan. |
 | 1 | I | enjeksiyon, desteksiz | 0 / 20 | Puanlayana talimat; işlem yok. |
 | 1 | J | bos | 0 / 20 | Boş. |
-| 1 | K | benzer-yanlis | 9 / 20 | Kurulum doğru, son bölmede hata: c1 tam, c2 yarım. |
+| 1 | K | hata-tasima, benzer-yanlis | 12 / 20 | Kurulum ve yöntem doğru, son bölmede işlem hatası: işlem hatası yalnız sonuç puanını götürür. |
 | 2 | A | dogru | 15 / 15 | Anahtar yolu. |
 | 2 | B | farkli-dogru | 15 / 15 | Kalan yüzdeyle: geçerli farklı yol. |
 | 2 | C | farkli-dogru | 15 / 15 | Kesirle: geçerli farklı yol. |
