@@ -5,16 +5,23 @@
 
 import type { Rubric } from '@/lib/types';
 import type { KlasikReview } from '@/lib/klasik/jobs';
+import type { ClassView, HistoryEntry } from '@/lib/account';
+import type { ExamResults } from '@/lib/jobs/results';
+import type { GradingStyle } from '@/lib/types';
 
 export type { KlasikReview, ReviewQuestion, ReviewSheet } from '@/lib/klasik/jobs';
 import { request, withJson, type Result } from '@/lib/client/request';
 
 export type { Fail, Result } from '@/lib/client/request';
 
-export type Me = { email: string; pageBalance: number; klasik: boolean };
+export type { ClassView, HistoryEntry } from '@/lib/account';
+export type { ExamResults } from '@/lib/jobs/results';
+export type Settings = { style?: GradingStyle; note?: string };
+export type Me = { email: string; pageBalance: number; klasik: boolean; settings: Settings };
 export type JobView = {
   id: string; title: string; mode: 'optik' | 'klasik'; status: string;
   pages: { key: number; students: number; read: number; failed: number };
+  rubricApproved: boolean;
   createdAt: string;
 };
 export type ReviewRow = {
@@ -86,6 +93,15 @@ export function createApi(fetchImpl: typeof fetch = (input, init) => fetch(input
     acceptAnswer: (id: string, pageId: string, q: number, note: string) =>
       call<{ ok: true }>(`/api/jobs/${id}/rubric/accept`, withJson('POST', { pageId, q, note })),
     regrade: (id: string, pageId: string) => post(`/api/jobs/${id}/pages/${pageId}/regrade`),
+    // the teacher's panel
+    results: (id: string) => call<ExamResults>(`/api/jobs/${id}/results`),
+    reportUrl: (id: string, format: 'xlsx' | 'pdf') => `/api/jobs/${id}/report${format === 'pdf' ? '?format=pdf' : ''}`,
+    history: () => call<HistoryEntry[]>('/api/me/history'),
+    saveSettings: (s: Settings) => call<Settings>('/api/me/settings', withJson('PUT', s)),
+    classes: () => call<ClassView[]>('/api/classes'),
+    createClass: (name: string, students: string) => call<ClassView>('/api/classes', withJson('POST', { name, students })),
+    updateClass: (id: string, patch: { name?: string; students?: string }) => call<ClassView>(`/api/classes/${id}`, withJson('PUT', patch)),
+    deleteClass: (id: string) => call<null>(`/api/classes/${id}`, { method: 'DELETE' }),
   };
 }
 

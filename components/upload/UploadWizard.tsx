@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createApi, type Draft, type Me } from '@/components/console/api';
+import { createApi, type ClassView, type Draft, type Me } from '@/components/console/api';
 import LoginForm from '@/components/console/LoginForm';
 import PackageOptions from '@/components/PackageOptions';
 import { StepHeader, SiteFooter } from '@/components/Chrome';
@@ -38,7 +38,7 @@ export default function UploadWizard() {
   const router = useRouter();
   const params = useSearchParams();
   const toast = useToast();
-  const [plan, choosePlan] = usePlan();
+  const [, choosePlan] = usePlan();
 
   const [me, setMe] = useState<Me | null | undefined>(undefined);
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -51,6 +51,8 @@ export default function UploadWizard() {
   const [consent, setConsent] = useState(false);
   const [noRoster, setNoRoster] = useState(false);
   const [note, setNote] = useState('');
+  const [classes, setClasses] = useState<ClassView[]>([]);
+  const [saveAs, setSaveAs] = useState(''); // a class name to keep the typed roster under
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState<number | null>(null);
 
@@ -85,6 +87,9 @@ export default function UploadWizard() {
   }, [api, router]);
 
   useEffect(() => { loadMe(); }, [loadMe]);
+  useEffect(() => {
+    if (me) api.classes().then((r) => r.ok && setClasses(r.data));
+  }, [me, api]);
 
   useEffect(() => {
     if (!me || !jobId || draft?.id === jobId) return;
@@ -132,6 +137,11 @@ export default function UploadWizard() {
       setRoster(typed);
       if (!r.ok) { setBusy(false); setError(r.error); return; }
       setDraft({ ...d, roster: parseRoster(typed) });
+    }
+    if (saveAs.trim() && typed.trim()) {
+      const c = await api.createClass(saveAs, typed);
+      toast(c.ok ? `${c.data.name} sınıflarınıza kaydedildi` : c.error, c.ok ? 'success' : 'error');
+      if (c.ok) setSaveAs('');
     }
     setBusy(false);
     if (d) go(2);
@@ -238,9 +248,24 @@ export default function UploadWizard() {
         </div>
         <div className="field">
           <label htmlFor="exam-roster">Sınıf listesi <span className="muted">(önerilir)</span></label>
+          {classes.length > 0 && (
+            <select className="wizard-select" aria-label="Kayıtlı sınıftan seçin" value=""
+              onChange={(e) => { const c = classes.find((x) => x.id === e.target.value); if (c) setRoster(c.students.join('\n')); }}>
+              <option value="">Kayıtlı sınıflarınızdan seçin…</option>
+              {classes.map((c) => <option key={c.id} value={c.id}>{c.name} · {c.students.length} öğrenci</option>)}
+            </select>
+          )}
           <textarea id="exam-roster" className="console-text" value={roster} onChange={(e) => setRoster(e.target.value)}
             placeholder={'Her satıra bir öğrenci\nElif Yılmaz\nMert Kaya'} />
           <span className="field-hint">Kâğıttaki isimler bu listeyle eşleştirilir; birkaç sayfalık sınavda sayfalar isimden aynı öğrencide toplanır. e-Okul&apos;dan kopyalayıp yapıştırabilirsiniz.</span>
+          {roster.trim() && !classes.some((c) => c.students.join('\n') === roster.trim()) && (
+            <label className="console-check">
+              <input type="checkbox" checked={Boolean(saveAs)} onChange={(e) => setSaveAs(e.target.checked ? title.split(' ')[0] || 'Sınıf' : '')} />
+              <span>Bu listeyi sınıf olarak kaydedin
+                {saveAs && <input className="wizard-inline" value={saveAs} onChange={(e) => setSaveAs(e.target.value)} aria-label="Sınıfın adı" maxLength={60} />}
+              </span>
+            </label>
+          )}
         </div>
       </>
     );
@@ -322,7 +347,7 @@ export default function UploadWizard() {
               Bu sınav için {need} sayfa hakkı gerekiyor, hesabınızda {balance} var. Bir paket seçin; ödemeden sonra bu sayfaya dönersiniz ve sınavı gönderirsiniz.
             </p>
             <div style={{ marginTop: 16 }}>
-              <PackageOptions selected={plan.name} onSelect={buy} minimumPages={need - balance} />
+              <PackageOptions onSelect={buy} minimumPages={need - balance} />
             </div>
           </>
         )}

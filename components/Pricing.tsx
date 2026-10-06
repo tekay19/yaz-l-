@@ -2,18 +2,15 @@
 
 import { useRouter } from 'next/navigation';
 import { usePlan } from '@/lib/usePlan';
-import { PACKS, perPage, tl, type PackName } from '@/lib/packs';
+import { PAID_PACKS, perPage, type PackName } from '@/lib/packs';
 import { track } from '@/lib/tracking';
-import PackageOptions from './PackageOptions';
 import PriceTag from './PriceTag';
 import { Check } from './Chrome';
 
-// The headline offer and the package grid both read from PACKS, so the
-// struck-through price on the landing page can never drift from the cards.
-const OFFER = PACKS['Başlangıç'];
-
+// The landing page's prices: one row of packs, all read from PACKS. Picking
+// one remembers it for the wizard's payment step and opens the wizard.
 export default function Pricing() {
-  const [plan, choose] = usePlan();
+  const [, choose] = usePlan();
   const router = useRouter();
 
   function pick(name: PackName) {
@@ -23,52 +20,28 @@ export default function Pricing() {
   }
 
   return (
-    <section id="fiyat">
+    <section id="fiyat" className="lp-section">
       <div className="wrap">
-        <div className="landing-offer card">
-          <span className="offer-flag">{OFFER.label}</span>
-          <h2>
-            {tl(OFFER.price)} ile {OFFER.pages} sayfa sınav kâğıdı okutun
-          </h2>
-
-          <div className="offer-price" style={{ marginTop: 20 }}>
-            <PriceTag pack={OFFER} />
-            <span className="unit">
-              {OFFER.pages} sayfa · sayfası ₺{perPage(OFFER)}
-            </span>
-          </div>
-
-          <ul className="offer-list">
-            {OFFER.blurb.map((line) => (
-              <li key={line}>
-                <Check size={17} width={2.4} />
-                {line}
-              </li>
-            ))}
-          </ul>
-
-          <button
-            data-pack-btn
-            type="button"
-            className="btn btn-buy btn-block"
-            style={{ marginTop: 22 }}
-            onClick={() => pick(OFFER.name)}
-          >
-            Hemen satın al · {tl(OFFER.price)}
-          </button>
-
-          <p className="tiny muted" style={{ marginTop: 12 }}>
-            Sonraki adımda kâğıtlarınızı yüklersiniz. Abonelik yok, taahhüt yok —{' '}
-            {OFFER.pages} sayfa bitince hesabınızdan bir şey çıkmaz.
-          </p>
+        <header className="lp-head">
+          <p className="lp-eyebrow">Fiyat</p>
+          <h2>Sayfa başına ödeyin, abonelik yok.</h2>
+          <p className="lp-lead">Her öğrenci sayfası bir sayfa hakkı. Cevap anahtarı sayılmaz, okunamayan sayfa iade edilir. Sayfalar dolana kadar geçerlidir.</p>
+        </header>
+        <div className="lp-prices">
+          {PAID_PACKS.map((p) => (
+            <article key={p.name} className={`lp-price${p.was ? ' offer' : ''}`}>
+              {p.was && <span className="lp-price-flag">{p.label}</span>}
+              <h3>{p.name}</h3>
+              <div className="lp-price-tag"><PriceTag pack={p} /></div>
+              <p className="lp-price-unit">{p.pages} sayfa · sayfası ₺{perPage(p)}</p>
+              <ul>{p.blurb.map((line) => <li key={line}><Check size={16} width={2.6} />{line}</li>)}</ul>
+              <button type="button" className={`btn btn-block ${p.was ? 'btn-primary' : 'btn-ghost'}`} onClick={() => pick(p.name)}>
+                {p.was ? 'Bu paketle başlayın' : 'Bu paketi seçin'}
+              </button>
+            </article>
+          ))}
         </div>
-
-        <div className="section-head" style={{ marginTop: 56 }}>
-          <h2>Sayfa paketleri</h2>
-          <p>Aylık abonelik yok. Paketinizi ödeme adımında da değiştirebilirsiniz.</p>
-        </div>
-
-        <PackageOptions selected={plan.name} onSelect={pick} />
+        <p className="lp-price-foot">Ödeme iyzico ile alınır. Paket, sınavınızı gönderirken seçilir; önce kâğıtlarınızı yükleyebilirsiniz.</p>
       </div>
     </section>
   );

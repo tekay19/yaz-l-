@@ -4,13 +4,15 @@ import { useCallback, useEffect, useState } from 'react';
 import { OPTIONS } from '@/lib/types';
 import type { Api, Correction, Review, ReviewRow } from './api';
 import { flaggedQuestions, keyQuestions, nameFlagged } from './flags';
-import { FailedSheets, NoteBanner, RosterEditor } from './ui';
+import { FailedSheets, NoteBanner } from './ui';
+import { ReviewFrame, ReviewPhoto } from './ReviewFrame';
 
 export default function ReviewCard({ api, jobId, onApproved }: { api: Api; jobId: string; onApproved: () => void }) {
   const [data, setData] = useState<Review | null>(null);
   const [roster, setRoster] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
   const load = useCallback(async () => {
     const r = await api.review(jobId);
@@ -41,31 +43,22 @@ export default function ReviewCard({ api, jobId, onApproved }: { api: Api; jobId
   if (!data) return error ? <p className="console-banner err">{error}</p> : <p className="empty">Kontrol verisi yükleniyor…</p>;
 
   const flagged = data.rows.filter((r) => r.flags.length).length;
+  const rows = showAll || !flagged ? data.rows : data.rows.filter((r) => r.flags.length);
   return (
-    <div>
-      <h3 className="console-sub">Kontrol</h3>
-      <p className="small muted">
-        {flagged} kâğıtta kontrol edilecek yer var. Düzeltmeleri kaydedip onaylayınca rapor e-postanıza gider.
-      </p>
-
+    <ReviewFrame
+      summary="Düzeltmelerinizi kaydedip onaylayınca rapor kesinleşir ve e-postanıza gider."
+      flagged={flagged} total={data.rows.length} showAll={showAll || !flagged} onShowAll={setShowAll}
+      onApprove={approve} approveDisabled={busy}
+      roster={roster} onRoster={setRoster} onSaveRoster={saveRoster}
+      after={<><FailedSheets failed={data.failed} refunded={false} /><NoteBanner note={error ? { ok: false, text: error } : null} /></>}
+    >
       {data.keyFlags.length > 0 && data.keyPageId && (
         <KeyFixer api={api} jobId={jobId} keyPageId={data.keyPageId} flags={data.keyFlags} onSaved={load} />
       )}
-
-      <h3 className="console-sub">Sınıf listesi</h3>
-      <RosterEditor value={roster} onChange={setRoster} onSave={saveRoster} saveLabel="Listeyi kaydet ve yeniden eşleştir" />
-
-      {data.rows.map((row) => (
+      {rows.map((row) => (
         <RowEditor key={row.pageId} api={api} jobId={jobId} row={row} onSaved={load} />
       ))}
-
-      <FailedSheets failed={data.failed} refunded={false} />
-
-      <NoteBanner note={error ? { ok: false, text: error } : null} />
-      <div className="console-row">
-        <button type="button" className="btn btn-primary btn-sm" disabled={busy} onClick={approve}>Onayla, raporu gönder</button>
-      </div>
-    </div>
+    </ReviewFrame>
   );
 }
 
@@ -113,9 +106,7 @@ function RowEditor({ api, jobId, row, onSaved }: RowProps) {
 
   return (
     <div className="console-review">
-      <a href={row.imageUrl} target="_blank" rel="noreferrer">
-        <img className="console-thumb" src={row.imageUrl} alt={`Kâğıt ${row.seq} (fotoğraf silinmiş olabilir)`} />
-      </a>
+      <ReviewPhoto className="console-thumb" src={row.imageUrl} alt={`Kâğıt ${row.seq}`} />
       <div>
         <p className="small">
           <strong>Kâğıt {row.seq}</strong> · puan {row.score} (doğru {row.correct}, yanlış {row.wrong}, boş {row.blank})

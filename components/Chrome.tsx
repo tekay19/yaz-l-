@@ -54,15 +54,11 @@ export function SiteHeader() {
       <div className="wrap">
         <Logo />
         <nav className="head-nav" aria-label="Ana menü">
-          <a href="#nasil" className="hide-sm">
-            Nasıl çalışır
-          </a>
-          <a href="#ozellikler" className="hide-sm">
-            Özellikler
-          </a>
-          <a href="#fiyat" className="hide-sm">
-            Fiyat
-          </a>
+          <a href="/#nasil" className="hide-sm">Nasıl çalışır</a>
+          <a href="/#klasik" className="hide-sm">Klasik sınav</a>
+          <a href="/#fiyat" className="hide-sm">Fiyat</a>
+          <a href="/#sss" className="hide-sm">Sorular</a>
+          <Link href="/hesap" className="head-login">Giriş</Link>
           <Link href="/yukle" className="btn btn-primary btn-sm">
             Kâğıtlarınızı yükleyin
           </Link>
@@ -114,7 +110,7 @@ export function SiteFooter({ left, right }: { left?: React.ReactNode; right?: Re
     <footer className="site-foot">
       <div className="wrap site-foot-main">
         {left ?? <span className="small muted">SınavOku · erken erişim</span>}
-        {right ?? <span className="small muted">Kâğıtlarınız üçüncü kişilerle paylaşılmaz</span>}
+        {right ?? <span className="small muted">Fotoğraflar yalnızca okuma için işlenir, en geç 7 gün içinde silinir</span>}
       </div>
       <div className="wrap site-foot-legal">
         <LegalLinks />

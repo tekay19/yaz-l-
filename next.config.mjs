@@ -6,7 +6,10 @@ const nextConfig = {
   serverExternalPackages: ['heic-convert'],
   // the old order steps; links in e-mails and bookmarks land on the upload wizard
   async redirects() {
-    return ['/paket', '/kagitlar', '/ozet', '/odeme'].map((source) => ({ source, destination: '/yukle', permanent: false }));
+    return [
+      ...['/paket', '/kagitlar', '/ozet', '/odeme'].map((source) => ({ source, destination: '/yukle', permanent: false })),
+      { source: '/hata', destination: '/', permanent: false },
+    ];
   },
   async headers() {
     return [

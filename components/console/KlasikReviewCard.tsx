@@ -7,7 +7,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { Api, KlasikReview, ReviewQuestion, ReviewSheet } from './api';
-import { FailedSheets, NoteBanner, RosterEditor } from './ui';
+import { FailedSheets, NoteBanner } from './ui';
+import { ReviewFrame, ReviewPhoto } from './ReviewFrame';
 
 const VERDICT: Record<string, string> = { met: 'Karşılandı', partial: 'Kısmen', not_met: 'Karşılanmadı' };
 const STATUS: Record<string, string> = {
@@ -21,6 +22,7 @@ export default function KlasikReviewCard({ api, jobId, onApproved }: Props) {
   const [roster, setRoster] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
   const load = useCallback(async () => {
     const r = await api.klasikReview(jobId);
@@ -59,30 +61,20 @@ export default function KlasikReviewCard({ api, jobId, onApproved }: Props) {
   const attention = data.sheets.reduce((s, x) => s + x.attention, 0);
   // sheets that need a look come first
   const sheets = [...data.sheets].sort((a, b) => (b.attention + b.nameFlags.length) - (a.attention + a.nameFlags.length) || a.seqs[0] - b.seqs[0]);
+  const needs = (s: ReviewSheet) => s.attention + s.nameFlags.length > 0;
+  const flagged = data.sheets.filter(needs).length;
+  const shown = showAll || !flagged ? sheets : sheets.filter(needs);
   return (
-    <div>
-      <h3 className="console-sub">Kontrol</h3>
-      <p className="small muted">
-        {data.sheets.length} kâğıt, {attention} soruda kontrol edilecek yer var. Puanlar siz onaylayana kadar öneridir;
-        onaylayınca rapor e-postanıza gider.
-      </p>
-      {data.pending > 0 && <p className="console-banner ok">{data.pending} kâğıt yeniden puanlanıyor…</p>}
-
-      <h3 className="console-sub">Sınıf listesi</h3>
-      <RosterEditor value={roster} onChange={setRoster} onSave={saveRoster} saveLabel="Listeyi kaydet ve yeniden eşleştir" />
-
-      {sheets.map((s) => <SheetCard key={s.pageId} api={api} jobId={jobId} sheet={s} onChanged={load} />)}
-
-      <FailedSheets failed={data.failed} refunded />
-
-      <NoteBanner note={error ? { ok: false, text: error } : null} />
-      <div className="console-row">
-        <button type="button" className="btn btn-primary btn-sm" disabled={busy || data.pending > 0} onClick={approve}>
-          Onayla, raporu gönder
-        </button>
-        {data.pending > 0 && <span className="small muted">Yeniden puanlama bitince onaylayabilirsiniz.</span>}
-      </div>
-    </div>
+    <ReviewFrame
+      summary={<>{data.sheets.length} kâğıt, {attention} soruda işaret. Puanlar siz onaylayana kadar öneridir; onaylayınca rapor e-postanıza gider.</>}
+      flagged={flagged} total={data.sheets.length} showAll={showAll || !flagged} onShowAll={setShowAll}
+      onApprove={approve} approveDisabled={busy || data.pending > 0}
+      hint={data.pending > 0 ? `${data.pending} kâğıt yeniden puanlanıyor; bitince onaylayabilirsiniz.` : undefined}
+      roster={roster} onRoster={setRoster} onSaveRoster={saveRoster}
+      after={<><FailedSheets failed={data.failed} refunded /><NoteBanner note={error ? { ok: false, text: error } : null} /></>}
+    >
+      {shown.map((s) => <SheetCard key={s.pageId} api={api} jobId={jobId} sheet={s} onChanged={load} />)}
+    </ReviewFrame>
   );
 }
 
@@ -105,10 +97,8 @@ function SheetCard({ api, jobId, sheet, onChanged }: { api: Api; jobId: string; 
     <div className="console-review">
       <div>
         {sheet.imageUrls.length ? sheet.imageUrls.map((url, i) => (
-          <a key={url} href={url} target="_blank" rel="noreferrer">
-            <img className="console-thumb klasik-thumb" src={url} alt={`Kâğıt ${sheet.seqs[i]}`} />
-          </a>
-        )) : <p className="tiny muted">Fotoğraf silinmiş.</p>}
+          <ReviewPhoto key={url} className="console-thumb klasik-thumb" src={url} alt={`Kâğıt ${sheet.seqs[i]}`} />
+        )) : <span className="review-photo-gone">Fotoğraf silinmiş</span>}
       </div>
       <div>
         <p className="small">

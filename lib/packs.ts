@@ -34,7 +34,7 @@ export const PACKS: Record<PackName, Pack> = {
     price: 850,
     pages: 200,
     featured: true,
-    blurb: ['Yaklaşık 4 sınıf sınavı', 'Excel ve PDF rapor', 'Sınıf karşılaştırma özeti'],
+    blurb: ['Yaklaşık 4 sınıf sınavı', 'Excel ve PDF rapor', 'Sayfalar dolana kadar geçerli'],
   },
   'Zümre': {
     name: 'Zümre',
@@ -42,7 +42,7 @@ export const PACKS: Record<PackName, Pack> = {
     short: 'Zümre paketi',
     price: 1490,
     pages: 500,
-    blurb: ['Yaklaşık 10 sınıf sınavı', 'Excel ve PDF rapor', 'Zümre içinde paylaşılabilir'],
+    blurb: ['Yaklaşık 10 sınıf sınavı', 'Birden çok sınıfı olan öğretmenler için', 'Sayfalar dolana kadar geçerli'],
   },
 };
 

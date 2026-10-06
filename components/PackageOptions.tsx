@@ -1,11 +1,12 @@
 'use client';
 
-import { PAID_PACKS, perPage, type PackName } from '@/lib/packs';
+import { PAID_PACKS, perPage, tl, type PackName } from '@/lib/packs';
 import { Check } from './Chrome';
 import PriceTag from './PriceTag';
 
-export default function PackageOptions({ selected, onSelect, minimumPages = 0 }: {
-  selected: PackName;
+// Packs to buy now (the account's billing page, the wizard's last step):
+// each button starts the payment for its pack.
+export default function PackageOptions({ onSelect, minimumPages = 0 }: {
   onSelect: (name: PackName) => void;
   minimumPages?: number;
 }) {
@@ -24,11 +25,10 @@ export default function PackageOptions({ selected, onSelect, minimumPages = 0 }:
             data-pack-btn
             type="button"
             className={`btn btn-block ${pack.was || pack.featured ? 'btn-buy' : 'btn-ghost'}`}
-            aria-pressed={selected === pack.name}
             disabled={tooSmall}
             onClick={() => onSelect(pack.name)}
           >
-            {tooSmall ? 'Sayfa sayısı yetersiz' : selected === pack.name ? 'Seçildi ✓' : 'Paketi seçin'}
+            {tooSmall ? 'Bu sınava yetmez' : `${tl(pack.price)} ile satın alın`}
           </button>
         </div>
       );
