@@ -61,3 +61,31 @@ describe('checkPhoto', () => {
     expect(err.message).toMatch(/bulanık/);
   });
 });
+
+// A sheet on a dark desk, photographed from a distance: the sheet takes up
+// only part of a large frame.
+async function onDesk(sheetW: number, sheetH: number, frameW = 4000, frameH = 3000) {
+  return sharp({ create: { width: frameW, height: frameH, channels: 3, background: '#5a4632' } })
+    .composite([{ input: await sheet(sheetW, sheetH), left: 900, top: 400 }])
+    .jpeg().toBuffer();
+}
+
+describe('a sheet photographed from afar', () => {
+  it('is cut out of the frame, so its writing keeps its pixels', async () => {
+    const out = await normalizeImage(await onDesk(1500, 2000));
+    const meta = await sharp(out).metadata();
+    // the sheet (3:4, standing) rather than the landscape desk
+    expect(meta.height!).toBeGreaterThan(meta.width!);
+    expect(meta.height).toBe(1568);
+    await expect(checkPhoto(out)).resolves.toBeUndefined();
+  });
+  it('is refused when even cut out it is too small to read', async () => {
+    const err = await checkPhoto(await normalizeImage(await onDesk(560, 740))).catch((e) => e);
+    expect(err).toBeInstanceOf(ImageError);
+    expect(err.message).toMatch(/yakından/);
+  });
+  it('leaves a close-up photo whole', async () => {
+    const meta = await sharp(await normalizeImage(await sheet(1500, 2000))).metadata();
+    expect([meta.width, meta.height]).toEqual([1176, 1568]);
+  });
+});
