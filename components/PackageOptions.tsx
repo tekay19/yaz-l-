@@ -19,8 +19,8 @@ export default function PackageOptions({ onSelect, minimumPages = 0 }: {
           {pack.was && <span className="pack-tag offer">{pack.label}</span>}
           <p className="pack-name">{pack.name}</p>
           <div className="price-amount"><PriceTag pack={pack} /></div>
-          <p className="pack-unit">{pack.pages} sayfa · sayfası ₺{perPage(pack)}</p>
-          <ul>{pack.blurb.map((line) => <li key={line}><Check />{line}</li>)}</ul>
+          <p className="pack-unit">{pack.pages} sayfa, sayfası ₺{perPage(pack)}</p>
+          <ul>{pack.blurb.map((line) => <li key={line}><Check size={15} width={2.6} />{line}</li>)}</ul>
           <button
             data-pack-btn
             type="button"

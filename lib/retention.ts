@@ -1,6 +1,6 @@
-import { and, eq, inArray, isNotNull, lt, ne, notInArray, or, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull, lt, ne, notInArray, or, sql, type SQL } from 'drizzle-orm';
 import type { Db } from '@/db/client';
-import { events, jobs, loginTokens, pages, users } from '@/db/schema';
+import { authTokens, events, jobs, pages, users } from '@/db/schema';
 import type { Storage } from '@/lib/storage';
 
 export const PHOTO_TTL_DAYS = 7;
@@ -41,9 +41,14 @@ async function removeDraftPages(db: Db, storage: Storage, jobIds: string[]) {
 // A job that never finished (a klasik exam left in review, a stuck one) is
 // not deleted silently: it is closed as failed, and delivery mails the
 // teacher and refunds what is still reserved. It is deleted only after that.
-export async function closeStaleJobs(db: Db, now = new Date()): Promise<number> {
-  const closed = await db.update(jobs).set({ status: 'failed', failReason: 'review_expired', finishedAt: now })
-    .where(and(notInArray(jobs.status, ['draft', 'done', 'failed']), sentBefore(now, RESULT_TTL_DAYS)))
+export const closeStaleJobs = (db: Db, now = new Date()) =>
+  closeJobs(db, sentBefore(now, RESULT_TTL_DAYS), 'review_expired', now);
+
+// Closes the unfinished jobs matching `where` as failed; delivery then
+// refunds what is left reserved and tells the teacher why.
+export async function closeJobs(db: Db, where: SQL | undefined, reason: 'review_expired' | 'admin_closed', now = new Date()) {
+  const closed = await db.update(jobs).set({ status: 'failed', failReason: reason, finishedAt: now })
+    .where(and(notInArray(jobs.status, ['draft', 'done', 'failed']), where))
     .returning({ id: jobs.id });
   if (closed.length) {
     await db.update(pages).set({ status: 'failed', error: 'job_cancelled', leaseUntil: null })
@@ -70,7 +75,7 @@ export async function runRetention(db: Db, storage: Storage, now = new Date()) {
     lt(jobs.createdAt, ago(now, RESULT_TTL_DAYS)),
     or(inArray(jobs.status, ['draft', 'done']), and(eq(jobs.status, 'failed'), isNotNull(jobs.notifiedAt))),
   )).returning({ id: jobs.id });
-  await db.delete(loginTokens).where(lt(loginTokens.createdAt, ago(now, 1)));
+  await db.delete(authTokens).where(lt(authTokens.expiresAt, ago(now, 1)));
   await db.delete(events).where(lt(events.ts, ago(now, EVENT_TTL_DAYS)));
   return { closed, photos, jobs: gone.length };
 }

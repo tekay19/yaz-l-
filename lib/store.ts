@@ -1,4 +1,4 @@
-// Event storage + admin session helpers.
+// Event storage, the sign-in throttle and the public rate limit.
 //
 // Funnel events are rows in the Postgres `events` table on our own server,
 // so they survive restarts without an external KV service.
@@ -9,8 +9,6 @@ import { getDb, type Db } from '@/db/client';
 import { events as eventsTable } from '@/db/schema';
 
 const MAX_READ = 20_000;
-const SESSION_TTL = 8 * 3600; // seconds — one working day
-export const COOKIE = 'so_admin';
 
 export type TrackEvent = {
   ts: string;
@@ -46,89 +44,29 @@ export async function clearEvents(db: Db = getDb()) {
   await db.delete(eventsTable);
 }
 
-// ── Session cookie ───────────────────────────────────────────────────────
-// Format: <expiry>.<hmac>. Stateless and signed with ADMIN_SECRET, so a
-// stolen cookie expires on its own and no session store is needed.
-
-function secret(): string | null {
-  const s = process.env.ADMIN_SECRET || '';
-  return s.length >= 16 ? s : null;
-}
-
-const sign = (value: string, key: string) =>
-  crypto.createHmac('sha256', key).update(value).digest('base64url');
-
-export function issueToken(): string | null {
-  const key = secret();
-  if (!key) return null;
-  const exp = String(Math.floor(Date.now() / 1000) + SESSION_TTL);
-  return `${exp}.${sign(exp, key)}`;
-}
-
-export function verifyToken(token: string | undefined): boolean {
-  const key = secret();
-  if (!key || !token) return false;
-  const dot = token.indexOf('.');
-  if (dot < 1) return false;
-  const exp = token.slice(0, dot);
-  const mac = token.slice(dot + 1);
-  if (!/^\d+$/.test(exp)) return false;
-  if (Number(exp) * 1000 < Date.now()) return false;
-  const a = Buffer.from(mac);
-  const b = Buffer.from(sign(exp, key));
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
-}
-
-// Same check, reading the cookie from the request itself rather than
-// next/headers, so a route can be exercised outside Next's request scope.
-export function adminRequest(req: Request): boolean {
-  const pair = (req.headers.get('cookie') ?? '')
-    .split(';')
-    .map((c) => c.trim())
-    .find((c) => c.startsWith(`${COOKIE}=`));
-  return verifyToken(pair ? decodeURIComponent(pair.slice(COOKIE.length + 1)) : undefined);
-}
-
-export const sessionCookie = (token: string) => ({
-  name: COOKIE,
-  value: token,
-  // HttpOnly: unreadable from JS, so an XSS on the panel cannot lift it.
-  // SameSite=strict: never sent cross-site, which is also the CSRF defence.
-  httpOnly: true,
-  sameSite: 'strict' as const,
-  secure: process.env.NODE_ENV === 'production',
-  path: '/',
-  maxAge: SESSION_TTL,
-});
-
-// Constant-time password check. Both sides are hashed first so the compare
-// runs over equal-length buffers whatever was attempted.
-export function passwordMatches(attempt: string): boolean {
-  const expected = process.env.ADMIN_PASSWORD || '';
-  if (!expected) return false;
-  const h = (v: string) => crypto.createHash('sha256').update(v).digest();
-  return crypto.timingSafeEqual(h(attempt), h(expected));
-}
-
 // ── Login throttle ───────────────────────────────────────────────────────
 // Per-process and best effort: enough to stop password guessing at speed.
+// Keyed by whatever the caller names: an IP, an e-mail address.
 const attempts = new Map<string, { first: number; count: number }>();
 const WINDOW = 15 * 60 * 1000;
 const MAX_TRIES = 8;
 
-export function tooManyAttempts(ip: string): boolean {
-  const rec = attempts.get(ip);
+export function tooManyAttempts(key: string): boolean {
+  const rec = attempts.get(key);
   if (!rec || Date.now() - rec.first > WINDOW) return false;
   return rec.count >= MAX_TRIES;
 }
 
-export function noteAttempt(ip: string, ok: boolean) {
+export function noteAttempt(key: string, ok: boolean) {
   if (ok) {
-    attempts.delete(ip);
+    attempts.delete(key);
     return;
   }
-  const rec = attempts.get(ip);
-  if (!rec || Date.now() - rec.first > WINDOW) attempts.set(ip, { first: Date.now(), count: 1 });
+  const rec = attempts.get(key);
+  if (!rec || Date.now() - rec.first > WINDOW) {
+    if (attempts.size > 10_000) attempts.clear();
+    attempts.set(key, { first: Date.now(), count: 1 });
+  }
   else rec.count += 1;
 }
 

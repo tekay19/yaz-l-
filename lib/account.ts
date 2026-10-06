@@ -84,7 +84,7 @@ export async function saveSettings(db: Db, userId: string, input: { style?: unkn
 
 export type HistoryEntry = {
   at: string; delta: number;
-  kind: 'purchase' | 'job_reserve' | 'job_refund' | 'admin_grant';
+  kind: 'purchase' | 'job_reserve' | 'job_refund' | 'admin_grant' | 'admin_debit';
   label: string; amountKurus: number | null;
 };
 
@@ -92,7 +92,7 @@ export type HistoryEntry = {
 // an exam used and pages given back. Newest first.
 export async function balanceHistory(db: Db, userId: string, limit = 100): Promise<HistoryEntry[]> {
   const rows = await db.select().from(ledger).where(eq(ledger.userId, userId)).orderBy(desc(ledger.createdAt)).limit(limit);
-  const jobIds = [...new Set(rows.filter((r) => r.reason !== 'purchase' && r.reason !== 'admin_grant').map((r) => r.ref.split(':')[0]))];
+  const jobIds = [...new Set(rows.filter((r) => r.reason !== 'purchase' && r.reason !== 'admin_grant' && r.reason !== 'admin_debit').map((r) => r.ref.split(':')[0]))];
   const payIds = rows.filter((r) => r.reason === 'purchase').map((r) => r.ref);
   const titles = new Map((jobIds.length
     ? await db.select({ id: jobs.id, title: jobs.title }).from(jobs).where(inArray(jobs.id, jobIds.filter(isUuid)))
@@ -105,6 +105,7 @@ export async function balanceHistory(db: Db, userId: string, limit = 100): Promi
     const pay = paid.get(r.ref);
     const label = r.reason === 'purchase' ? `${pay?.pack ?? 'Paket'} paketi`
       : r.reason === 'admin_grant' ? 'Tanımlanan sayfa hakkı'
+        : r.reason === 'admin_debit' ? 'Düşülen sayfa hakkı'
         : r.reason === 'job_reserve' ? job : `${job} — iade`;
     return { at: r.createdAt.toISOString(), delta: r.delta, kind: r.reason, label, amountKurus: pay?.amount ?? null };
   });

@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { getDb } from '@/db/client';
 import { users } from '@/db/schema';
-import { currentUserId, unauthorized } from '@/lib/auth/current';
+import { currentUser, unauthorized, unverified } from '@/lib/auth/current';
 import { isPackName } from '@/lib/packs';
 import { IntroPackPending, IntroPackUsed, getIyzico, startCheckout } from '@/lib/payments/iyzico';
 import { clientIp } from '@/lib/store';
@@ -11,8 +11,10 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
-  const userId = await currentUserId();
-  if (!userId) return unauthorized();
+  const me = await currentUser();
+  if (!me) return unauthorized();
+  if (!me.verified) return unverified();
+  const userId = me.id;
   const body = await readJson(req);
   if (!isPackName(body.pack)) return Response.json({ error: 'Paket seçin.' }, { status: 400 });
   const db = getDb();

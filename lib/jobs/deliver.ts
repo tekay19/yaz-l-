@@ -53,7 +53,8 @@ export async function deliverPending(deps: Deps, now = new Date()): Promise<numb
       // can never send the teacher the same mail again.
       if (job.status === 'failed') {
         const expired = job.failReason === 'rubric_expired';
-        const closed = job.failReason === 'review_expired';
+        const byAdmin = job.failReason === 'admin_closed';
+        const closed = job.failReason === 'review_expired' || byAdmin;
         // a closed job may have had its unread pages refunded already: give
         // back the rest under its own ledger key
         const refund = closed ? job.reservedPages - await refundedFor(db, job.id) : job.reservedPages;
@@ -63,7 +64,7 @@ export async function deliverPending(deps: Deps, now = new Date()): Promise<numb
           to: user.email,
           subject: `${job.title || 'Sınav'}: ${closed ? 'sınav kapatıldı' : expired ? 'sınav iptal edildi' : 'cevap anahtarı okunamadı'}`,
           text: closed
-            ? `Sınav ${RESULT_TTL_DAYS} gün içinde tamamlanıp onaylanmadığı için kapatıldı. `
+            ? (byAdmin ? 'Sınavınız destek ekibimiz tarafından kapatıldı. ' : `Sınav ${RESULT_TTL_DAYS} gün içinde tamamlanıp onaylanmadığı için kapatıldı. `)
               + `${refund > 0 ? `Kalan ${refund} sayfa hakkı hesabınıza iade edildi. ` : ''}Fotoğraflarınız ve sınav kayıtları silinecek.`
             : expired
               ? `Puanlama ölçütleri ${RUBRIC_EXPIRE_DAYS} gün içinde onaylanmadığı için sınav iptal edildi. `

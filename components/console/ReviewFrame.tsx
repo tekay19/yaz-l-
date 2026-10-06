@@ -19,14 +19,14 @@ export function ReviewFrame({
   return (
     <div className="review">
       <div className="review-bar">
-        <div className="review-bar-text">
+        <div className={`review-bar-text${flagged ? ' attn' : ''}`}>
           <strong>{flagged ? `${flagged} kâğıtta bakmanız gereken yer var` : 'Bakmanız gereken bir yer yok'}</strong>
           <span className="small muted">{summary}</span>
         </div>
         <div className="review-bar-actions">
           <div className="review-switch" role="group" aria-label="Gösterilen kâğıtlar">
-            <button type="button" className={!showAll ? 'on' : undefined} onClick={() => onShowAll(false)} disabled={!flagged}>Kontrol edilecekler · {flagged}</button>
-            <button type="button" className={showAll ? 'on' : undefined} onClick={() => onShowAll(true)}>Tümü · {total}</button>
+            <button type="button" className={!showAll ? 'on' : undefined} aria-pressed={!showAll} onClick={() => onShowAll(false)} disabled={!flagged}>Kontrol edilecekler <span className="review-n">{flagged}</span></button>
+            <button type="button" className={showAll ? 'on' : undefined} aria-pressed={showAll} onClick={() => onShowAll(true)}>Tümü <span className="review-n">{total}</span></button>
           </div>
           <button type="button" className="btn btn-primary btn-sm" disabled={approveDisabled} onClick={onApprove}>{approveLabel}</button>
         </div>
@@ -34,7 +34,7 @@ export function ReviewFrame({
       </div>
 
       <details className="review-roster">
-        <summary>Sınıf listesi · {roster.split('\n').filter((l) => l.trim()).length} öğrenci</summary>
+        <summary>Sınıf listesi <span className="review-n">{roster.split('\n').filter((l) => l.trim()).length} öğrenci</span></summary>
         <p className="tiny muted">İsimler bu listeyle eşleştirilir. Listeyi düzeltirseniz kâğıtlar yeniden eşleştirilir.</p>
         <RosterEditor value={roster} onChange={onRoster} onSave={onSaveRoster} saveLabel="Listeyi kaydedin ve yeniden eşleştirin" />
       </details>

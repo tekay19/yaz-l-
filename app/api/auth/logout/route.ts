@@ -1,9 +1,8 @@
-import { cookies } from 'next/headers';
-import { SESSION_COOKIE } from '@/lib/auth/session';
+import { signOut } from '@/lib/auth/current';
 
 export const runtime = 'nodejs';
 
 export async function POST() {
-  (await cookies()).delete(SESSION_COOKIE);
+  await signOut();
   return Response.json({ ok: true });
 }

@@ -9,8 +9,8 @@ export const metadata: Metadata = {
   referrer: 'no-referrer',
 };
 
-// The backend sends teachers here after the sign-in link (/api/auth/callback)
-// and after the iyzico payment page (/api/pay/callback?odeme=ok|hata).
+// The sign-in pages send teachers here, and so does the iyzico payment page
+// (/api/pay/callback?odeme=ok|hata).
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <Suspense>

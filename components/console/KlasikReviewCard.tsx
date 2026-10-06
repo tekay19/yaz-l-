@@ -101,8 +101,10 @@ function SheetCard({ api, jobId, sheet, onChanged }: { api: Api; jobId: string; 
         )) : <span className="review-photo-gone">Fotoğraf silinmiş</span>}
       </div>
       <div>
-        <p className="small">
-          <strong>Kâğıt {sheet.seqs.join(' + ')}</strong> · {sheet.student} · {sheet.total} / {sheet.max} puan (%{sheet.percent})
+        <p className="review-sheet-head">
+          <strong>Kâğıt {sheet.seqs.join(' + ')}</strong>
+          <span>{sheet.student}</span>
+          <span className="review-score">{sheet.total} / {sheet.max} puan <span className="muted">(%{sheet.percent})</span></span>
         </p>
         {sheet.nameFlags.length > 0 && <ul className="small console-list console-err">{sheet.nameFlags.map((f) => <li key={f}>{f}</li>)}</ul>}
         <div className="console-row">
@@ -167,11 +169,11 @@ function QuestionBlock({ api, jobId, pageId, question: q, onChanged }: {
   return (
     <div className={`klasik-q${attention.length ? ' flagged' : ''}`}>
       <div className="console-row between">
-        <strong className="small">{q.q}. soru — {q.points} / {q.max}</strong>
+        <strong className="small">{q.q}. soru <span className="review-pts">{q.points} / {q.max}</span></strong>
         {STATUS[q.status] && <span className="tiny muted">{STATUS[q.status]}</span>}
       </div>
       {attention.length > 0 && <ul className="small console-list console-err">{attention.map((n) => <li key={n.code}>{n.text}</li>)}</ul>}
-      {info.length > 0 && <p className="tiny muted">{info.map((n) => n.text).join(' · ')}</p>}
+      {info.length > 0 && <p className="tiny muted">{info.map((n) => n.text).join('; ')}</p>}
       {q.note && <p className="small">{q.note}</p>}
       {q.firstError && <p className="tiny muted">İlk hatalı adım: {q.firstError}</p>}
 

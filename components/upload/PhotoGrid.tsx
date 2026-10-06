@@ -16,8 +16,8 @@ export default function PhotoGrid({ jobId, kind, pages, pending, onRemove, onDis
         <figure key={p.id} className="thumb-card">
           {/* eslint-disable-next-line @next/next/no-img-element -- the owner's own page photo */}
           <img src={`/api/jobs/${jobId}/pages/${p.id}`} alt="" loading="lazy" />
-          <figcaption>{label} {i + 1} · uygun</figcaption>
-          <button type="button" onClick={() => onRemove(p.id)} aria-label="Fotoğrafı çıkar">×</button>
+          <figcaption><b>{label} {i + 1}</b> uygun</figcaption>
+          <button type="button" onClick={() => onRemove(p.id)} aria-label={`${label} ${i + 1} fotoğrafını çıkarın`}>×</button>
         </figure>
       ))}
       {pending.filter((p) => p.kind === kind).map((p) => (
@@ -25,7 +25,7 @@ export default function PhotoGrid({ jobId, kind, pages, pending, onRemove, onDis
           {/* eslint-disable-next-line @next/next/no-img-element -- local preview */}
           <img src={p.url} alt="" />
           <figcaption title={p.error ?? p.name}>{p.error ?? 'kontrol ediliyor…'}</figcaption>
-          {p.error && <button type="button" onClick={() => onDismiss(p)} aria-label="Kaldır">×</button>}
+          {p.error && <button type="button" onClick={() => onDismiss(p)} aria-label="Hatalı fotoğrafı kaldırın">×</button>}
         </figure>
       ))}
     </div>

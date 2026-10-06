@@ -17,7 +17,10 @@ export type { Fail, Result } from '@/lib/client/request';
 export type { ClassView, HistoryEntry } from '@/lib/account';
 export type { ExamResults } from '@/lib/jobs/results';
 export type Settings = { style?: GradingStyle; note?: string };
-export type Me = { email: string; pageBalance: number; klasik: boolean; settings: Settings };
+export type Me = {
+  email: string; name: string; role: 'teacher' | 'admin'; verified: boolean;
+  pageBalance: number; klasik: boolean; settings: Settings;
+};
 export type JobView = {
   id: string; title: string; mode: 'optik' | 'klasik'; status: string;
   pages: { key: number; students: number; read: number; failed: number };
@@ -57,7 +60,17 @@ export function createApi(fetchImpl: typeof fetch = (input, init) => fetch(input
 
   return {
     me: () => call<Me>('/api/me'),
-    login: (email: string) => call<{ ok: true }>('/api/auth/login', withJson('POST', { email })),
+    login: (email: string, password: string) =>
+      call<{ ok: true; role: Me['role'] }>('/api/auth/login', withJson('POST', { email, password })),
+    register: (name: string, email: string, password: string) =>
+      call<{ ok: true; role: Me['role'] }>('/api/auth/register', withJson('POST', { name, email, password })),
+    forgot: (email: string) => call<{ ok: true }>('/api/auth/forgot', withJson('POST', { email })),
+    reset: (token: string, password: string) =>
+      call<{ ok: true; role: Me['role'] }>('/api/auth/reset', withJson('POST', { token, password })),
+    verify: (token: string) => call<{ ok: true }>('/api/auth/verify', withJson('POST', { token })),
+    resendVerification: () => call<{ ok: true }>('/api/auth/verify/resend', { method: 'POST' }),
+    changePassword: (current: string, next: string) =>
+      call<{ ok: true }>('/api/me/password', withJson('POST', { current, next })),
     logout: () => call<{ ok: true }>('/api/auth/logout', { method: 'POST' }),
     deleteAccount: () => call<null>('/api/me', { method: 'DELETE' }),
     checkout: (pack: string) => call<{ paymentPageUrl: string }>('/api/pay/checkout', withJson('POST', { pack })),

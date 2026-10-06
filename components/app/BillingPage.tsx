@@ -13,6 +13,7 @@ import { Badge, Empty, PageHeader, Stat, dateTr, num } from './ui';
 const KIND: Record<HistoryEntry['kind'], { label: string; tone: 'green' | 'grey' | 'blue' }> = {
   purchase: { label: 'Satın alma', tone: 'green' },
   admin_grant: { label: 'Tanımlama', tone: 'green' },
+  admin_debit: { label: 'Düzeltme', tone: 'grey' },
   job_reserve: { label: 'Sınav', tone: 'grey' },
   job_refund: { label: 'İade', tone: 'blue' },
 };
@@ -40,14 +41,14 @@ export default function BillingPage() {
     <>
       <PageHeader title="Paket ve ödemeler" sub="Sayfa hakkınız her okunan öğrenci sayfası için bir azalır; okunamayan sayfaların hakkı iade edilir." />
       <div className="app-stats">
-        <Stat label="Kalan sayfa hakkı" value={num(me.pageBalance)} tone={me.pageBalance < 30 ? 'warn' : 'good'} hint={me.pageBalance < 30 ? 'azaldı' : undefined} />
+        <Stat label="Kalan sayfa hakkı" value={num(me.pageBalance)} tone={me.pageBalance < 30 ? 'warn' : undefined} hint={me.pageBalance < 30 ? 'azaldı' : 'sayfa dolana kadar geçerli'} />
         <Stat label="Kullanılan sayfa" value={num(Math.max(0, used))} hint="iadeler düşülmüş" />
         <Stat label="Toplam ödeme" value={`₺${num(spent / 100, 2)}`} />
       </div>
 
       <section className="app-card">
         <h2>Sayfa hakkı alın</h2>
-        <p className="small muted" style={{ marginBottom: 18 }}>iyzico&apos;nun güvenli ödeme sayfasına gidersiniz; ödeme sonrası bu sayfaya dönersiniz. Sayfalar dolana kadar geçerlidir, abonelik yoktur.</p>
+        <p className="app-section-sub">iyzico&apos;nun güvenli ödeme sayfasına gidersiniz; ödeme sonrası bu sayfaya dönersiniz. Sayfalar dolana kadar geçerlidir, abonelik yoktur.</p>
         <div className={busy ? 'app-busy' : undefined}>
           <PackageOptions onSelect={buy} />
         </div>
@@ -64,7 +65,7 @@ export default function BillingPage() {
               <tbody>
                 {history.map((h, i) => (
                   <tr key={i}>
-                    <td className="muted">{dateTr(h.at, true)}</td>
+                    <td className="app-date">{dateTr(h.at, true)}</td>
                     <td><Badge tone={KIND[h.kind].tone}>{KIND[h.kind].label}</Badge></td>
                     <td>{h.label}</td>
                     <td className="num">{h.amountKurus ? `₺${num(h.amountKurus / 100, 2)}` : '—'}</td>

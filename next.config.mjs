@@ -14,8 +14,8 @@ const nextConfig = {
   async headers() {
     return [
       {
-        // the panel and its measurement screen must never be indexed or framed
-        source: '/panel/:path*',
+        // the admin panel must never be indexed, framed or cached
+        source: '/admin/:path*',
         headers: [
           { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
           { key: 'X-Frame-Options', value: 'DENY' },

@@ -18,15 +18,15 @@
 - **İşlenen veriler:** öğretmenin e-posta adresi; sınav fotoğrafları (öğrencinin adı ve cevapları; öğrenciler çoğunlukla reşit değil); okuma sonuçları (öğrenci adı, cevaplar, puan); ödeme kaydı (paket, tutar, iyzico işlem jetonu); site ziyaret olayları.
 - **Yurt dışı aktarım:** fotoğraflar okuma için Anthropic PBC'nin (ABD) API'sine gönderilir; `GRADER_PROVIDER=openai` seçilirse OpenAI'ın (ABD) API'sine. Hangisi kullanılıyorsa metinde o yazmalı. KVKK md. 9 kapsamındaki standart sözleşme ve Kurum'a bildirim ürün sahibinin işidir (plan, Task 16).
 - **Klasik sınav:** öğrencinin el yazısı cevapları metne dökülür ve yapay zekâ bu metni öğretmenin onayladığı ölçütlerle değerlendirir; puan önerisi öğretmen onaylamadan kesinleşmez (otomatik karar yok). Metne dökülmüş cevaplar ve değerlendirme gerekçeleri sonuçlarla birlikte 30 gün saklanır.
-- **Diğer alıcılar:** SMTP sağlayıcısı (giriş bağlantısı ve rapor e-postası), iyzico (ödeme), barındırma sağlayıcısı. Hepsinin adı ve ülkesi metinde yazmalı.
+- **Diğer alıcılar:** SMTP sağlayıcısı (doğrulama, şifre sıfırlama ve rapor e-postası), iyzico (ödeme), barındırma sağlayıcısı. Hepsinin adı ve ülkesi metinde yazmalı.
 - **Saklama süreleri** (`lib/retention.ts`, saatte bir çalışır):
   - Fotoğraflar: rapor e-postası gidince silinir; gitmese de gönderimden en geç 7 gün sonra, hâlâ okunan, rubrik ya da öğretmen onayı bekleyen sınavlarda en geç 14 gün sonra. Gönderilmeyen taslakların fotoğrafları 7 günde silinir.
   - Sonuçlar (öğrenci adı, puan, sınav kaydı): 30 gün.
-  - Giriş bağlantısı kayıtları: 1 gün.
+  - E-posta doğrulama ve şifre sıfırlama bağlantıları: süresi dolduktan 1 gün sonra silinir. Şifreler yalnızca scrypt özeti olarak saklanır.
   - Ziyaret olayları: 180 gün. **Bekleme listesi e-postaları da aynı tabloda durduğu için 180 günde silinir.** Bu istenmiyorsa metinden önce koda karar verilmeli.
   - Ödeme kayıtları: hesap silinse de yasal süre boyunca, kullanıcıyla bağı kopartılarak.
 - **Hesap silme:** öğretmen hesabını silebilir (`DELETE /api/me`). Sınavlar, sayfalar, fotoğraflar ve sayfa hakkı defteri silinir; ödeme kayıtları kullanıcısız kalır.
-- **Çerezler:** `so_user` oturum çerezi (httpOnly, 30 gün); yönetim paneli için `so_admin`.
+- **Çerezler:** `so_user` oturum çerezi (httpOnly, 30 gün). Yönetim paneli aynı çerezi kullanır; ayrı bir çerez yoktur.
 
 ## 3. Koddan bağımsız, ürün sahibinin yapacakları
 

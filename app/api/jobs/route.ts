@@ -1,5 +1,5 @@
 import { getDb } from '@/db/client';
-import { currentUserId, unauthorized } from '@/lib/auth/current';
+import { currentUser, currentUserId, unauthorized, unverified } from '@/lib/auth/current';
 import { createJob } from '@/lib/jobs/pages';
 import { listJobs } from '@/lib/jobs/status';
 import { noStore, readJson } from '@/lib/http';
@@ -14,8 +14,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const userId = await currentUserId();
-  if (!userId) return unauthorized();
+  const me = await currentUser();
+  if (!me) return unauthorized();
+  if (!me.verified) return unverified();
+  const userId = me.id;
   const body = await readJson(req);
   const mode = body.mode === 'klasik' ? 'klasik' : 'optik';
   // Düzeltme.md D1: klasik okuma Task 15'te gelir ve ayrı bir ölçüm kapısından

@@ -1,20 +1,32 @@
 import { getDb } from '@/db/client';
-import { requestLogin } from '@/lib/auth/login';
-import { getMailer } from '@/lib/mail';
-import { rateLimited } from '@/lib/store';
-import { readJson } from '@/lib/http';
+import { authenticate, normalizeEmail } from '@/lib/auth/accounts';
+import { signIn } from '@/lib/auth/current';
+import { authPostRefusal } from '@/lib/auth/guard';
+import { json, readJson } from '@/lib/http';
+import { clientIp, noteAttempt, rateLimited, tooManyAttempts } from '@/lib/store';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+const SLOW_DOWN = 'Çok fazla hatalı deneme. 15 dakika sonra tekrar deneyin ya da şifrenizi sıfırlayın.';
+
 export async function POST(req: Request) {
-  if (await rateLimited('login', req, 5, 900)) {
-    return Response.json({ error: 'Çok fazla deneme. Biraz sonra tekrar deneyin.' }, { status: 429 });
-  }
+  const refused = authPostRefusal(req);
+  if (refused) return refused;
+  if (await rateLimited('login', req, 30, 900)) return json({ error: SLOW_DOWN }, 429);
   const body = await readJson(req);
-  const email = typeof body.email === 'string' ? body.email : '';
-  const ok = await requestLogin(getDb(), getMailer(), email, process.env.APP_URL!);
-  if (!ok) return Response.json({ error: 'Geçerli bir e-posta adresi yazın.' }, { status: 400 });
-  // same answer whether or not the address already has an account
-  return Response.json({ ok: true });
+  // guessing is throttled per address as well as per IP: spreading the
+  // attempts over many IPs does not help against one account
+  const keys = [`ip:${clientIp(req)}`, `email:${normalizeEmail(body.email)}`];
+  if (keys.some((k) => tooManyAttempts(k))) return json({ error: SLOW_DOWN }, 429);
+
+  const r = await authenticate(getDb(), body.email, body.password);
+  for (const k of keys) noteAttempt(k, r.ok);
+  if (!r.ok) {
+    return r.reason === 'suspended'
+      ? json({ error: 'Hesabınız askıya alınmış. Destek için bize yazın.' }, 403)
+      : json({ error: 'E-posta ya da şifre hatalı. Daha önce e-postadaki bağlantıyla giriş yaptıysanız "Şifremi unuttum" ile şifre belirleyin.' }, 401);
+  }
+  await signIn(r.user.id, r.user.sessionVersion);
+  return json({ ok: true, role: r.user.role });
 }

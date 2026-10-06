@@ -1,15 +1,15 @@
 'use client';
 
 // The teacher's panel at /hesap: a sidebar with the panel's sections, a top
-// bar with the page balance, and the screens inside. A signed-out visitor
-// gets the sign-in card instead. Sign-in and payment both land on /hesap;
-// a wizard that sent the teacher away is reopened where it was.
+// bar with the page balance, and the screens inside. A signed-out visitor is
+// sent to /giris and comes back here. Payment lands on /hesap too; a wizard
+// that sent the teacher away is reopened where it was.
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { createApi, type Me } from '@/components/console/api';
-import { LogoMark } from '@/components/admin/AdminShell';
+import { LogoMark } from '@/components/LogoMark';
 import { useToast } from '@/components/Toast';
 import { takeReturn } from '@/lib/client/resume';
 import { TeacherContext } from './context';
@@ -38,7 +38,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, [api]);
   const signOut = useCallback(async () => {
     await api.logout();
-    setMe(null);
+    window.location.replace('/giris');
   }, [api]);
 
   useEffect(() => { refreshMe(); }, [refreshMe]);
@@ -57,8 +57,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     if (payment === 'hata') toast('Ödeme tamamlanamadı; sayfa hakkı eklenmedi.', 'error');
   }, [me, payment, toast]);
 
-  if (me === undefined || leaving) return <div className="app-loading" aria-busy="true" />;
-  if (me === null) return <SignIn api={api} linkFailed={params.get('hata') === 'baglanti'} />;
+  // signed out: to the sign-in page, back here afterwards
+  useEffect(() => {
+    if (me !== null) return;
+    const here = `${path}${params.toString() ? `?${params}` : ''}`;
+    window.location.replace(`/giris?next=${encodeURIComponent(here)}`);
+  }, [me, path, params]);
+
+  if (me === undefined || me === null || leaving) return <div className="app-loading" aria-busy="true" />;
 
   const active = (href: string, exact?: boolean) => (exact ? path === href || path.startsWith('/hesap/sinav') : path.startsWith(href));
   return (
@@ -78,13 +84,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
           <div className="app-side-foot">
+            {me.role === 'admin' && <Link href="/admin" className="app-admin-link">Yönetim paneli</Link>}
             <Link href="/hesap/paket" className="app-balance">
               <span className="k">Sayfa hakkınız</span>
               <span className="v">{me.pageBalance.toLocaleString('tr-TR')}</span>
+              <span className="h">Sayfa hakkı ekleyin</span>
             </Link>
             <div className="app-user">
-              <span className="app-avatar" aria-hidden="true">{me.email[0]?.toUpperCase()}</span>
-              <span className="app-email" title={me.email}>{me.email}</span>
+              <span className="app-avatar" aria-hidden="true">{(me.name || me.email)[0]?.toLocaleUpperCase('tr-TR')}</span>
+              <span className="app-email" title={me.email}>{me.name || me.email}</span>
               <button type="button" className="app-icon-btn" onClick={signOut} aria-label="Çıkış yapın" title="Çıkış yapın"><IconLogout /></button>
             </div>
           </div>
@@ -94,58 +102,37 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <header className="app-top app-only-sm">
             <button type="button" className="app-icon-btn" onClick={() => setMenu(true)} aria-label="Menüyü açın"><IconMenu /></button>
             <Link href="/hesap" className="app-logo"><LogoMark /><span>SınavOku</span></Link>
-            <Link href="/hesap/paket" className="app-pill">{me.pageBalance} sayfa</Link>
+            <Link href="/hesap/paket" className="app-pill" aria-label={`Sayfa hakkınız: ${me.pageBalance}`}>{me.pageBalance.toLocaleString('tr-TR')} sayfa</Link>
           </header>
-          <main className="app-content">{children}</main>
+          <main className="app-content">
+            {!me.verified && <VerifyBanner api={api} email={me.email} />}
+            {children}
+          </main>
         </div>
       </div>
     </TeacherContext.Provider>
   );
 }
 
-function SignIn({ api, linkFailed }: { api: ReturnType<typeof createApi>; linkFailed: boolean }) {
-  const [email, setEmail] = useState('');
-  const [state, setState] = useState<'idle' | 'busy' | 'sent' | { error: string }>('idle');
-
-  async function submit(e: FormEvent) {
-    e.preventDefault();
-    setState('busy');
-    const r = await api.login(email);
-    setState(r.ok ? 'sent' : { error: r.error });
+function VerifyBanner({ api, email }: { api: ReturnType<typeof createApi>; email: string }) {
+  const toast = useToast();
+  const [busy, setBusy] = useState(false);
+  async function resend() {
+    setBusy(true);
+    const r = await api.resendVerification();
+    setBusy(false);
+    toast(r.ok ? 'Doğrulama bağlantısı yeniden gönderildi.' : r.error, r.ok ? 'success' : 'error');
   }
-
   return (
-    <div className="auth">
-      <div className="auth-card">
-        <Link href="/" className="app-logo"><LogoMark /><span>SınavOku</span></Link>
-        {state === 'sent' ? (
-          <>
-            <h1>E-postanızı kontrol edin</h1>
-            <p className="muted"><strong>{email}</strong> adresine bir giriş bağlantısı gönderdik. Bağlantı 15 dakika geçerli; gelmediyse spam klasörüne bakın.</p>
-            <button type="button" className="btn btn-ghost btn-block" onClick={() => setState('idle')}>Başka bir adres deneyin</button>
-          </>
-        ) : (
-          <>
-            <h1>Öğretmen paneline giriş</h1>
-            <p className="muted">Şifre yok: e-postanıza gelen bağlantıyla giriş yaparsınız. İlk girişte hesabınız açılır.</p>
-            {linkFailed && <p className="console-banner err">Giriş bağlantısı geçersiz ya da süresi dolmuş. Yeni bağlantı isteyin.</p>}
-            <form onSubmit={submit} className="auth-form">
-              <div className="field">
-                <label htmlFor="auth-email">E-posta adresiniz</label>
-                <input id="auth-email" type="email" required autoComplete="email" placeholder="ad.soyad@okul.k12.tr"
-                  value={email} onChange={(e) => setEmail(e.target.value)} />
-              </div>
-              <button type="submit" className="btn btn-primary btn-block" disabled={state === 'busy'}>
-                {state === 'busy' ? 'Gönderiliyor…' : 'Giriş bağlantısı gönderin'}
-              </button>
-              {typeof state === 'object' && <p className="console-banner err">{state.error}</p>}
-            </form>
-          </>
-        )}
-        <p className="auth-foot tiny muted">
-          <Link href="/kullanim-kosullari">Kullanım Koşulları</Link> · <Link href="/kvkk">KVKK Aydınlatma Metni</Link> · <Link href="/gizlilik">Gizlilik</Link>
-        </p>
-      </div>
+    <div className="app-verify" role="status">
+      <svg className="app-verify-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3.5 6.5l8.5 6.5 8.5-6.5" />
+      </svg>
+      <p>
+        <strong>E-posta adresinizi doğrulayın.</strong>{' '}
+        <span><b className="app-verify-mail">{email}</b> adresine gönderdiğimiz bağlantıyı açın; doğrulamadan sınav yüklenemez ve paket alınamaz.</span>
+      </p>
+      <button type="button" className="btn btn-ghost btn-sm" onClick={resend} disabled={busy}>{busy ? 'Gönderiliyor…' : 'Bağlantıyı yeniden gönderin'}</button>
     </div>
   );
 }

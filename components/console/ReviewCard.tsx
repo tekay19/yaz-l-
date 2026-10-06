@@ -108,8 +108,10 @@ function RowEditor({ api, jobId, row, onSaved }: RowProps) {
     <div className="console-review">
       <ReviewPhoto className="console-thumb" src={row.imageUrl} alt={`Kâğıt ${row.seq}`} />
       <div>
-        <p className="small">
-          <strong>Kâğıt {row.seq}</strong> · puan {row.score} (doğru {row.correct}, yanlış {row.wrong}, boş {row.blank})
+        <p className="review-sheet-head">
+          <strong>Kâğıt {row.seq}</strong>
+          <span>Puan {row.score}</span>
+          <span className="muted">doğru {row.correct}, yanlış {row.wrong}, boş {row.blank}</span>
         </p>
         {row.flags.length > 0 ? (
           <ul className="small console-list console-err">{row.flags.map((f) => <li key={f}>{f}</li>)}</ul>

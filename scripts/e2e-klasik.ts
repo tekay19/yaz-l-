@@ -72,14 +72,13 @@ async function waitStatus(jobId: string, want: string[], ms: number) {
 
 async function main() {
   const problems: string[] = [];
-  // 1. sign in by mail link
-  must(await api('/api/auth/login', json('POST', { email: EMAIL })), [200], 'login');
-  const loginMail = await waitMail((m) => /token=/.test(m.text), 'login link');
-  const token = loginMail.text.match(/token=([A-Za-z0-9_-]+)/)![1];
-  const cb = await api('/api/auth/callback', {
-    method: 'POST', headers: { origin: APP, 'content-type': 'application/x-www-form-urlencoded' }, body: `token=${token}`,
-  });
-  if (cb.status !== 303 || !cookie.startsWith('so_user=')) throw new Error(`callback: ${cb.status}`);
+  // 1. sign up, confirm the address from the mailed link
+  const own = { origin: APP };
+  must(await api('/api/auth/register', { ...json('POST', { name: 'E2E Öğretmen', email: EMAIL, password: 'e2eSifre2026' }), headers: { ...own, 'content-type': 'application/json' } }), [201], 'register');
+  if (!cookie.startsWith('so_user=')) throw new Error('register: no session cookie');
+  const verifyMail = await waitMail((m) => /dogrula\?token=/.test(m.text), 'verify link');
+  const token = verifyMail.text.match(/token=([A-Za-z0-9_-]+)/)![1];
+  must(await api('/api/auth/verify', { ...json('POST', { token }), headers: { ...own, 'content-type': 'application/json' } }), [200], 'verify');
   log('giriş tamam');
 
   // pages are bought through iyzico; here the account is credited directly

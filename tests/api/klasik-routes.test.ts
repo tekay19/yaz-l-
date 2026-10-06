@@ -41,7 +41,7 @@ const sheet = { type: 'klasik-student' as const, read: { isBackSide: false, stud
 
 async function signIn(email = 'ogretmen@okul.k12.tr') {
   const u = await makeUser(state.db, email, 10);
-  state.token = issueSession(u.id);
+  state.token = issueSession(u.id, 0);
   return u;
 }
 async function klasikJob(userId: string, over: Partial<typeof jobs.$inferInsert> = {}) {

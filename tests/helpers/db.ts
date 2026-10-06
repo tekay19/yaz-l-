@@ -12,7 +12,7 @@ export async function testDb(): Promise<Db> {
   return db as unknown as Db;
 }
 
-export async function makeUser(db: Db, email = 'ogretmen@okul.k12.tr', pageBalance = 0) {
-  const [u] = await db.insert(schema.users).values({ email, pageBalance }).returning();
+export async function makeUser(db: Db, email = 'ogretmen@okul.k12.tr', pageBalance = 0, extra: Partial<typeof schema.users.$inferInsert> = {}) {
+  const [u] = await db.insert(schema.users).values({ email, pageBalance, emailVerifiedAt: new Date(), ...extra }).returning();
   return u;
 }

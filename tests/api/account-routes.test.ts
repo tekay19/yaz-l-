@@ -30,7 +30,7 @@ const ctx = (id: string) => ({ params: Promise.resolve({ id }) });
 
 async function signIn(email = 'ogretmen@okul.k12.tr', balance = 10) {
   const u = await makeUser(state.db, email, balance);
-  state.token = issueSession(u.id);
+  state.token = issueSession(u.id, 0);
   return u;
 }
 

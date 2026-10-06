@@ -5,7 +5,7 @@ import { ImageError, checkPhoto, normalizeImage } from '@/lib/images';
 import { addSheet, checkKey, checkStudent, emptyTotals, summarize, type Truth } from '@/lib/eval/metrics';
 
 // Runs the accuracy gate (eval/README.md) over a folder of <name>.jpg +
-// <name>.json pairs. The admin screen at /panel/olcum uses the same metrics.
+// <name>.json pairs.
 const dir = process.argv[2] || 'eval/data';
 const prices = {
   inPerM: Number(process.env.PRICE_IN_PER_M || 5),    // USD per 1M input tokens

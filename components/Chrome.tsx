@@ -39,11 +39,11 @@ export function Lock({ size = 15 }: { size?: number }) {
 
 export function Logo() {
   return (
-    <Link href="/" className="logo">
+    <Link href="/" className="logo" aria-label="SınavOku ana sayfa">
       <span className="logo-mark" aria-hidden="true">
         <Check />
       </span>
-      SınavOku
+      <span className="logo-text">SınavOku</span>
     </Link>
   );
 }
@@ -54,13 +54,15 @@ export function SiteHeader() {
       <div className="wrap">
         <Logo />
         <nav className="head-nav" aria-label="Ana menü">
-          <a href="/#nasil" className="hide-sm">Nasıl çalışır</a>
-          <a href="/#klasik" className="hide-sm">Klasik sınav</a>
-          <a href="/#fiyat" className="hide-sm">Fiyat</a>
-          <a href="/#sss" className="hide-sm">Sorular</a>
-          <Link href="/hesap" className="head-login">Giriş</Link>
-          <Link href="/yukle" className="btn btn-primary btn-sm">
-            Kâğıtlarınızı yükleyin
+          <div className="head-links">
+            <a href="/#nasil">Nasıl çalışır</a>
+            <a href="/#klasik">Klasik sınav</a>
+            <a href="/#fiyat">Fiyat</a>
+            <a href="/#sss">Sorular</a>
+          </div>
+          <Link href="/giris" className="head-login">Giriş yapın</Link>
+          <Link href="/kayit" className="btn btn-primary btn-sm">
+            Ücretsiz başlayın
           </Link>
         </nav>
       </div>
@@ -75,21 +77,18 @@ export function StepHeader({ current }: { current: 1 | 2 | 3 | 4 }) {
     <header className="site-head">
       <div className="wrap">
         <Logo />
-        <div className="stepper" aria-label="Yükleme adımları">
+        <ol className="stepper" aria-label="Yükleme adımları">
           {STEPS.map((label, i) => {
             const n = i + 1;
             const state = n < current ? 'done' : n === current ? 'current' : '';
             return (
-              <span key={label} style={{ display: 'contents' }}>
-                {i > 0 && <span className="line" />}
-                <span className={`s ${state}`}>
-                  <span className="dot">{n < current ? <Check size={11} width={3.5} /> : n}</span>
-                  <span className="txt">{label}</span>
-                </span>
-              </span>
+              <li key={label} className={`s ${state}`} aria-current={n === current ? 'step' : undefined}>
+                <span className="dot">{n < current ? <Check size={11} width={3.5} /> : n}</span>
+                <span className="txt">{label}</span>
+              </li>
             );
           })}
-        </div>
+        </ol>
       </div>
     </header>
   );
@@ -109,8 +108,8 @@ export function SiteFooter({ left, right }: { left?: React.ReactNode; right?: Re
   return (
     <footer className="site-foot">
       <div className="wrap site-foot-main">
-        {left ?? <span className="small muted">SınavOku · erken erişim</span>}
-        {right ?? <span className="small muted">Fotoğraflar yalnızca okuma için işlenir, en geç 7 gün içinde silinir</span>}
+        {left ?? <span className="small muted">SınavOku erken erişimde.</span>}
+        {right ?? <span className="small muted">Fotoğraflar yalnızca okuma için işlenir, en geç 7 gün içinde silinir.</span>}
       </div>
       <div className="wrap site-foot-legal">
         <LegalLinks />

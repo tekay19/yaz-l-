@@ -36,6 +36,20 @@
       "when": 1791304157075,
       "tag": "0004_classes_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791312637914,
+      "tag": "0005_auth_admin",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791312639947,
+      "tag": "0006_drop_login_tokens",
+      "breakpoints": true
     }
   ]
 }

@@ -5,8 +5,6 @@
 export type Fail = { ok: false; status: number; error: string; body: any };
 export type Result<T> = { ok: true; data: T } | Fail;
 
-export const ADMIN_SESSION_LOST = 'Yönetici oturumu kapanmış. /panel sayfasından yeniden giriş yapın.';
-
 export const withJson = (method: string, body: unknown): RequestInit => ({
   method,
   headers: { 'content-type': 'application/json' },
@@ -32,10 +30,4 @@ export async function request<T>(
     || (typeof body?.error === 'string' && body.error)
     || `${opts.failed ?? 'İstek başarısız'} (${res.status}).`;
   return { ok: false, status: res.status, error, body };
-}
-
-// Whether the panel's admin session is open.
-export async function adminSignedIn(doFetch?: typeof fetch): Promise<boolean> {
-  const r = await request<{ authed?: boolean }>('/api/admin?action=session', {}, { fetch: doFetch });
-  return r.ok && Boolean(r.data?.authed);
 }

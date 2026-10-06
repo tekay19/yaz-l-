@@ -16,9 +16,21 @@ export const jobStatus = pgEnum('job_status', [
 export const pageKind = pgEnum('page_kind', ['key', 'student']);
 export const pageStatus = pgEnum('page_status', ['uploaded', 'queued', 'reading', 'read', 'failed']);
 
+export type UserRole = 'teacher' | 'admin';
+
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   email: text('email').notNull().unique(),
+  name: text('name').notNull().default(''),
+  // scrypt; null for an account opened before passwords, which sets one
+  // through "şifremi unuttum"
+  passwordHash: text('password_hash'),
+  role: text('role').$type<UserRole>().notNull().default('teacher'),
+  emailVerifiedAt: ts('email_verified_at'),
+  suspendedAt: ts('suspended_at'),
+  // part of every session cookie: bumping it signs the user out everywhere
+  sessionVersion: integer('session_version').notNull().default(0),
+  lastLoginAt: ts('last_login_at'),
   pageBalance: integer('page_balance').notNull().default(0),
   settings: jsonb('settings').$type<UserSettings>().notNull().default({}),
   createdAt: ts('created_at').notNull().defaultNow(),
@@ -35,13 +47,16 @@ export const classes = pgTable('classes', {
   updatedAt: ts('updated_at').notNull().defaultNow(),
 }, (t) => [uniqueIndex('classes_user_name').on(t.userId, t.name)]);
 
-export const loginTokens = pgTable('login_tokens', {
+// One-time links sent by e-mail: confirming the address, resetting the
+// password. Only the sha256 of the token is stored.
+export const authTokens = pgTable('auth_tokens', {
   tokenHash: text('token_hash').primaryKey(),
-  email: text('email').notNull(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  purpose: text('purpose').$type<'verify' | 'reset'>().notNull(),
   expiresAt: ts('expires_at').notNull(),
   usedAt: ts('used_at'),
   createdAt: ts('created_at').notNull().defaultNow(),
-});
+}, (t) => [index('auth_tokens_user').on(t.userId, t.purpose)]);
 
 export const jobs = pgTable('jobs', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -75,7 +90,7 @@ export const jobs = pgTable('jobs', {
   rubricDraftAttempts: integer('rubric_draft_attempts').notNull().default(0),
   rubricNotifiedAt: ts('rubric_notified_at'),
   reviewRemindedAt: ts('review_reminded_at'),
-  failReason: text('fail_reason').$type<'key_failed' | 'rubric_expired' | 'review_expired'>(),
+  failReason: text('fail_reason').$type<'key_failed' | 'rubric_expired' | 'review_expired' | 'admin_closed'>(),
 }, (t) => [index('jobs_user').on(t.userId), index('jobs_status').on(t.status)]);
 
 export const pages = pgTable('pages', {
@@ -108,7 +123,7 @@ export const ledger = pgTable('ledger', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   delta: integer('delta').notNull(),
-  reason: text('reason').$type<'purchase' | 'job_reserve' | 'job_refund' | 'admin_grant'>().notNull(),
+  reason: text('reason').$type<'purchase' | 'job_reserve' | 'job_refund' | 'admin_grant' | 'admin_debit'>().notNull(),
   ref: text('ref').notNull(),
   createdAt: ts('created_at').notNull().defaultNow(),
 }, (t) => [uniqueIndex('ledger_reason_ref').on(t.reason, t.ref)]);
@@ -140,3 +155,15 @@ export const events = pgTable('events', {
   vw: doublePrecision('vw'),
   ua: text('ua').notNull().default(''),
 }, (t) => [index('events_ts').on(t.ts)]);
+
+// What an admin did from the panel, kept after the admin's account is gone.
+export const adminActions = pgTable('admin_actions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  adminId: uuid('admin_id').references(() => users.id, { onDelete: 'set null' }),
+  adminEmail: text('admin_email').notNull(),
+  action: text('action').notNull(),
+  targetType: text('target_type').notNull(),
+  targetId: text('target_id').notNull(),
+  detail: jsonb('detail').$type<Record<string, unknown>>().notNull().default({}),
+  createdAt: ts('created_at').notNull().defaultNow(),
+}, (t) => [index('admin_actions_created').on(t.createdAt)]);

@@ -8,62 +8,29 @@ import { PACKS, tl } from '@/lib/packs';
 
 const OFFER = PACKS['Başlangıç'];
 
-export function Roles() {
+export function Steps() {
   return (
     <section className="lp-section" id="nasil">
       <div className="wrap">
         <header className="lp-head">
-          <p className="lp-eyebrow">İş bölümü</p>
-          <h2>Okumayı SınavOku yapar. Son sözü siz söylersiniz.</h2>
-        </header>
-        <div className="lp-roles">
-          <div className="lp-role">
-            <h3><span className="lp-tag green">SınavOku</span></h3>
-            <ol>
-              <li><strong>Her satırı olduğu gibi okur.</strong> Yazım hatasını düzeltmez, eksik adımı kendisi tamamlamaz.</li>
-              <li><strong>Cevabı ölçütlerinizle karşılaştırır.</strong> Verdiği her puan için kâğıttan alıntı gösterir.</li>
-              <li><strong>Emin olmadığını tahmin etmez,</strong> size işaretler: okunamayan kelime, şüpheli isim, anahtarda olmayan bir fikir.</li>
-              <li><strong>Puan listesini ve sınıf analizini hazırlar.</strong></li>
-            </ol>
-          </div>
-          <div className="lp-role you">
-            <h3><span className="lp-tag ink">Siz</span></h3>
-            <ol>
-              <li><strong>Kâğıtları ve anahtarı telefonla çekersiniz.</strong> Bulanık bir fotoğrafı sistem o an söyler.</li>
-              <li><strong>Klasik sınavda puanlama ölçütlerini onaylarsınız.</strong> Anahtarınızdan taslak hazırlanır, siz düzenlersiniz.</li>
-              <li><strong>Yalnızca işaretli yerlere bakarsınız.</strong> İsterseniz bir puanı değiştirir ya da bir cevabı kabul edersiniz.</li>
-              <li><strong>Onayladığınız puanlar rapora geçer.</strong></li>
-            </ol>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-export function Steps() {
-  return (
-    <section className="lp-section lp-paper">
-      <div className="wrap">
-        <header className="lp-head">
-          <p className="lp-eyebrow">Nasıl çalışır</p>
-          <h2>Dört adım, bir sınıf.</h2>
+          <h2>Dört adımda bir sınıfın kâğıtları.</h2>
+          <p className="lp-lead">Kâğıtları telefonla çekersiniz, SınavOku okur ve puan önerir, siz yalnızca işaretli yerlere bakarsınız.</p>
         </header>
         <ol className="lp-steps">
           <li>
-            <span className="lp-step-n">1</span>
+            <span className="lp-step-n" aria-hidden="true">1</span>
             <h3>Kâğıtları yükleyin</h3>
             <p>Telefonun kamerasıyla, birkaç kâğıt birden. Her fotoğraf yüklenirken kontrol edilir.</p>
             <div className="lp-frag" aria-hidden="true">
               <div className="lp-thumbs">
                 <span className="lp-thumb ok">uygun</span>
                 <span className="lp-thumb ok">uygun</span>
-                <span className="lp-thumb bad">bulanık · yeniden çekin</span>
+                <span className="lp-thumb bad">bulanık, yeniden çekin</span>
               </div>
             </div>
           </li>
           <li>
-            <span className="lp-step-n">2</span>
+            <span className="lp-step-n" aria-hidden="true">2</span>
             <h3>Ölçütleri onaylayın</h3>
             <p>Klasik sınavda anahtarınızdan puanlama ölçütleri çıkar. Puanları ve kabul edilecek cevapları siz belirlersiniz.</p>
             <div className="lp-frag" aria-hidden="true">
@@ -72,16 +39,16 @@ export function Steps() {
             </div>
           </li>
           <li>
-            <span className="lp-step-n">3</span>
+            <span className="lp-step-n" aria-hidden="true">3</span>
             <h3>İşaretli yerlere bakın</h3>
             <p>Bütün kâğıtları değil, yalnızca sistemin size sorduğu yerleri kontrol edersiniz.</p>
             <div className="lp-frag" aria-hidden="true">
-              <div className="lp-flag"><span className="dot" />Mert K. · 3. soru<em>okuma belirsiz</em></div>
-              <div className="lp-flag"><span className="dot" />Zeynep A. · 5. soru<em>anahtarda yok, doğru</em></div>
+              <div className="lp-flag"><span>Mert K., 3. soru</span><em>okuma belirsiz</em></div>
+              <div className="lp-flag"><span>Zeynep A., 5. soru</span><em>anahtarda yok, doğru</em></div>
             </div>
           </li>
           <li>
-            <span className="lp-step-n">4</span>
+            <span className="lp-step-n" aria-hidden="true">4</span>
             <h3>Sonuçları alın</h3>
             <p>Puan listesi, soru soru başarı ve sınıf özeti. Panelden indirin; e-postanıza da gelir.</p>
             <div className="lp-frag" aria-hidden="true">
@@ -96,13 +63,44 @@ export function Steps() {
   );
 }
 
+export function Roles() {
+  return (
+    <section className="lp-section" id="is-bolumu">
+      <div className="wrap">
+        <header className="lp-head">
+          <h2>Okumayı SınavOku yapar. Son sözü siz söylersiniz.</h2>
+        </header>
+        <div className="lp-roles">
+          <div className="lp-role">
+            <h3>SınavOku</h3>
+            <ul>
+              <li><strong>Her satırı olduğu gibi okur.</strong> Yazım hatasını düzeltmez, eksik adımı kendisi tamamlamaz.</li>
+              <li><strong>Cevabı ölçütlerinizle karşılaştırır.</strong> Verdiği her puan için kâğıttan alıntı gösterir.</li>
+              <li><strong>Emin olmadığını tahmin etmez,</strong> size işaretler: okunamayan kelime, şüpheli isim, anahtarda olmayan bir fikir.</li>
+              <li><strong>Puan listesini ve sınıf analizini hazırlar.</strong></li>
+            </ul>
+          </div>
+          <div className="lp-role you">
+            <h3>Siz</h3>
+            <ul>
+              <li><strong>Kâğıtları ve anahtarı telefonla çekersiniz.</strong> Bulanık bir fotoğrafı sistem o an söyler.</li>
+              <li><strong>Klasik sınavda puanlama ölçütlerini onaylarsınız.</strong> Anahtarınızdan taslak hazırlanır, siz düzenlersiniz.</li>
+              <li><strong>Yalnızca işaretli yerlere bakarsınız.</strong> İsterseniz bir puanı değiştirir ya da bir cevabı kabul edersiniz.</li>
+              <li><strong>Onayladığınız puanlar rapora geçer.</strong></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function KlasikSpotlight() {
   return (
     <section className="lp-section" id="klasik">
       <div className="wrap lp-split">
         <div>
-          <p className="lp-eyebrow">Klasik sınavlar</p>
-          <h2>Puanın gerekçesi kâğıdın üstünde.</h2>
+          <h2>Klasik sınavda puanın gerekçesi kâğıdın üstünde.</h2>
           <p className="lp-lead">
             Açık uçlu cevapta SınavOku tek bir not vermez; cevabı ölçüt ölçüt değerlendirir ve her kararı
             öğrencinin kendi yazdığıyla gösterir. Siz bir bakışta neden o puanı aldığını görürsünüz.
@@ -116,7 +114,7 @@ export function KlasikSpotlight() {
           </ul>
         </div>
         <figure className="lp-sheet" aria-label="Örnek değerlendirme: bir denklem sorusu">
-          <figcaption className="lp-sheet-q">3. <span>2x + 3 = 11 denklemini işlem yaparak çözünüz.</span> <b>10 puan</b></figcaption>
+          <figcaption className="lp-sheet-q"><span className="n">3.</span><span>2x + 3 = 11 denklemini işlem yaparak çözünüz.</span><b>10 puan</b></figcaption>
           <div className="lp-hand">
             <p>2x + 3 = 11</p>
             <p>2x = 11 − 3</p>
@@ -125,7 +123,7 @@ export function KlasikSpotlight() {
           </div>
           <div className="lp-verdicts">
             <div className="lp-v met"><span className="lp-v-label">Denklemi doğru düzenler</span><q>2x = 11 − 3</q><b>3 / 3</b></div>
-            <div className="lp-v met"><span className="lp-v-label">x&apos;i yalnız bırakır <i>bölmede işlem hatası; yöntem doğru, puan kalır</i></span><q>x = 5</q><b>3 / 3</b></div>
+            <div className="lp-v met"><span className="lp-v-label">x&apos;i yalnız bırakır <i>Bölmede işlem hatası; yöntem doğru, puan kalır.</i></span><q>x = 5</q><b>3 / 3</b></div>
             <div className="lp-v miss"><span className="lp-v-label">Sonuç doğru</span><q>x = 5</q><b>0 / 4</b></div>
           </div>
           <div className="lp-total"><span>Önerilen puan</span><b>6 / 10</b></div>
@@ -135,14 +133,16 @@ export function KlasikSpotlight() {
   );
 }
 
+const BARS: [number, number][] = [[1, 92], [2, 81], [3, 64], [4, 23], [5, 77]];
+
 export function Results() {
   return (
-    <section className="lp-section lp-paper" id="sonuclar">
+    <section className="lp-section" id="sonuclar">
       <div className="wrap lp-split reverse">
-        <div className="lp-panel" aria-label="Örnek sonuç ekranı">
+        <div className="lp-panel" role="img" aria-label="Örnek sonuç ekranı: 28 öğrenci, ortalama 71,4; 4. soruyu sınıfın yüzde 23'ü yapabildi">
           <div className="lp-panel-top">
-            <span>9-B Matematik · 1. yazılı</span>
-            <span className="lp-tag green">Tamamlandı</span>
+            <span>9-B Matematik, 1. yazılı</span>
+            <span className="lp-tag">Tamamlandı</span>
           </div>
           <div className="lp-panel-stats">
             <div><span>Öğrenci</span><b>28</b></div>
@@ -150,15 +150,14 @@ export function Results() {
             <div><span>En yüksek</span><b>98</b></div>
           </div>
           <p className="lp-panel-h">Soru başarısı</p>
-          {[['1', 92], ['2', 81], ['3', 64], ['4', 23], ['5', 77]].map(([q, p]) => (
-            <div key={q} className={`lp-bar${Number(p) < 50 ? ' low' : ''}`}>
+          {BARS.map(([q, p]) => (
+            <div key={q} className={`lp-bar${p < 50 ? ' low' : ''}`}>
               <span>{q}. soru</span><i><em style={{ width: `${p}%` }} /></i><b>%{p}</b>
             </div>
           ))}
           <p className="lp-panel-note">4. soruyu sınıfın dörtte biri yapabildi.</p>
         </div>
         <div>
-          <p className="lp-eyebrow">Sonuçlar ve panel</p>
           <h2>Sınıfın nerede takıldığını görün.</h2>
           <p className="lp-lead">
             Her sınavın sonuçları öğretmen panelinizde: öğrenci puanları, soru soru başarı, puan dağılımı.
@@ -189,7 +188,6 @@ export function Details() {
     <section className="lp-section" id="ozellikler">
       <div className="wrap">
         <header className="lp-head">
-          <p className="lp-eyebrow">Ayrıntılar</p>
           <h2>Gerçek bir sınıfın kâğıtları için yapıldı.</h2>
         </header>
         <dl className="lp-details">
@@ -213,11 +211,10 @@ const FAQ = [
 
 export function Faq() {
   return (
-    <section className="lp-section lp-paper" id="sss">
+    <section className="lp-section" id="sss">
       <div className="wrap lp-faq-wrap">
         <header className="lp-head">
-          <p className="lp-eyebrow">Sorular</p>
-          <h2>Öğretmenlerin ilk sorduğu şeyler.</h2>
+          <h2>Öğretmenlerin ilk sorduğu şeyler</h2>
         </header>
         <div className="lp-faq">
           {FAQ.map(([q, a]) => (
@@ -235,11 +232,13 @@ export function Faq() {
 export function Closing() {
   return (
     <section className="lp-closing">
-      <div className="wrap">
-        <h2>Bu hafta okunacak kâğıdınız var mı?</h2>
-        <p>İlk siparişe özel {OFFER.pages} sayfa {tl(OFFER.price)}. Abonelik yok.</p>
+      <div className="wrap lp-closing-inner">
+        <div>
+          <h2>Bu hafta okunacak kâğıdınız var mı?</h2>
+          <p>İlk siparişinizde {OFFER.pages} sayfa {tl(OFFER.price)}. Abonelik yok.</p>
+        </div>
         <div className="lp-cta-row">
-          <Link href="/yukle" className="btn lp-btn-light">Kâğıtlarınızı yükleyin</Link>
+          <Link href="/yukle" className="btn lp-btn lp-btn-light">Kâğıtlarınızı yükleyin</Link>
           <Link href="/hesap" className="lp-link-light">Hesabınıza giriş yapın</Link>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import type { JobView } from '@/components/console/api';
+import { IconArrowLeft } from './icons';
 
 // The building blocks every screen of the panel is made of.
 
@@ -10,7 +11,7 @@ export function PageHeader({ title, sub, actions, back }: {
 }) {
   return (
     <div className="app-head">
-      {back && <Link href={back.href} className="app-back">← {back.label}</Link>}
+      {back && <Link href={back.href} className="app-back"><IconArrowLeft size={15} />{back.label}</Link>}
       <div className="app-head-row">
         <div>
           <h1>{title}</h1>
@@ -22,7 +23,7 @@ export function PageHeader({ title, sub, actions, back }: {
   );
 }
 
-export function Stat({ label, value, hint, tone }: { label: string; value: React.ReactNode; hint?: React.ReactNode; tone?: 'warn' | 'good' }) {
+export function Stat({ label, value, hint, tone }: { label: string; value: React.ReactNode; hint?: React.ReactNode; tone?: 'warn' | 'good' | 'attention' }) {
   return (
     <div className={`app-stat${tone ? ` ${tone}` : ''}`}>
       <span className="k">{label}</span>

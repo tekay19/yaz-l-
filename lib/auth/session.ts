@@ -14,21 +14,35 @@ export const sessionConfigured = () => secret() !== null;
 const sign = (value: string, key: string) =>
   crypto.createHmac('sha256', key).update(value).digest('base64url');
 
-// Format: <userId>.<expiryEpochSeconds>.<hmac>
-export function issueSession(userId: string, now = Date.now()): string {
+export type SessionClaim = { userId: string; version: number };
+
+// Format: <userId>.<sessionVersion>.<expiryEpochSeconds>.<hmac>. The version
+// is checked against the user row on every request, so a password change,
+// a reset or a suspension ends every cookie issued before it.
+export function issueSession(userId: string, version: number, now = Date.now()): string {
   const key = secret();
   if (!key) throw new Error('SESSION_SECRET is missing or shorter than 32 characters');
   const exp = String(Math.floor(now / 1000) + SESSION_TTL_DAYS * 86_400);
-  return `${userId}.${exp}.${sign(`${userId}.${exp}`, key)}`;
+  const body = `${userId}.${version}.${exp}`;
+  return `${body}.${sign(body, key)}`;
 }
 
-export function verifySession(token: string | undefined, now = Date.now()): string | null {
+export function verifySession(token: string | undefined, now = Date.now()): SessionClaim | null {
   const key = secret();
   if (!key || !token) return null;
-  const [userId, exp, mac] = token.split('.');
-  if (!userId || !exp || !mac || !/^\d+$/.test(exp)) return null;
+  const [userId, version, exp, mac, extra] = token.split('.');
+  if (!userId || !version || !exp || !mac || extra !== undefined) return null;
+  if (!/^\d+$/.test(version) || !/^\d+$/.test(exp)) return null;
   if (Number(exp) * 1000 < now) return null;
   const a = Buffer.from(mac);
-  const b = Buffer.from(sign(`${userId}.${exp}`, key));
-  return a.length === b.length && crypto.timingSafeEqual(a, b) ? userId : null;
+  const b = Buffer.from(sign(`${userId}.${version}.${exp}`, key));
+  return a.length === b.length && crypto.timingSafeEqual(a, b) ? { userId, version: Number(version) } : null;
 }
+
+export const sessionCookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax' as const,
+  path: '/',
+  maxAge: SESSION_TTL_DAYS * 86_400,
+});

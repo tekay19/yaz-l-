@@ -41,13 +41,13 @@ export default function PhotoDrop({ title, hint, busy, full = false, single = fa
       <p className="small muted">{hint}</p>
       <div className="drop-actions">
         <button type="button" className="btn btn-primary btn-sm" disabled={off} onClick={() => camera.current?.click()}>
-          Kamerayla çek
+          Kamerayla çekin
         </button>
         <button type="button" className="btn btn-ghost btn-sm" disabled={off} onClick={() => gallery.current?.click()}>
-          {single ? 'Fotoğraf seç' : `Fotoğraf seç (en fazla ${PER_PICK})`}
+          {single ? 'Fotoğraf seçin' : `Fotoğraf seçin (en fazla ${PER_PICK})`}
         </button>
       </div>
-      {busy && <p className="tiny muted">Fotoğraflar yükleniyor ve kontrol ediliyor…</p>}
+      <p className="tiny muted drop-status" aria-live="polite">{busy ? 'Fotoğraflar yükleniyor ve kontrol ediliyor…' : ''}</p>
       <input ref={gallery} type="file" accept={ACCEPT} multiple={!single} hidden
         onChange={(e) => { take(e.target.files); e.target.value = ''; }} />
       <input ref={camera} type="file" accept="image/*" capture="environment" hidden

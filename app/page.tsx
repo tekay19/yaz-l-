@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { SiteFooter, SiteHeader } from '@/components/Chrome';
 import Hero from '@/components/landing/Hero';
 import { Closing, Details, Faq, KlasikSpotlight, Results, Roles, Steps } from '@/components/landing/Sections';
@@ -13,8 +12,8 @@ export default function Home() {
       <SiteHeader />
       <main className="lp-main">
         <Hero />
-        <Roles />
         <Steps />
+        <Roles />
         <KlasikSpotlight />
         <Results />
         <Details />
@@ -23,11 +22,11 @@ export default function Home() {
         <Closing />
       </main>
       <SiteFooter
-        left={<span className="small muted">SınavOku · erken erişim</span>}
+        left={<span className="small muted">SınavOku erken erişimde.</span>}
         right={
           <span className="small muted">
             Destek:{' '}
-            <Link href="mailto:admin@zakrom.com" style={{ color: 'var(--board)', fontWeight: 600 }}>admin@zakrom.com</Link>
+            <a href="mailto:admin@zakrom.com" className="foot-mail">admin@zakrom.com</a>
           </span>
         }
       />

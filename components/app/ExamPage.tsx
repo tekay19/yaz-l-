@@ -13,7 +13,7 @@ import ReviewCard from '@/components/console/ReviewCard';
 import { useTeacher } from './context';
 import { IconAlert, IconCheck, IconClock, IconDownload } from './icons';
 import ResultsView from './ResultsView';
-import { Badge, Empty, PageHeader, StatusBadge, Tabs, dateTr, isActive, statusOf } from './ui';
+import { Empty, PageHeader, StatusBadge, Tabs, dateTr, isActive, statusOf } from './ui';
 
 type Tab = 'durum' | 'olcutler' | 'kontrol' | 'sonuclar';
 const HAS_RESULTS = new Set(['review', 'delivering', 'done']);
@@ -116,8 +116,8 @@ export default function ExamPage({ id }: { id: string }) {
     const total = job.pages.students;
     const doneN = job.pages.read + job.pages.failed;
     body = (
-      <div className="app-grid-2 wide-left">
-        <section className="app-card">
+      <div className="app-card app-split wide-left">
+        <section>
           <h2>Durum</h2>
           <ol className="app-steps">
             {steps(job).map((s) => (
@@ -128,24 +128,24 @@ export default function ExamPage({ id }: { id: string }) {
             ))}
           </ol>
           {job.status === 'failed' && (
-            <p className="console-banner err"><IconAlert size={15} /> Cevap anahtarı okunamadı; kullanılan sayfa hakkı iade edildi. Anahtarı daha net çekip sınavı yeniden yükleyin.</p>
+            <p className="console-banner err app-banner-icon"><IconAlert size={16} /> Cevap anahtarı okunamadı; kullanılan sayfa hakkı iade edildi. Anahtarı daha net çekip sınavı yeniden yükleyin.</p>
           )}
           {meta.action && meta.tab && job.status !== 'done' && (
-            <button type="button" className="btn btn-primary" style={{ marginTop: 18 }} onClick={() => setTab(meta.tab as Tab)}>{meta.action}</button>
+            <button type="button" className="btn btn-primary app-step-cta" onClick={() => setTab(meta.tab as Tab)}>{meta.action}</button>
           )}
         </section>
-        <section className="app-card">
+        <section>
           <h2>Kâğıtlar</h2>
           <dl className="app-dl">
             <div><dt>Öğrenci sayfası</dt><dd>{total}</dd></div>
             <div><dt>Okunan</dt><dd>{job.pages.read}</dd></div>
-            <div><dt>Okunamayan</dt><dd>{job.pages.failed}{job.pages.failed ? <span className="muted small"> · hakkı iade</span> : null}</dd></div>
+            <div><dt>Okunamayan</dt><dd className={job.pages.failed ? 'app-attn' : undefined}>{job.pages.failed}{job.pages.failed ? <span className="app-dd-note">hakkı iade edildi</span> : null}</dd></div>
             <div><dt>Cevap anahtarı</dt><dd>{job.pages.key ? `${job.pages.key} fotoğraf` : 'yazılı metin'}</dd></div>
           </dl>
           {isActive(job) && total > 0 && (
             <>
-              <div className="app-progress big"><span style={{ width: `${Math.round((doneN / total) * 100)}%` }} /></div>
-              <p className="tiny muted" style={{ marginTop: 6 }}>{doneN} / {total} sayfa okundu · sayfa kendini yeniliyor</p>
+              <div className="app-progress big" role="progressbar" aria-label="Okunan sayfa" aria-valuemin={0} aria-valuemax={total} aria-valuenow={doneN}><span style={{ width: `${Math.round((doneN / total) * 100)}%` }} /></div>
+              <p className="app-note">{doneN} / {total} sayfa okundu. Bu sayfa kendini yeniler.</p>
             </>
           )}
         </section>
@@ -158,7 +158,7 @@ export default function ExamPage({ id }: { id: string }) {
       <PageHeader
         back={{ href: '/hesap', label: 'Sınavlarım' }}
         title={job.title || 'Adsız sınav'}
-        sub={<><Badge tone="grey">{klasik ? 'Klasik' : 'Çoktan seçmeli'}</Badge> <StatusBadge status={job.status} rubricApproved={job.rubricApproved} /> <span className="muted"> · {dateTr(job.createdAt, true)}</span></>}
+        sub={<><StatusBadge status={job.status} rubricApproved={job.rubricApproved} /><span className="app-meta"><span>{klasik ? 'Klasik' : 'Çoktan seçmeli'}</span><span>{dateTr(job.createdAt, true)}</span></span></>}
         actions={reports || undefined}
       />
       <Tabs tabs={tabs} value={tabs.some((t) => t.id === tab) ? tab : 'durum'} onChange={setTab} />

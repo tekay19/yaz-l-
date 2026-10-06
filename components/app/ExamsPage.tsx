@@ -6,8 +6,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { JobView } from '@/components/console/api';
 import { useTeacher } from './context';
-import { IconArrowRight, IconCheck, IconPlus, IconSearch } from './icons';
-import { Badge, Empty, PageHeader, Stat, StatusBadge, dateTr, examHref, isActive, needsTeacher, num, statusOf } from './ui';
+import { IconCheck, IconPlus, IconSearch } from './icons';
+import { Empty, PageHeader, Stat, StatusBadge, dateTr, examHref, isActive, needsTeacher, num, statusOf } from './ui';
 
 type Filter = 'all' | 'waiting' | 'reading' | 'done' | 'draft';
 const FILTERS: { id: Filter; label: string; match: (j: JobView) => boolean }[] = [
@@ -61,22 +61,26 @@ export default function ExamsPage() {
 
       <div className="app-stats">
         <Stat label="Sayfa hakkınız" value={num(me.pageBalance)} hint={<Link href="/hesap/paket">Paket alın</Link>} />
-        <Stat label="Sizi bekleyen" value={waiting.length} tone={waiting.length ? 'warn' : undefined} hint={waiting.length ? 'onay ya da kontrol' : 'her şey yolunda'} />
+        <Stat label="Sizi bekleyen" value={waiting.length} tone={waiting.length ? 'attention' : undefined} hint={waiting.length ? 'onay ya da kontrol' : 'şu an yok'} />
         <Stat label="Bu ay okunan sayfa" value={num(thisMonth)} />
         <Stat label="Tamamlanan sınav" value={(jobs ?? []).filter((j) => j.status === 'done').length} tone="good" />
       </div>
 
       {waiting.length > 0 && (
-        <section className="app-card app-todo">
-          <h2>Sizi bekleyenler</h2>
+        <section className="app-card app-todo" aria-labelledby="todo-h">
+          <h2 id="todo-h">Sizi bekleyenler <span className="app-pen-count" aria-label={`${waiting.length} sınav`}>{waiting.length}</span></h2>
           <ul>
             {waiting.map((j) => (
               <li key={j.id}>
-                <div>
-                  <strong>{j.title || 'Adsız sınav'}</strong>
-                  <span className="muted small"> · {j.pages.students} sayfa · {dateTr(j.createdAt)}</span>
+                <div className="app-todo-text">
+                  <Link href={examHref(j)} className="app-row-title">{j.title || 'Adsız sınav'}</Link>
+                  <span className="app-meta">
+                    <span>{statusOf(j.status).label}</span>
+                    <span>{j.pages.students} sayfa</span>
+                    <span>{dateTr(j.createdAt)}</span>
+                  </span>
                 </div>
-                <Link href={examHref(j)} className="btn btn-sm btn-primary">{statusOf(j.status).action} <IconArrowRight size={15} /></Link>
+                <Link href={examHref(j)} className="btn btn-sm btn-primary">{statusOf(j.status).action}</Link>
               </li>
             ))}
           </ul>
@@ -85,11 +89,11 @@ export default function ExamsPage() {
 
       <section className="app-card app-flush">
         <div className="app-toolbar">
-          <div className="app-chips" role="group" aria-label="Süzgeç">
+          <div className="app-chips" role="group" aria-label="Sınavları süzün">
             {FILTERS.map((f) => {
               const n = (jobs ?? []).filter(f.match).length;
               return (
-                <button key={f.id} type="button" className={filter === f.id ? 'on' : undefined} onClick={() => setFilter(f.id)}>
+                <button key={f.id} type="button" className={filter === f.id ? 'on' : undefined} aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
                   {f.label}{f.id !== 'all' && n ? <span>{n}</span> : null}
                 </button>
               );
@@ -97,7 +101,7 @@ export default function ExamsPage() {
           </div>
           <label className="app-search">
             <IconSearch size={16} />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Sınav ara" aria-label="Sınav ara" />
+            <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Sınav adıyla arayın" aria-label="Sınav adıyla arayın" />
           </label>
         </div>
 
@@ -122,18 +126,21 @@ export default function ExamsPage() {
                   <tr key={j.id}>
                     <td>
                       <Link href={examHref(j)} className="app-row-title">{j.title || 'Adsız sınav'}</Link>
-                      <div className="app-row-sub"><Badge tone="grey">{j.mode === 'klasik' ? 'Klasik' : 'Çoktan seçmeli'}</Badge></div>
+                      <div className="app-row-sub">{j.mode === 'klasik' ? 'Klasik' : 'Çoktan seçmeli'}</div>
                     </td>
                     <td>
                       <StatusBadge status={j.status} />
                       {isActive(j) && j.pages.students > 0 && (
-                        <div className="app-progress" title={`${j.pages.read + j.pages.failed} / ${j.pages.students}`}>
+                        <div className="app-progress" role="progressbar" aria-label="Okunan sayfa" aria-valuemin={0} aria-valuemax={j.pages.students} aria-valuenow={j.pages.read + j.pages.failed} title={`${j.pages.read + j.pages.failed} / ${j.pages.students}`}>
                           <span style={{ width: `${Math.round(((j.pages.read + j.pages.failed) / j.pages.students) * 100)}%` }} />
                         </div>
                       )}
                     </td>
-                    <td className="num">{j.pages.students}{j.pages.failed ? <span className="app-row-sub"> {j.pages.failed} okunamadı</span> : null}</td>
-                    <td className="muted">{dateTr(j.createdAt)}</td>
+                    <td className="num">
+                      {j.pages.students}
+                      {j.pages.failed ? <div className="app-row-sub app-attn">{j.pages.failed} okunamadı</div> : null}
+                    </td>
+                    <td className="app-date">{dateTr(j.createdAt)}</td>
                     <td className="right">
                       <Link href={examHref(j)} className={`btn btn-sm ${needsTeacher(j) ? 'btn-primary' : 'btn-ghost'}`}>
                         {statusOf(j.status).action ?? 'Aç'}
@@ -155,14 +162,15 @@ function Onboarding({ steps }: { steps: { done: boolean; title: string; text: st
   const next = steps.findIndex((s) => !s.done);
   return (
     <div className="app-onboard">
-      <h2>Hoş geldiniz. Üç adımda ilk sınıfınızın sonuçları hazır.</h2>
+      <h2>Hoş geldiniz</h2>
+      <p className="app-onboard-sub">Üç adımda ilk sınıfınızın sonuçları hazır olur.</p>
       <ol>
         {steps.map((s, i) => (
           <li key={s.title} className={s.done ? 'done' : i === next ? 'next' : undefined}>
-            <span className="n">{s.done ? <IconCheck size={15} /> : i + 1}</span>
+            <span className="n" aria-hidden={s.done || undefined}>{s.done ? <IconCheck size={15} /> : i + 1}</span>
             <div>
-              <strong>{s.title}</strong>
-              <p className="small muted">{s.text}</p>
+              <strong>{s.done && <span className="sr-only">Tamamlandı: </span>}{s.title}</strong>
+              <p>{s.text}</p>
             </div>
             {!s.done && <Link href={s.href} className={`btn btn-sm ${i === next ? 'btn-primary' : 'btn-ghost'}`}>{s.cta}</Link>}
           </li>

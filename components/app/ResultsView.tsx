@@ -30,12 +30,12 @@ export default function ResultsView({ r }: { r: ExamResults }) {
       <div className="app-stats">
         <Stat label="Öğrenci" value={r.stats.count} />
         <Stat label="Sınıf ortalaması" value={`${klasik ? '%' : ''}${num(r.stats.average, 1)}`} hint={klasik ? '100 üzerinden' : 'puan'} />
-        <Stat label="En yüksek" value={num(r.stats.max, 1)} tone="good" />
+        <Stat label="En yüksek" value={num(r.stats.max, 1)} />
         <Stat label="En düşük" value={num(r.stats.min, 1)} />
       </div>
 
-      <div className="app-grid-2">
-        <section className="app-card">
+      <div className="app-card app-split">
+        <section>
           <h2>Puan dağılımı</h2>
           <div className="app-bars">
             {r.stats.buckets.map((b) => (
@@ -47,7 +47,7 @@ export default function ResultsView({ r }: { r: ExamResults }) {
             ))}
           </div>
         </section>
-        <section className="app-card">
+        <section>
           <h2>Soru başarısı</h2>
           <div className="app-bars">
             {r.questions.map((q) => (
@@ -59,7 +59,7 @@ export default function ResultsView({ r }: { r: ExamResults }) {
             ))}
           </div>
           {hardest.length > 0 && (
-            <p className="small muted" style={{ marginTop: 12 }}>
+            <p className="app-note">
               En zorlanılan: {hardest.map((q) => `${q.q}. soru`).join(', ')}. Bu konuları sınıfla yeniden ele almak isteyebilirsiniz.
             </p>
           )}
@@ -94,7 +94,7 @@ export default function ResultsView({ r }: { r: ExamResults }) {
                 <tr key={x.pageId}>
                   <td>
                     {x.student}
-                    {x.flags > 0 && <span className="app-dot" title={`${x.flags} yer kontrol edilmeli`} aria-label="kontrol edilmeli" />}
+                    {x.flags > 0 && <span className="app-dot" title={`${x.flags} yer kontrol edilmeli`} role="img" aria-label={`${x.flags} yer kontrol edilmeli`} />}
                   </td>
                   {klasik
                     ? r.questions.map((q) => {
@@ -111,7 +111,7 @@ export default function ResultsView({ r }: { r: ExamResults }) {
       </section>
 
       {r.failed.length > 0 && (
-        <p className="console-banner warn">
+        <p className="console-banner err">
           {r.failed.length} kâğıt okunamadı ({r.failed.map((f) => `kâğıt ${f.seq}`).join(', ')}); bu sayfaların hakkı iade edildi.
         </p>
       )}

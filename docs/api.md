@@ -1,12 +1,22 @@
 # SınavOku API (ön yüz sözleşmesi)
 
-Tüm uçlar JSON döner; hata gövdesi `{ "error": "<Türkçe mesaj>" }`. Oturum `so_user` çerezi ile.
+Tüm uçlar JSON döner; hata gövdesi `{ "error": "<Türkçe mesaj>" }`. Oturum `so_user` çerezi ile (30 gün; şifre değişince, sıfırlanınca ya da hesap askıya alınınca geçersizleşir).
+
+E-postası doğrulanmamış hesap `POST /api/jobs`, `POST /api/jobs/:id/submit` ve `POST /api/pay/checkout` uçlarında 403 `{ error, code: "unverified" }` alır.
+
+Yönetim uçları (`/api/admin/*`) yalnızca `role = admin` olan hesaba açıktır: oturum yoksa 401, öğretmen hesabıyla 403. Değişiklik yapan istekler (GET dışı) yalnızca kendi sitemizden kabul edilir. Uçlar: `overview`, `users`, `users/:id` (POST `action`: pages, suspend, unsuspend, role, verify, reset), `jobs`, `jobs/:id` (POST `action: close`), `payments`, `payments/:id` (POST `action: reconcile`), `analytics` (GET, DELETE), `audit`. Her yönetici işlemi `admin_actions` tablosuna yazılır.
 
 | Uç | Gövde | Başarılı yanıt | Hatalar |
 |---|---|---|---|
-| POST /api/auth/login | `{ email }` | 200 `{ ok: true }` | 400, 429 |
-| GET /api/me | — | `{ email, pageBalance }` | 401 |
+| POST /api/auth/register | `{ name, email, password }` | 201 `{ ok, role }` + oturum çerezi | 400 `{ error, field }`, 403 (başka site), 409 (e-posta kayıtlı), 429 |
+| POST /api/auth/login | `{ email, password }` | 200 `{ ok, role }` + oturum çerezi | 401, 403 (askıda / başka site), 429 |
 | POST /api/auth/logout | — | `{ ok: true }` | — |
+| POST /api/auth/forgot | `{ email }` | 200 `{ ok: true }` (hesap olsun olmasın aynı) | 400, 429 |
+| POST /api/auth/reset | `{ token, password }` | 200 `{ ok, role }` + oturum çerezi | 400, 403, 429 |
+| POST /api/auth/verify | `{ token }` | 200 `{ ok: true }` | 400, 403, 429 |
+| POST /api/auth/verify/resend | — | 200 `{ ok }` | 401, 429 |
+| GET /api/me | — | `{ email, name, role, verified, pageBalance, settings, klasik }` | 401 |
+| POST /api/me/password | `{ current, next }` | 200 `{ ok }` (diğer oturumlar kapanır) | 400 `{ error, field }`, 401 |
 | POST /api/jobs | `{ title, mode: "optik"\|"klasik", klasikMax?: number[] }` | 201 `{ id }` | 400, 401 |
 | GET /api/jobs | — | `JobStatusView[]` | 401 |
 | GET /api/jobs/:id | — | `JobStatusView` | 401, 404 |

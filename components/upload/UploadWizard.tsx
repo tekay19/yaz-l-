@@ -3,14 +3,13 @@
 // The teacher's way in: four screens from an empty exam to a submitted one.
 // Everything lives on the server as a draft from the first screen on — each
 // photo is uploaded and checked the moment it is picked — so a reload, the
-// e-mailed sign-in link or the payment page never loses work: the wizard
+// sign-in page or the payment page never loses work: the wizard
 // reopens at /yukle?sinav=<id> and reads the draft back.
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createApi, type ClassView, type Draft, type Me } from '@/components/console/api';
-import LoginForm from '@/components/console/LoginForm';
 import PackageOptions from '@/components/PackageOptions';
 import { StepHeader, SiteFooter } from '@/components/Chrome';
 import { useToast } from '@/components/Toast';
@@ -204,26 +203,29 @@ export default function UploadWizard() {
   if (me === undefined) {
     body = <p className="empty">Yükleniyor…</p>;
   } else if (me === null) {
+    const back = () => rememberReturn(jobId ? `/yukle?sinav=${jobId}&adim=${step}` : '/yukle');
     body = (
-      <>
-        <p className="small" style={{ marginBottom: 14 }}>
-          Kâğıtlarınız hesabınıza kaydedilir. E-postanıza gelen bağlantıyla giriş yapın; bu sayfaya kaldığınız yerden dönersiniz.
+      <div className="wizard-gate">
+        <p>
+          Kâğıtlarınız hesabınıza kaydedilir. Giriş yaptıktan ya da hesap açtıktan sonra bu sayfaya kaldığınız yerden dönersiniz.
         </p>
-        <div onSubmitCapture={() => rememberReturn(jobId ? `/yukle?sinav=${jobId}&adim=${step}` : '/yukle')}>
-          <LoginForm api={api} linkFailed={false} />
+        <div className="wizard-gate-actions">
+          <Link href="/giris" className="btn btn-primary" onClick={back}>Giriş yapın</Link>
+          <Link href="/kayit" className="btn btn-ghost" onClick={back}>Ücretsiz hesap açın</Link>
         </div>
-      </>
+      </div>
     );
+  } else if (!me.verified) {
+    body = <VerifyFirst api={api} email={me.email} onVerified={loadMe} />;
   } else if (sent !== null && draft) {
     body = (
-      <div className="card" style={{ padding: 24 }}>
-        <h2>Sınavınız gönderildi</h2>
-        <p className="small" style={{ marginTop: 10 }}>
+      <div className="wizard-sent">
+        <p>
           {sent} sayfa hakkı ayrıldı. Kâğıtlar şimdi okunuyor.
           {klasik ? ' Önce cevap anahtarınızdan puanlama ölçütleri hazırlanır ve onayınıza sunulur.' : ' Bitince size e-posta gelir.'}
           {' '}Okunamayan sayfaların hakkı iade edilir.
         </p>
-        <Link href={`/hesap?sinav=${draft.id}`} className="btn btn-primary" style={{ marginTop: 18 }}>Sınavı takip edin</Link>
+        <Link href={`/hesap?sinav=${draft.id}`} className="btn btn-primary">Sınavı takip edin</Link>
       </div>
     );
   } else if (step === 1) {
@@ -252,7 +254,7 @@ export default function UploadWizard() {
             <select className="wizard-select" aria-label="Kayıtlı sınıftan seçin" value=""
               onChange={(e) => { const c = classes.find((x) => x.id === e.target.value); if (c) setRoster(c.students.join('\n')); }}>
               <option value="">Kayıtlı sınıflarınızdan seçin…</option>
-              {classes.map((c) => <option key={c.id} value={c.id}>{c.name} · {c.students.length} öğrenci</option>)}
+              {classes.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.students.length} öğrenci)</option>)}
             </select>
           )}
           <textarea id="exam-roster" className="console-text" value={roster} onChange={(e) => setRoster(e.target.value)}
@@ -314,8 +316,9 @@ export default function UploadWizard() {
     const short = need > balance;
     body = (
       <>
-        <div className="card review-list">
-          <div className="sum-row"><span className="k">Sınav</span><span className="v">{draft?.title || 'Adsız sınav'} · {klasik ? 'Klasik' : 'Çoktan seçmeli'}</span></div>
+        <div className="wizard-review">
+          <div className="sum-row"><span className="k">Sınav</span><span className="v">{draft?.title || 'Adsız sınav'}</span></div>
+          <div className="sum-row"><span className="k">Tür</span><span className="v">{klasik ? 'Klasik' : 'Çoktan seçmeli'}</span></div>
           <div className="sum-row"><span className="k">Cevap anahtarı</span><span className="v">{keyPages.length ? `${keyPages.length} fotoğraf` : 'yazılı metin'}</span></div>
           <div className="sum-row"><span className="k">Öğrenci kâğıdı</span><span className="v">{need} sayfa</span></div>
           <div className="sum-row"><span className="k">Sınıf listesi</span><span className={`v${names.length ? '' : ' missing'}`}>{names.length ? `${names.length} öğrenci` : 'yok'}</span></div>
@@ -366,42 +369,81 @@ export default function UploadWizard() {
               : { label: 'Sınavı gönderin', run: submit, disabled: busy || !consent || (!names.length && !noRoster) };
 
   const stepper = (Math.min(step, 4) as Step);
+  // signed out, unverified or still loading: nothing to summarise or act on yet
+  const ready = Boolean(me && me.verified);
+  const heading = me === undefined ? TITLES[stepper]
+    : me === null ? 'Önce giriş yapın'
+      : !me.verified ? 'E-posta adresinizi doğrulayın'
+        : sent !== null ? 'Sınavınız gönderildi'
+          : TITLES[stepper];
   return (
     <>
       <StepHeader current={stepper} />
       <main className="wizard">
         <div className="wrap">
-          <p className="wizard-count">Adım {stepper} / 4</p>
-          <h1>{signedIn ? TITLES[stepper] : 'Önce giriş yapın'}</h1>
-          <div className="wizard-grid">
+          {ready && sent === null && <p className="wizard-count">Adım {stepper} / 4</p>}
+          <h1>{heading}</h1>
+          <div className={`wizard-grid${ready ? '' : ' solo'}`}>
             <div className="wizard-body">
               {body}
               {error && <p className="console-banner err">{error}</p>}
             </div>
-            <aside className="card summary wizard-aside">
+            {ready && <aside className="wizard-aside" aria-label="Sınavınızın özeti">
               <h2>Sınavınız</h2>
               <div className="sum-row"><span className="k">Tür</span><span className="v">{klasik ? 'Klasik' : 'Çoktan seçmeli'}</span></div>
               <div className="sum-row"><span className="k">Cevap anahtarı</span><span className={`v${hasKey ? '' : ' missing'}`}>{hasKey ? 'Eklendi' : 'Bekliyor'}</span></div>
               <div className="sum-row"><span className="k">Öğrenci sayfası</span><span className={`v${need ? '' : ' missing'}`}>{need || 'Bekliyor'}</span></div>
               <div className="sum-row"><span className="k">Sayfa hakkınız</span><span className="v">{signedIn ? balance : '—'}</span></div>
               {next && (
-                <button type="button" className="btn btn-primary btn-block" style={{ marginTop: 22 }} onClick={next.run} disabled={next.disabled}>
+                <button type="button" className="btn btn-primary btn-block wizard-next" onClick={next.run} disabled={next.disabled}>
                   {next.label}
                 </button>
               )}
-              <p className="tiny muted" style={{ marginTop: 12 }}>
+              <p className="wizard-aside-note">
                 Okunamayan sayfaların hakkı iade edilir. Kâğıt fotoğrafları 7 gün içinde (kontrolünüzü bekleyen sınavda 14 gün) silinir.
               </p>
-            </aside>
+            </aside>}
           </div>
           <p className="wizard-back">
             {step > 1 && signedIn && sent === null
-              ? <button type="button" className="back-link console-link" onClick={() => go((step - 1) as Step)}>← Önceki adım</button>
-              : <Link href={signedIn ? '/hesap' : '/'} className="back-link">← {signedIn ? 'Hesabınıza dönün' : 'Ana sayfaya dönün'}</Link>}
+              ? <button type="button" className="back-link" onClick={() => go((step - 1) as Step)}><BackIcon />Önceki adıma dönün</button>
+              : <Link href={signedIn ? '/hesap' : '/'} className="back-link"><BackIcon />{signedIn ? 'Hesabınıza dönün' : 'Ana sayfaya dönün'}</Link>}
           </p>
         </div>
       </main>
       <SiteFooter />
     </>
+  );
+}
+
+// A new account confirms its e-mail before the first exam: results and
+// receipts go to that address.
+function VerifyFirst({ api, email, onVerified }: { api: ReturnType<typeof createApi>; email: string; onVerified: () => void }) {
+  const toast = useToast();
+  const [busy, setBusy] = useState(false);
+  async function resend() {
+    setBusy(true);
+    const r = await api.resendVerification();
+    setBusy(false);
+    toast(r.ok ? 'Doğrulama bağlantısı yeniden gönderildi.' : r.error, r.ok ? 'success' : 'error');
+  }
+  return (
+    <div className="wizard-gate">
+      <p>
+        <strong>{email}</strong> adresine bir doğrulama bağlantısı gönderdik. Sonuçlar ve makbuzlar bu adrese gelir. Bağlantıyı açtıktan sonra bu sayfaya dönüp devam edin.
+      </p>
+      <div className="wizard-gate-actions">
+        <button type="button" className="btn btn-primary" onClick={onVerified}>Doğruladım, devam edin</button>
+        <button type="button" className="btn btn-ghost" onClick={resend} disabled={busy}>{busy ? 'Gönderiliyor…' : 'Bağlantıyı yeniden gönderin'}</button>
+      </div>
+    </div>
+  );
+}
+
+function BackIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M15 18l-6-6 6-6" />
+    </svg>
   );
 }
