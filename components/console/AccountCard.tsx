@@ -59,7 +59,7 @@ export default function AccountCard({ api, me, onChange, onSignedOut }: Props) {
         ))}
       </div>
       <p className="tiny muted" style={{ marginTop: 8 }}>
-        iyzico&apos;nun ödeme sayfasına gidersiniz; sandbox&apos;ta test kartı kullanın. Dönüşte sonuç bu sayfanın üstünde görünür.
+        iyzico&apos;nun güvenli ödeme sayfasına gidersiniz; dönüşte sonuç bu sayfanın üstünde görünür.
       </p>
       {error && <p className="console-banner err">{error}</p>}
 

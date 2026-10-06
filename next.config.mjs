@@ -4,6 +4,10 @@ const nextConfig = {
   // heic-convert loads libheif as WASM through a dynamic require that the
   // bundler cannot follow; load it from node_modules at runtime like sharp.
   serverExternalPackages: ['heic-convert'],
+  // the old order steps; links in e-mails and bookmarks land on the upload wizard
+  async redirects() {
+    return ['/paket', '/kagitlar', '/ozet', '/odeme'].map((source) => ({ source, destination: '/yukle', permanent: false }));
+  },
   async headers() {
     return [
       {

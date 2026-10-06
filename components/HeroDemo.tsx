@@ -243,7 +243,7 @@ export default function HeroDemo() {
         {played && !playing && (
           <div className="after-demo">
             <p>Sıra sizin sınıfınızda.</p>
-            <Link href="/paket" className="btn btn-primary">
+            <Link href="/yukle" className="btn btn-primary">
               Kendi kâğıtlarınızı yükleyin
             </Link>
           </div>

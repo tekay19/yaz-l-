@@ -1,17 +1,18 @@
 import type { Metadata } from 'next';
-import KeyStep from '@/components/steps/KeyStep';
+import { Suspense } from 'react';
 import Tracker from '@/components/Tracker';
-import { StepHeader, SiteFooter } from '@/components/Chrome';
+import UploadWizard from '@/components/upload/UploadWizard';
 
-export const metadata: Metadata = { title: 'Cevap anahtarı — SınavOku', robots: { index: false } };
+export const metadata: Metadata = { title: 'Sınav yükleyin — SınavOku', robots: { index: false } };
 
 export default function Page() {
   return (
     <>
       <Tracker page="yukle" />
-      <StepHeader current={2} />
-      <KeyStep />
-      <SiteFooter />
+      {/* the wizard reads ?sinav= and ?adim= */}
+      <Suspense>
+        <UploadWizard />
+      </Suspense>
     </>
   );
 }

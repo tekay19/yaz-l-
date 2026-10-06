@@ -31,6 +31,12 @@ export type Review = {
   failed: { seq: number; reason: string }[];
 };
 export type Correction = { studentName?: string; answers?: { q: number; marked: string[] }[] };
+// a draft as the upload wizard needs it back: photos in order, roster, typed key
+export type Draft = {
+  id: string; title: string; mode: 'optik' | 'klasik'; status: string;
+  roster: string[]; keyText: string; teacherNote: string;
+  pages: { id: string; kind: 'key' | 'student'; seq: number }[];
+};
 export type RubricView = { status: string; keyText: string; rubric: Rubric | null; approved: boolean; problems: string[] };
 export type KlasikCorrection = {
   studentName?: string;
@@ -51,6 +57,7 @@ export function createApi(fetchImpl: typeof fetch = (input, init) => fetch(input
     createJob: (title: string, mode: 'optik' | 'klasik' = 'optik') => call<{ id: string }>('/api/jobs', withJson('POST', { title, mode })),
     listJobs: () => call<JobView[]>('/api/jobs'),
     job: (id: string) => call<JobView>(`/api/jobs/${id}`),
+    draft: (id: string) => call<Draft>(`/api/jobs/${id}/pages`),
     uploadPage: (id: string, file: Blob, kind: 'key' | 'student') => {
       const form = new FormData();
       form.set('kind', kind);
@@ -68,6 +75,7 @@ export function createApi(fetchImpl: typeof fetch = (input, init) => fetch(input
     approve: (id: string) => post(`/api/jobs/${id}/approve`),
     // klasik
     setKeyText: (id: string, text: string) => call<{ ok: true }>(`/api/jobs/${id}/key-text`, withJson('PUT', { text })),
+    setNote: (id: string, note: string) => call<{ ok: true }>(`/api/jobs/${id}/note`, withJson('PUT', { note })),
     rubric: (id: string) => call<RubricView>(`/api/jobs/${id}/rubric`),
     saveRubric: (id: string, rubric: Rubric) => call<{ rubric: Rubric }>(`/api/jobs/${id}/rubric`, withJson('PUT', rubric)),
     approveRubric: (id: string) => post(`/api/jobs/${id}/rubric/approve`),

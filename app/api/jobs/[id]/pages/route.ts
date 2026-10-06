@@ -1,10 +1,12 @@
+import { asc, eq } from 'drizzle-orm';
+import { pages } from '@/db/schema';
 import { ImageError, checkPhoto, normalizeImage } from '@/lib/images';
-import { JobLockedError, MAX_STUDENT_PAGES, MAX_UPLOAD_BYTES, PageLimitError, addPage } from '@/lib/jobs/pages';
+import { JobLockedError, MAX_UPLOAD_BYTES, PageLimitError, addPage } from '@/lib/jobs/pages';
+import { MAX_KEY_PAGES, MAX_STUDENT_PAGES } from '@/lib/limits';
 import { getStorage } from '@/lib/storage';
-import { MAX_KEY_PAGES } from '@/lib/klasik/jobs';
 import { rateLimited } from '@/lib/store';
 import { currentUserId, unauthorized } from '@/lib/auth/current';
-import { withOwnedJob } from '@/lib/http';
+import { noStore, withOwnedJob } from '@/lib/http';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -12,6 +14,20 @@ export const dynamic = 'force-dynamic';
 const err = (error: string, status: number) => Response.json({ error }, { status });
 const TOO_BIG = 'Fotoğraf çok büyük (en fazla 15 MB).';
 const LOCKED = 'Gönderilmiş sınava kâğıt eklenemez.';
+
+// What a draft holds so far, for an upload screen opened again (after a
+// reload, a sign-in or a payment): the photos in order, the roster, the typed key.
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return withOwnedJob(id, async (db, job) => {
+    const rows = await db.select({ id: pages.id, kind: pages.kind, seq: pages.seq }).from(pages)
+      .where(eq(pages.jobId, id)).orderBy(asc(pages.kind), asc(pages.seq));
+    return Response.json({
+      id: job.id, title: job.title, mode: job.mode, status: job.status,
+      roster: job.roster, keyText: job.keyText, teacherNote: job.teacherNote, pages: rows,
+    }, noStore);
+  });
+}
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   // signed out callers are not counted against anyone's upload budget

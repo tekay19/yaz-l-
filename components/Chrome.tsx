@@ -63,7 +63,7 @@ export function SiteHeader() {
           <a href="#fiyat" className="hide-sm">
             Fiyat
           </a>
-          <Link href="/paket" className="btn btn-primary btn-sm">
+          <Link href="/yukle" className="btn btn-primary btn-sm">
             Kâğıtlarınızı yükleyin
           </Link>
         </nav>
@@ -72,14 +72,14 @@ export function SiteHeader() {
   );
 }
 
-const STEPS = ['Paket', 'Anahtar', 'Kâğıtlar', 'Özet', 'Ödeme'];
+const STEPS = ['Sınav', 'Anahtar', 'Kâğıtlar', 'Gönder'];
 
-export function StepHeader({ current }: { current: 1 | 2 | 3 | 4 | 5 }) {
+export function StepHeader({ current }: { current: 1 | 2 | 3 | 4 }) {
   return (
     <header className="site-head">
       <div className="wrap">
         <Logo />
-        <div className="stepper" aria-label="Sipariş adımları">
+        <div className="stepper" aria-label="Yükleme adımları">
           {STEPS.map((label, i) => {
             const n = i + 1;
             const state = n < current ? 'done' : n === current ? 'current' : '';

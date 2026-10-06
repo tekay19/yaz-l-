@@ -49,7 +49,7 @@ export default function Home() {
         <div className="wrap">
           <h2>Bu hafta sınavınız var mı?</h2>
           <p>Kâğıtları çekmeniz yeterli. Tablo hazır olunca e-postanıza düşer.</p>
-          <Link href="/paket" className="btn btn-primary">
+          <Link href="/yukle" className="btn btn-primary">
             Kâğıtlarınızı yükleyin
           </Link>
         </div>
