@@ -2,7 +2,7 @@ import { and, eq } from 'drizzle-orm';
 import type { Db } from '@/db/client';
 import { jobs, pages } from '@/db/schema';
 import type { Storage } from '@/lib/storage';
-import { ReadRefused, type Reader } from '@/lib/reader/claude';
+import { ReadRefused, type Reader } from '@/lib/reader/types';
 import { completePage, failPage, type ClaimedPage } from '@/lib/queue';
 import { maybeCompleteJob } from '@/lib/jobs/progress';
 

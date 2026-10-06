@@ -4,7 +4,7 @@
 // admin's own labels using lib/eval/metrics.
 
 import { ImageError, checkPhoto, normalizeImage } from '@/lib/images';
-import { ReadRefused, type Effort } from '@/lib/reader/claude';
+import { ReadRefused, type Effort } from '@/lib/reader/types';
 import { createReader, readerModel } from '@/lib/reader';
 import { adminRequest } from '@/lib/store';
 

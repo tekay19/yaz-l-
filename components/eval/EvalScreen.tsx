@@ -9,7 +9,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { checkCriteria, summarize, type Check, type Gate } from '@/lib/eval/metrics';
 import { PAID_PACKS } from '@/lib/packs';
-import type { Effort } from '@/lib/reader/claude';
+import type { Effort } from '@/lib/reader/types';
 import type { StudentRead } from '@/lib/types';
 import { createEvalApi } from './api';
 import { browserStore, fileKey, loadLabels, saveLabels, type Label, type Labels } from './labels';

@@ -13,7 +13,7 @@ import { completeKlasikJobs, draftPendingRubrics, expireRubrics, gradePending, R
 import { notifyRubric } from '@/lib/klasik/notify';
 import { amendRubric } from '@/lib/klasik/rubric';
 import { jobs, pages, users } from '@/db/schema';
-import type { Reader } from '@/lib/reader/claude';
+import type { Reader } from '@/lib/reader/types';
 import type { GradeOutput, RubricDraft } from '@/lib/reader/schemas';
 import type { KlasikAnswer, KlasikRead, RubricQuestion } from '@/lib/types';
 
@@ -219,6 +219,33 @@ describe('klasik worker', () => {
     await first;
     const [sheet] = await db.select().from(pages).where(eq(pages.kind, 'student'));
     expect(sheet.grade!.questions[0].note).toBe('Doğru.');
+  });
+
+  it('drops a grade of the old text when the teacher edits the sheet mid-grading', async () => {
+    const { db, storage, id } = await submitted({ key: 'key', students: ['front2'] });
+    const held: (() => void)[] = [];
+    const slow = (note: string) => reader({ gradeKlasik: async ({ questions, answers }) => {
+      await new Promise<void>((resolve) => { held.push(resolve); });
+      const out = gradeAll(questions, answers);
+      out.questions[0].note = note;
+      return { read: out, usage };
+    } });
+    await drain(db, storage, reader());
+    await draftPendingRubrics({ db, storage, reader: reader() });
+    await approve(db, id);
+    const t0 = Date.now();
+    const first = gradePending({ db, storage, reader: slow('old text') }, 10, new Date(t0));
+    await new Promise((r) => setTimeout(r, 50));
+    // what saving a fixed transcription does: the sheet is graded afresh
+    await db.update(pages).set({ gradedRev: 0, gradeAttempts: 0, gradeLeaseUntil: null }).where(eq(pages.kind, 'student'));
+    const second = gradePending({ db, storage, reader: slow('new text') }, 10, new Date(t0 + 1000));
+    await new Promise((r) => setTimeout(r, 50));
+    held[0]();
+    await first;
+    held[1]();
+    await second;
+    const [sheet] = await db.select().from(pages).where(eq(pages.kind, 'student'));
+    expect(sheet.grade!.questions[0].note).toBe('new text');
   });
 
   it('judges a figure from its photo, or from the text once the photo is gone', async () => {

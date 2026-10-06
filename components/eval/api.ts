@@ -3,7 +3,7 @@
 // Nothing here throws; every call resolves to something the screen can show.
 
 import type { KeyRead, StudentRead } from '@/lib/types';
-import type { Effort, Usage } from '@/lib/reader/claude';
+import type { Effort, Usage } from '@/lib/reader/types';
 import type { Label } from './labels';
 
 export type EvalRead = { read: KeyRead | StudentRead; usage: Usage; ms: number; model: string; effort: Effort };

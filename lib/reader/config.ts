@@ -1,4 +1,4 @@
-// Settings shared by both readers (Claude and OpenAI).
+// Settings shared by every reader (Claude, OpenAI, Gemini).
 
 export type Effort = 'low' | 'medium' | 'high';
 

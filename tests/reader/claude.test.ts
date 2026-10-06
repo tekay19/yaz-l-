@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createClaudeReader, ReadRefused, type MessagesClient } from '@/lib/reader/claude';
+import { createClaudeReader, type MessagesClient } from '@/lib/reader/claude';
+import { OutputTruncated, ReadRefused } from '@/lib/reader/types';
 
 const reply = (json: unknown, stop_reason = 'end_turn') => ({
   stop_reason,
@@ -32,6 +33,11 @@ describe('claude reader', () => {
   it('throws ReadRefused on a refusal', async () => {
     const client = fakeClient([{ stop_reason: 'refusal', content: [], usage: { input_tokens: 0, output_tokens: 0 } }]);
     await expect(createClaudeReader(client).readKey(Buffer.from('jpg'))).rejects.toBeInstanceOf(ReadRefused);
+  });
+
+  it('says so when the output was cut off at the token limit', async () => {
+    const client = fakeClient([{ stop_reason: 'max_tokens', content: [{ type: 'text', text: '{"questionCo' }], usage: { input_tokens: 0, output_tokens: 0 } }]);
+    await expect(createClaudeReader(client).readKey(Buffer.from('jpg'))).rejects.toBeInstanceOf(OutputTruncated);
   });
 
   // A key read that yields no question count must not reach the model as

@@ -21,6 +21,25 @@ describe('quoteFound', () => {
     expect(quoteFound('', text)).toBe(false);
     expect(quoteFound('x = 5', 'x = 4')).toBe(false);
   });
+
+  it('matches a number only as the whole number on the paper', () => {
+    expect(quoteFound('x = 2', 'x = 25')).toBe(false);
+    expect(quoteFound('4', 'x = 14')).toBe(false);
+    expect(quoteFound('x = 4', 'x = 4,5')).toBe(false);
+    expect(quoteFound('x = 4', 'x = 4.5')).toBe(false);
+    expect(quoteFound('x = 4', 'x = 4. Sonuç bu.')).toBe(true);
+    expect(quoteFound('25', 'x = 25 cm')).toBe(true);
+  });
+
+  it('forgives a period the student never wrote', () => {
+    expect(quoteFound('x = 4.', 'x = 4')).toBe(true);
+    expect(quoteFound('(kloroplast)', 'kloroplastta')).toBe(true);
+  });
+
+  it('treats a capital I without its dot as i', () => {
+    expect(quoteFound('istanbul', 'ISTANBUL')).toBe(true);
+    expect(quoteFound('İSTANBUL', 'istanbul')).toBe(true);
+  });
 });
 
 const page = (seq: number, read: Partial<KlasikRead> | null, over: Partial<SheetPage> = {}): SheetPage => ({
@@ -77,7 +96,7 @@ describe('rubric', () => {
     expect(r.questions.map((q) => q.q)).toEqual([1, 2, 3]);
     const [q1, q2, q3] = r.questions;
     expect(q1.criteria.map((c) => [c.id, c.points])).toEqual([['c1', 6], ['c2', 6], ['c3', 8]]);
-    expect(q1.policy).toEqual({ workRequired: true, carryForward: true, wrongInfoPenalty: false });
+    expect(q1.policy).toEqual({ workRequired: true, carryForward: true, wrongInfoPenalty: false, style: 'balanced' });
     expect(q2.criteria.map((c) => [c.points, c.role])).toEqual([[10, 'other'], [5, 'other']]); // yorum has no result rule
     expect(q2.accepted).toEqual([{ text: 'Örnek vermek de olur', example: null, by: 'ai' }]);
     expect(q2.policy.workRequired).toBe(false);
@@ -92,6 +111,19 @@ describe('rubric', () => {
       expect(pts.reduce((s, p) => s + p, 0)).toBe(max);
       expect(pts.every((p) => p > 0 && Number.isInteger(p * 2))).toBe(true);
     }
+  });
+
+  it('never lets the criteria of a small question add up past its maximum', () => {
+    const draft = { questions: [{ q: 1, type: 'islem' as const, prompt: null, answer: 'x = 4', workRequired: true, accepted: [],
+      criteria: [
+        { text: 'Kurulum', points: 1, role: 'other' as const, required: false },
+        { text: 'Adım', points: 1, role: 'other' as const, required: false },
+        { text: 'Sonuç', points: 1, role: 'result' as const, required: false },
+      ] }] };
+    const [q] = normalizeDraft(draft, [1]).questions;
+    expect(q.criteria.reduce((s, c) => s + c.points, 0)).toBe(1);
+    expect(q.criteria.some((c) => c.role === 'result')).toBe(true);
+    expect(splitPoints([10, 1, 1], 1.5)).toEqual([0.5, 0.5, 0.5]);
   });
 
   it('validates what the editor sends', () => {
@@ -130,5 +162,15 @@ describe('toGrade', () => {
     }, true);
     expect(g).toMatchObject({ q: 4, rev: 3, criteria: [{ id: 'c1' }], resultCorrect: null, resultPath: null, flags: ['wrong_info'], confidence: 'low', textOnly: true });
     expect(failedGrade(rq)).toMatchObject({ q: 4, rev: 3, failed: true });
+  });
+});
+
+describe('quoteFound and the prompt line numbers', () => {
+  it('ignores the line numbers a model copies from the grading prompt', () => {
+    const text = 'Bir şeyi öğrenmenin en iyi zamanı küçüklüktür,\nbüyüyünce huylar zor değişir.';
+    expect(quoteFound('1. Bir şeyi öğrenmenin en iyi zamanı küçüklüktür,\n2. büyüyünce huylar zor değişir.', text)).toBe(true);
+    // a number that is part of the answer still has to be on the paper
+    expect(quoteFound('x = 4', '3x = 12\nx = 4')).toBe(true);
+    expect(quoteFound('2. x = 5', 'x = 4')).toBe(false);
   });
 });

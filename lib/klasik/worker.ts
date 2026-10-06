@@ -2,7 +2,7 @@ import { and, asc, count, eq, inArray, isNotNull, isNull, lt, or, sql } from 'dr
 import type { Db } from '@/db/client';
 import { jobs, pages } from '@/db/schema';
 import type { Storage } from '@/lib/storage';
-import type { Reader, Usage } from '@/lib/reader/claude';
+import type { Reader, Usage } from '@/lib/reader/types';
 import { refundPages } from '@/lib/credits';
 import { LEASE_MS, retryBackoffMs } from '@/lib/queue';
 import type { PageResult, QuestionGrade, Rubric } from '@/lib/types';
@@ -17,11 +17,20 @@ import { emptyRubric, normalizeDraft } from './rubric';
 //   expireRubrics        rubric never approved → job cancelled, full refund
 
 export const RUBRIC_MAX_ATTEMPTS = 3;
-export const RUBRIC_RETRY_MS = 2 * 60 * 1000;
+// longer than one draft call may take (the reader timeout), so a slow draft
+// is never claimed and paid for a second time by another worker
+export const RUBRIC_RETRY_MS = LEASE_MS;
 export const GRADE_MAX_ATTEMPTS = 3;
 export const RUBRIC_EXPIRE_DAYS = 7;
 
 type Deps = { db: Db; storage: Storage; reader: Reader };
+// Proof that an attempt still holds a sheet. The attempt counter alone is not
+// enough: a teacher's edit resets it to 0, so a second claim would count up to
+// the same number and a slow first attempt could write a grade of the old
+// text. The lease end written at claim time differs between claims.
+type Hold = { attempts: number; lease: Date };
+const holding = (pageId: string, hold: Hold) =>
+  and(eq(pages.id, pageId), eq(pages.gradeAttempts, hold.attempts), eq(pages.gradeLeaseUntil, hold.lease));
 type Job = typeof jobs.$inferSelect;
 
 // The key as text for the rubric draft: what the teacher typed, then what the
@@ -117,17 +126,19 @@ export async function gradePending(deps: Deps, limit: number, now = new Date()):
       const leaseFree = or(isNull(pages.gradeLeaseUntil), lt(pages.gradeLeaseUntil, now));
       if (sheet.gradeAttempts >= GRADE_MAX_ATTEMPTS) {
         // the last attempt died with its worker: give up on what is left
-        const [held] = await db.update(pages).set({ gradeLeaseUntil: new Date(now.getTime() + LEASE_MS) })
+        const lease = new Date(now.getTime() + LEASE_MS);
+        const [held] = await db.update(pages).set({ gradeLeaseUntil: lease })
           .where(and(eq(pages.id, sheet.pageId), lt(pages.gradedRev, job.rubricRev), leaseFree))
           .returning({ attempts: pages.gradeAttempts });
-        if (held) await settle(db, job, sheet, held.attempts, pendingQuestions(job, sheet).map(failedGrade));
+        if (held) await settle(db, job, sheet, { attempts: held.attempts, lease }, pendingQuestions(job, sheet).map(failedGrade));
         continue;
       }
+      const lease = new Date(now.getTime() + LEASE_MS);
       const [claimed] = await db.update(pages)
-        .set({ gradeLeaseUntil: new Date(now.getTime() + LEASE_MS), gradeAttempts: sql`${pages.gradeAttempts} + 1` })
+        .set({ gradeLeaseUntil: lease, gradeAttempts: sql`${pages.gradeAttempts} + 1` })
         .where(and(eq(pages.id, sheet.pageId), lt(pages.gradedRev, job.rubricRev), lt(pages.gradeAttempts, GRADE_MAX_ATTEMPTS), leaseFree))
         .returning({ attempts: pages.gradeAttempts });
-      if (claimed) work.push(gradeSheet(deps, job, sheet, claimed.attempts, now));
+      if (claimed) work.push(gradeSheet(deps, job, sheet, { attempts: claimed.attempts, lease }, now));
     }
   }
   await Promise.all(work);
@@ -149,7 +160,7 @@ export function pendingQuestions(job: Pick<Job, 'rubric'>, sheet: Sheet) {
   });
 }
 
-async function gradeSheet({ db, storage, reader }: Deps, job: Job, sheet: Sheet, attempts: number, now: Date) {
+async function gradeSheet({ db, storage, reader }: Deps, job: Job, sheet: Sheet, hold: Hold, now: Date) {
   const todo = pendingQuestions(job, sheet);
   try {
     let fresh: QuestionGrade[] = [];
@@ -165,14 +176,14 @@ async function gradeSheet({ db, storage, reader }: Deps, job: Job, sheet: Sheet,
       });
       usage = out.usage;
     }
-    await settle(db, job, sheet, attempts, fresh, usage);
+    await settle(db, job, sheet, hold, fresh, usage);
   } catch (e) {
     console.error('[klasik] grade_failed', sheet.pageId, e instanceof Error ? e.message : e);
-    if (attempts >= GRADE_MAX_ATTEMPTS) {
-      await settle(db, job, sheet, attempts, todo.map(failedGrade));
+    if (hold.attempts >= GRADE_MAX_ATTEMPTS) {
+      await settle(db, job, sheet, hold, todo.map(failedGrade));
     } else {
-      await db.update(pages).set({ gradeLeaseUntil: new Date(now.getTime() + retryBackoffMs(attempts)) })
-        .where(and(eq(pages.id, sheet.pageId), eq(pages.gradeAttempts, attempts)));
+      await db.update(pages).set({ gradeLeaseUntil: new Date(now.getTime() + retryBackoffMs(hold.attempts)) })
+        .where(holding(sheet.pageId, hold));
     }
   }
 }
@@ -181,7 +192,7 @@ async function gradeSheet({ db, storage, reader }: Deps, job: Job, sheet: Sheet,
 // holds the sheet may write (a slower worker whose lease ran out is ignored),
 // and the sheet is stamped with the rubric revision it was read against: if
 // the rubric changed meanwhile, the next pass re-grades just what changed.
-async function settle(db: Db, job: Job, sheet: Sheet, attempts: number, grades: QuestionGrade[], usage?: Usage) {
+async function settle(db: Db, job: Job, sheet: Sheet, hold: Hold, grades: QuestionGrade[], usage?: Usage) {
   const kept = (sheet.grade?.questions ?? []).filter((x) => !grades.some((n) => n.q === x.q));
   const [landed] = await db.update(pages).set({
     grade: { questions: [...kept, ...grades].sort((a, b) => a.q - b.q) },
@@ -192,7 +203,7 @@ async function settle(db: Db, job: Job, sheet: Sheet, attempts: number, grades: 
       inputTokens: sql`${pages.inputTokens} + ${usage.inputTokens}`,
       outputTokens: sql`${pages.outputTokens} + ${usage.outputTokens}`,
     } : {}),
-  }).where(and(eq(pages.id, sheet.pageId), eq(pages.gradeAttempts, attempts))).returning({ id: pages.id });
+  }).where(holding(sheet.pageId, hold)).returning({ id: pages.id });
   if (landed) await syncBackPages(db, sheet, job.rubricRev);
 }
 

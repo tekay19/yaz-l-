@@ -85,6 +85,39 @@ describe('scoreQuestion — the agreed case table', () => {
     expect(s.flags).not.toContain('unsupported_result');
   });
 
+  it('a bare result is not given full marks unless the paper shows it', () => {
+    const q = islem({ policy: { workRequired: false, carryForward: true, wrongInfoPenalty: false } });
+    // the model says the result is right but did not meet the result criterion
+    const contradicts = scoreQuestion(q, answer('x = 4'), grade({ criteria: [v('c3', 'not_met')], resultCorrect: true, resultPath: 'none' }));
+    expect(contradicts.points).toBe(0);
+    expect(attentionFlags(contradicts)).toContain('low_confidence');
+    // a quote that is not on the paper earns nothing either
+    const invented = scoreQuestion(q, answer('x = 5'), grade({ criteria: [v('c3', 'met', 'x = 4')], resultCorrect: true, resultPath: 'none' }));
+    expect(invented.points).toBe(0);
+    expect(invented.flags).toContain('evidence_unverified');
+  });
+
+  it('a short answer that is partly right earns half, a contradiction earns nothing', () => {
+    const kisa = (): RubricQuestion => ({
+      q: 1, rev: 1, type: 'kisa', prompt: 'Değişken nedir?', answer: 'Değer saklayan adlandırılmış bellek konumu',
+      criteria: [{ id: 'c1', text: 'Değer saklayan bellek konumu olduğunu belirtir', points: 10, role: 'result', required: false }],
+      accepted: [], policy: { workRequired: false, carryForward: true, wrongInfoPenalty: false },
+    });
+    const partly = scoreQuestion(kisa(), answer('Bir değerin adıdır'), grade({
+      criteria: [v('c1', 'partial', 'Bir değerin adıdır')], resultCorrect: false, resultPath: 'none',
+    }));
+    expect(partly.points).toBe(5);
+    const right = scoreQuestion(kisa(), answer('Değer tutan bellek alanı'), grade({
+      criteria: [v('c1', 'met', 'Değer tutan bellek alanı')], resultCorrect: true, resultPath: 'none',
+    }));
+    expect(right.points).toBe(10);
+    const contradicts = scoreQuestion(kisa(), answer('Bir sayı'), grade({
+      criteria: [v('c1', 'met', 'Bir sayı')], resultCorrect: false, resultPath: 'none',
+    }));
+    expect(contradicts.points).toBe(0);
+    expect(attentionFlags(contradicts)).toContain('low_confidence');
+  });
+
   it('valid steps that do not lead to the result keep their points, the result does not', () => {
     const s = scoreQuestion(islem(), answer('2x + 3 = 11', '2x = 11 - 3', 'x = 4'), grade({
       criteria: [v('c1', 'met', '2x = 11 - 3'), v('c2', 'not_met'), v('c3', 'met', 'x = 4')],

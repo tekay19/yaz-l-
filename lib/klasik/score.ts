@@ -104,15 +104,30 @@ export function scoreQuestion(
       counted = false;
       flags.add('evidence_unverified');
     }
-    if (hasResult && c.role === 'result' && !resultAllowed) counted = false;
+    if (hasResult && c.role === 'result') {
+      if (rq.type === 'kisa') {
+        // a short answer has no steps to check: its result criterion stands on
+        // its verdict (partial = half), unless the model contradicts itself
+        if (verdict === 'met' && g.resultCorrect === false) {
+          counted = false;
+          flags.add('low_confidence');
+        }
+      } else if (!resultAllowed) counted = false;
+    }
     const earned = !counted ? 0 : verdict === 'met' ? c.points : verdict === 'partial' ? c.points / 2 : 0;
     points += earned;
     return { id: c.id, text: c.text, points: c.points, role: c.role, verdict, evidence, earned, counted };
   });
   // a bare answer to a question that asks for the work earns nothing ...
   if (hasResult && rq.policy.workRequired && path === 'none') points = 0;
-  // ... and full marks when only the result was asked for
-  if (hasResult && !rq.policy.workRequired && correct && bare) points = max;
+  // ... and full marks when only the result was asked for — but only for a
+  // result the paper shows: the result criterion met, with its quote found
+  if (hasResult && !rq.policy.workRequired && correct && bare) {
+    const shown = criteria.some((c) => c.role === 'result' && c.counted && c.verdict === 'met');
+    if (shown) points = max;
+    // "correct" without a met result criterion: the model contradicts itself
+    else if (!flags.has('evidence_unverified')) flags.add('low_confidence');
+  }
   return { ...base, points: clamp(halfPoints(points), 0, max), status: 'graded', flags: [...flags], criteria };
 }
 

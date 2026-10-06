@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { AcceptedPath, Rubric, RubricQuestion } from '@/lib/types';
+import { GRADING_STYLES, type AcceptedPath, type Rubric, type RubricQuestion } from '@/lib/types';
 import type { RubricDraft } from '@/lib/reader/schemas';
 import { halfPoints } from './score';
 
@@ -29,7 +29,7 @@ const QuestionZ = z.object({
     example: z.string().max(4000).nullable(),
     by: z.enum(['ai', 'teacher']),
   })).max(MAX_ACCEPTED),
-  policy: z.object({ workRequired: z.boolean(), carryForward: z.boolean(), wrongInfoPenalty: z.boolean() }),
+  policy: z.object({ workRequired: z.boolean(), carryForward: z.boolean(), wrongInfoPenalty: z.boolean(), style: z.enum(GRADING_STYLES).optional() }),
 });
 export const RubricInput = z.object({
   questions: z.array(QuestionZ).max(MAX_QUESTIONS)
@@ -59,16 +59,32 @@ export function rubricProblems(r: Rubric | null): string[] {
 }
 
 // Spread criterion weights over the question's maximum in half points; the
-// rounding drift goes to the largest criterion so the total is exact.
+// rounding drift is settled on the largest criteria so the total is exact.
+// Every criterion is worth at least half a point, so a caller must not pass
+// more than max / 0.5 of them.
 export function splitPoints(weights: number[], max: number): number[] {
   const sum = weights.reduce((s, w) => s + w, 0) || 1;
   const pts = weights.map((w) => Math.max(0.5, halfPoints((w / sum) * max)));
-  const drift = halfPoints(max - pts.reduce((s, p) => s + p, 0));
-  if (drift) {
+  let drift = halfPoints(max - pts.reduce((s, p) => s + p, 0));
+  if (drift > 0) pts[pts.indexOf(Math.max(...pts))] += drift;
+  while (drift < 0) {
     const i = pts.indexOf(Math.max(...pts));
-    pts[i] = Math.max(0.5, halfPoints(pts[i] + drift));
+    const take = Math.min(-drift, pts[i] - 0.5);
+    if (take <= 0) break;
+    pts[i] = halfPoints(pts[i] - take);
+    drift += take;
   }
   return pts;
+}
+
+// At most max / 0.5 criteria, keeping the heaviest (and the result one), in
+// their original order.
+function fitCriteria<T extends { points: number; role: string }>(crits: T[], max: number): T[] {
+  const room = Math.max(1, Math.floor(max * 2));
+  if (crits.length <= room) return crits;
+  const ranked = crits.map((c, i) => ({ c, i }))
+    .sort((a, b) => Number(b.c.role === 'result') - Number(a.c.role === 'result') || b.c.points - a.c.points);
+  return ranked.slice(0, room).sort((a, b) => a.i - b.i).map((x) => x.c);
 }
 
 // The model's draft → a rubric the teacher can approve as it is: each
@@ -82,7 +98,7 @@ export function normalizeDraft(draft: RubricDraft, maxPoints: number[]): Rubric 
     seen.add(d.q);
     const max = maxPoints[d.q - 1] > 0 ? maxPoints[d.q - 1] : DEFAULT_MAX;
     const yorum = d.type === 'yorum';
-    let crits = d.criteria.filter((c) => c.text.trim() && c.points > 0).slice(0, MAX_CRITERIA);
+    let crits = fitCriteria(d.criteria.filter((c) => c.text.trim() && c.points > 0).slice(0, MAX_CRITERIA), max);
     if (!crits.length) crits = [{ text: 'Cevap doğru', points: max, role: yorum ? 'other' : 'result', required: false }];
     const points = splitPoints(crits.map((c) => c.points), max);
     questions.push({
@@ -96,7 +112,7 @@ export function normalizeDraft(draft: RubricDraft, maxPoints: number[]): Rubric 
       })),
       accepted: d.accepted.map((t) => t.trim()).filter(Boolean).slice(0, MAX_ACCEPTED)
         .map((text) => ({ text: text.slice(0, 500), example: null, by: 'ai' as const })),
-      policy: { workRequired: d.type === 'islem' ? d.workRequired : false, carryForward: true, wrongInfoPenalty: false },
+      policy: { workRequired: d.type === 'islem' ? d.workRequired : false, carryForward: true, wrongInfoPenalty: false, style: 'balanced' },
     });
     if (questions.length >= MAX_QUESTIONS) break;
   }

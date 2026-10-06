@@ -36,7 +36,13 @@ export type KlasikRead = {
 export type QuestionType = 'islem' | 'kisa' | 'yorum';
 export type Criterion = { id: string; text: string; points: number; role: 'result' | 'other'; required: boolean };
 export type AcceptedPath = { text: string; example: string | null; by: 'ai' | 'teacher' };
-export type QuestionPolicy = { workRequired: boolean; carryForward: boolean; wrongInfoPenalty: boolean };
+// How generously answers are judged, set by the teacher for the exam:
+// strict — only a precise, complete idea is met; balanced — the default;
+// lenient — a relevant answer that shows some correct understanding gets
+// partial credit. Never credit for wrong, empty or off-topic answers.
+export const GRADING_STYLES = ['strict', 'balanced', 'lenient'] as const;
+export type GradingStyle = (typeof GRADING_STYLES)[number];
+export type QuestionPolicy = { workRequired: boolean; carryForward: boolean; wrongInfoPenalty: boolean; style?: GradingStyle };
 export type RubricQuestion = {
   q: number;
   rev: number; // bumped when the question changes after approval: its grades go stale

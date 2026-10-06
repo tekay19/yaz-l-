@@ -6,7 +6,7 @@
 // use: that is what lets a different but correct answer earn full marks.
 
 import { useCallback, useEffect, useState } from 'react';
-import type { Criterion, QuestionType, Rubric, RubricQuestion } from '@/lib/types';
+import type { Criterion, QuestionType, Rubric, RubricQuestion, GradingStyle } from '@/lib/types';
 import type { Api, RubricView } from './api';
 
 const TYPES: { value: QuestionType; label: string }[] = [
@@ -26,7 +26,7 @@ function blankQuestion(n: number): RubricQuestion {
       { id: 'c2', text: 'Sonuç doğru ve öğrencinin kendi geçerli adımlarından çıkıyor', points: 6, role: 'result', required: false },
     ],
     accepted: [],
-    policy: { workRequired: true, carryForward: true, wrongInfoPenalty: false },
+    policy: { workRequired: true, carryForward: true, wrongInfoPenalty: false, style: 'balanced' },
   };
 }
 
@@ -106,6 +106,21 @@ export default function RubricCard({ api, jobId, onChanged }: Props) {
         hangi kelimeleri kullanacağını değil: farklı ama doğru yollar tam puan alır. Yanlış yoldan bulunan ya da yazılı
         işlemlerden çıkmayan doğru sonuç, sonuç puanı almaz.
       </p>
+      {rubric.questions.length > 0 && (
+        <div className="field" style={{ marginTop: 10 }}>
+          <label htmlFor="grading-style">Puanlama tarzı (bütün sorular)</label>
+          <select id="grading-style" value={rubric.questions[0].policy.style ?? 'balanced'}
+            onChange={(e) => {
+              const style = e.target.value as GradingStyle;
+              setRubric((r) => ({ questions: r.questions.map((x) => ({ ...x, policy: { ...x.policy, style } })) }));
+            }}>
+            <option value="strict">Sıkı: yalnız tam ve doğru ifade edilen fikir puan alır</option>
+            <option value="balanced">Dengeli: eksik ama doğru fikir kısmi puan alır</option>
+            <option value="lenient">Cömert: konuya uygun, kısmen doğru anlayış gösteren cevap da kısmi puan alır</option>
+          </select>
+          <p className="tiny muted">Yanlış bilgi, konu dışı yazı ve soruyu tekrar etmek hiçbir tarzda puan getirmez.</p>
+        </div>
+      )}
       {!rubric.questions.length && (
         <p className="console-banner err">
           Cevap anahtarı okunamadı ya da taslak oluşturulamadı. Anahtarı aşağıya yazıp &quot;Taslağı yeniden oluştur&quot;a basın

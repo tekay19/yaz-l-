@@ -2,7 +2,7 @@ import { and, asc, desc, eq, gte, inArray, lt, or, sql } from 'drizzle-orm';
 import type { Db } from '@/db/client';
 import { jobs, pages } from '@/db/schema';
 import type { PageResult } from '@/lib/types';
-import type { Usage } from '@/lib/reader/claude';
+import type { Usage } from '@/lib/reader/types';
 
 export const MAX_ATTEMPTS = 3;
 export const LEASE_MS = 5 * 60 * 1000;

@@ -6,7 +6,7 @@ import { addPage, createJob } from '@/lib/jobs/pages';
 import { submitJob } from '@/lib/jobs/submit';
 import { claimPages } from '@/lib/queue';
 import { processPage } from '@/worker/process';
-import { ReadRefused, type Reader } from '@/lib/reader/claude';
+import { ReadRefused, type Reader } from '@/lib/reader/types';
 import { jobs, pages } from '@/db/schema';
 import { fakeReader, usage } from '../helpers/reader';
 

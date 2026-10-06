@@ -1,4 +1,4 @@
-import type { Reader, Usage } from '@/lib/reader/claude';
+import type { Reader, Usage } from '@/lib/reader/types';
 
 export const usage: Usage = { inputTokens: 10, outputTokens: 5 };
 

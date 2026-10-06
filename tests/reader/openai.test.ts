@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { ReadRefused } from '@/lib/reader/claude';
+import { ReadRefused } from '@/lib/reader/types';
 import { createOpenAIReader, type ResponsesClient } from '@/lib/reader/openai';
 
 const reply = (json: unknown, status = 'completed') => ({
