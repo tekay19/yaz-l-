@@ -35,7 +35,7 @@ function useWidth<T extends HTMLElement>() {
 
 // Round axis ticks: 0, then even steps up to a round top. `minStep` keeps the
 // step from dropping below one unit (1 for counts, 100 kuruş for lira), so an
-// all-small series never shows "₺0,01" or "0,5 kayıt". An all-zero series gets
+// all-small series never shows "0,01 TL" or "0,5 kayıt". An all-zero series gets
 // a lone 0 baseline.
 export function niceTicks(max: number, minStep = 0): number[] {
   if (!(max > 0)) return [0];

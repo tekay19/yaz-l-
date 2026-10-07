@@ -51,7 +51,7 @@ export default function AdminShell({ me, children }: { me: { name: string; email
 
   return (
     <div className={`adm${menu ? ' menu-open' : ''}`}>
-      <aside className="adm-side" id="adm-side" aria-label="Yönetim menüsü">
+      <aside className="adm-side chalk-side" id="adm-side" aria-label="Yönetim menüsü">
         <div className="adm-brand">
           <Link href="/admin" className="adm-logo"><LogoMark /><span className="adm-logo-text">SınavOku<small>Yönetim</small></span></Link>
           <button type="button" className="adm-icon-btn adm-only-sm" onClick={() => setMenu(false)} aria-label="Menüyü kapat"><IconClose /></button>
@@ -61,13 +61,13 @@ export default function AdminShell({ me, children }: { me: { name: string; email
             const on = active(href, exact);
             return (
               <Link key={href} href={href} className={on ? 'on' : undefined} aria-current={on ? 'page' : undefined}>
+                {on && <i className="chalk-mark" aria-hidden="true" />}
                 <Icon /><span>{label}</span>
               </Link>
             );
           })}
         </nav>
         <div className="adm-side-foot">
-          <Link href="/hesap" className="adm-switch">Öğretmen paneline geç</Link>
           <div className="adm-user">
             <span className="adm-avatar" aria-hidden="true">{(me.name || me.email)[0]?.toUpperCase()}</span>
             <span className="adm-user-text">

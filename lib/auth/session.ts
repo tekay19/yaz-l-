@@ -2,6 +2,10 @@ import crypto from 'node:crypto';
 
 export const SESSION_COOKIE = 'so_user';
 export const SESSION_TTL_DAYS = 30;
+// an admin's cookie opens the whole panel: it lasts a working day, not a month
+export const ADMIN_SESSION_TTL_HOURS = 12;
+export const sessionTtlSeconds = (role: 'teacher' | 'admin') =>
+  role === 'admin' ? ADMIN_SESSION_TTL_HOURS * 3600 : SESSION_TTL_DAYS * 86_400;
 
 function secret(): string | null {
   const s = process.env.SESSION_SECRET || '';
@@ -19,10 +23,10 @@ export type SessionClaim = { userId: string; version: number };
 // Format: <userId>.<sessionVersion>.<expiryEpochSeconds>.<hmac>. The version
 // is checked against the user row on every request, so a password change,
 // a reset or a suspension ends every cookie issued before it.
-export function issueSession(userId: string, version: number, now = Date.now()): string {
+export function issueSession(userId: string, version: number, now = Date.now(), ttlSeconds = SESSION_TTL_DAYS * 86_400): string {
   const key = secret();
   if (!key) throw new Error('SESSION_SECRET is missing or shorter than 32 characters');
-  const exp = String(Math.floor(now / 1000) + SESSION_TTL_DAYS * 86_400);
+  const exp = String(Math.floor(now / 1000) + ttlSeconds);
   const body = `${userId}.${version}.${exp}`;
   return `${body}.${sign(body, key)}`;
 }
@@ -39,10 +43,10 @@ export function verifySession(token: string | undefined, now = Date.now()): Sess
   return a.length === b.length && crypto.timingSafeEqual(a, b) ? { userId, version: Number(version) } : null;
 }
 
-export const sessionCookieOptions = () => ({
+export const sessionCookieOptions = (maxAge = SESSION_TTL_DAYS * 86_400) => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax' as const,
   path: '/',
-  maxAge: SESSION_TTL_DAYS * 86_400,
+  maxAge,
 });

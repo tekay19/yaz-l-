@@ -1,11 +1,12 @@
 'use client';
 
-// The landing page's opening picture: a teacher's desk after SınavOku has
-// read the class. Elif's sheet lies on top of the graded pile with the red
-// pen marks on it, and the e-mailed result list sits beside it. The numbers
-// are fixed sample data, not a computed result, which is why they live in
-// the markup. The page loads in the finished state; the replay button is
-// the only thing that moves, and only when the visitor asks for it.
+// The hero's scene, on the board: the whole product in three moves a
+// visitor can follow without reading. A phone photographs Elif's sheet, the
+// sheet is scanned and marked by the red pen, and the class list arrives as
+// an e-mail. The chalk labels beside each object light up as its turn comes.
+// It plays once on load (the page's one orchestrated moment); with reduced
+// motion the finished scene is shown at once. The numbers are fixed sample
+// data, not a computed result.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -35,6 +36,14 @@ const ROWS = [
 
 const MARKS = OPTIK.length + 2; // ten bubbles, the open answer, the total
 
+// 0 before, 1 photo, 2 scan, 3 red pen, 4 e-mail, 5 finished
+type Phase = 0 | 1 | 2 | 3 | 4 | 5;
+const STEPS = [
+  { n: 1, text: 'Kâğıdı çekin', on: (p: Phase) => p === 1 },
+  { n: 2, text: 'Okunur, puanlanır', on: (p: Phase) => p === 2 || p === 3 },
+  { n: 3, text: 'Liste e‑postanızda', on: (p: Phase) => p === 4 },
+];
+
 function Tick({ on }: { on: boolean }) {
   return (
     <svg className={`pen-mark${on ? ' on' : ''}`} viewBox="0 0 22 22" aria-hidden="true">
@@ -52,44 +61,83 @@ function Cross({ on }: { on: boolean }) {
   );
 }
 
-export default function HeroDemo() {
-  const [live, setLive] = useState(false); // marks animate only after a replay is asked for
-  const [playing, setPlaying] = useState(false);
-  const [marks, setMarks] = useState(MARKS);
-  const [rows, setRows] = useState(ROWS.length);
+function Phone() {
+  return (
+    <div className="scene-phone" aria-hidden="true">
+      <div className="phone-screen">
+        <span className="phone-sheet">
+          <i /><i /><i /><i /><i /><i />
+        </span>
+        <span className="phone-frame" />
+        <span className="phone-flash" />
+      </div>
+      <span className="phone-shutter" />
+    </div>
+  );
+}
+
+export default function HeroDemo({ autoPlay = false }: { autoPlay?: boolean }) {
+  const [phase, setPhase] = useState<Phase>(autoPlay ? 0 : 5);
+  const [live, setLive] = useState(autoPlay);
+  const [marks, setMarks] = useState(autoPlay ? 0 : MARKS);
+  const [rows, setRows] = useState(autoPlay ? 0 : ROWS.length);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const clearTimers = useCallback(() => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
   }, []);
-
   useEffect(() => clearTimers, [clearTimers]);
 
   const play = useCallback(() => {
     clearTimers();
-    const reduced =
-      typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const at = (ms: number, fn: () => void) => timers.current.push(setTimeout(fn, reduced ? 0 : ms));
-
-    setLive(!reduced);
-    setPlaying(true);
+    const reduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      setLive(false);
+      setMarks(MARKS);
+      setRows(ROWS.length);
+      setPhase(5);
+      return;
+    }
+    const at = (ms: number, fn: () => void) => timers.current.push(setTimeout(fn, ms));
+    setLive(true);
     setMarks(0);
     setRows(0);
-
-    for (let i = 0; i < MARKS; i += 1) at(260 + i * 150, () => setMarks(i + 1));
-    const tableAt = 260 + MARKS * 150 + 200;
-    for (let i = 0; i < ROWS.length; i += 1) at(tableAt + i * 160, () => setRows(i + 1));
-    at(tableAt + ROWS.length * 160 + 100, () => setPlaying(false));
+    setPhase(0);
+    at(450, () => setPhase(1)); // the shutter
+    at(1250, () => setPhase(2)); // the scan
+    const penAt = 2150;
+    at(penAt, () => setPhase(3));
+    for (let i = 0; i < MARKS; i += 1) at(penAt + i * 140, () => setMarks(i + 1));
+    const mailAt = penAt + MARKS * 140 + 250;
+    at(mailAt, () => setPhase(4));
+    for (let i = 0; i < ROWS.length; i += 1) at(mailAt + 350 + i * 170, () => setRows(i + 1));
+    at(mailAt + 350 + ROWS.length * 170 + 400, () => setPhase(5));
   }, [clearTimers]);
+
+  useEffect(() => {
+    if (autoPlay) play();
+  }, [autoPlay, play]);
 
   const openOn = marks > OPTIK.length;
   const scoreOn = marks >= MARKS;
   const rightCount = OPTIK.filter((q) => q.key === q.marked).length;
+  const playing = phase > 0 && phase < 5;
 
   return (
-    <div className={`desk${live ? ' is-live' : ''}`}>
-      <div className="desk-stage">
+    <div className={`desk scene phase-${phase}${live ? ' is-live' : ''}`}>
+      <div className="scene-stage">
+        <ol className="scene-steps" aria-label="Nasıl çalışır">
+          {STEPS.map((s) => (
+            <li key={s.n} className={`scene-step s${s.n}${s.on(phase) || phase === 5 ? ' on' : ''}`}>
+              <span className="scene-n chalk" aria-hidden="true">{s.n}</span>
+              <span className="scene-t chalk">{s.text}</span>
+            </li>
+          ))}
+        </ol>
+
+        <Phone />
+
         <div className="desk-paper">
           <div className="desk-pile" aria-hidden="true">
             <div className="pile-sheet pile-1">
@@ -106,6 +154,7 @@ export default function HeroDemo() {
             className="sheet"
             aria-label={`Örnek okunmuş kâğıt: Elif Yılmaz, ${rightCount} doğru, klasik soruda 5 üzerinden 4, toplam 80 puan`}
           >
+            <i className="sheet-scan" aria-hidden="true" />
             <div className="sheet-head" aria-hidden="true">
               <span>9-B Matematik</span>
               <span>1. Yazılı</span>
@@ -124,12 +173,7 @@ export default function HeroDemo() {
                     <span className="q-no">{i + 1}</span>
                     <span className="bubbles">
                       {LETTERS.map((l, b) => (
-                        <i
-                          key={l}
-                          className={`bubble${b === q.marked ? ' on' : ''}${!ok && on && b === q.key ? ' key' : ''}`}
-                        >
-                          {l}
-                        </i>
+                        <i key={l} className={`bubble${b === q.marked ? ' on' : ''}${!ok && on && b === q.key ? ' key' : ''}`}>{l}</i>
                       ))}
                     </span>
                     {ok ? <Tick on={on} /> : <Cross on={on} />}
@@ -141,36 +185,27 @@ export default function HeroDemo() {
             <div className="sheet-open" aria-hidden="true">
               <p className="open-q"><b>11.</b> 2x + 6 = 14 denklemini çözünüz. <span>(5 puan)</span></p>
               <p className="hand-answer">2x = 8<br />x = 4</p>
-              <span className={`open-note${openOn ? ' on' : ''}`}>
-                <b>4/5</b> ilk adım eksik
-              </span>
+              <span className={`open-note${openOn ? ' on' : ''}`}><b>4/5</b> ilk adım eksik</span>
             </div>
 
             <div className={`sheet-score${scoreOn ? ' on' : ''}`} aria-hidden="true">
               <svg viewBox="0 0 64 50" fill="none">
-                <path
-                  d="M40 6C24 2 6 10 5 25s16 22 30 21 26-9 25-22S47 4 31 6"
-                  stroke="currentColor"
-                  strokeWidth="2.4"
-                  strokeLinecap="round"
-                  style={{ ['--len' as string]: 170 }}
-                />
+                <path d="M40 6C24 2 6 10 5 25s16 22 30 21 26-9 25-22S47 4 31 6" stroke="currentColor" strokeWidth="2.4"
+                  strokeLinecap="round" style={{ ['--len' as string]: 170 }} />
               </svg>
               <span>80</span>
-            </div>
-
-            <div className="sheet-foot" aria-hidden="true">
-              <span>Öğretmen</span>
-              <span className="sign" />
             </div>
           </figure>
         </div>
 
-        <div className="desk-report">
+        <div className={`desk-report${rows > 0 ? ' in' : ''}`}>
           <div className="report-bar">
-            <span className="report-from">SınavOku sonuç e-postası</span>
+            <span className="report-from">SınavOku’dan e‑posta</span>
             <span className="report-title">9-B Matematik sonuçları</span>
-            <span className="report-files">Excel ve PDF ekli</span>
+            <span className="report-files">
+              <i className="file xls">XLSX</i>
+              <i className="file pdf">PDF</i>
+            </span>
           </div>
           <table>
             <caption className="visually-hidden">Örnek sınıf sonuç listesi</caption>
@@ -178,7 +213,6 @@ export default function HeroDemo() {
               <tr>
                 <th scope="col">Öğrenci</th>
                 <th scope="col" className="r">Doğru</th>
-                <th scope="col" className="r col-wrong">Yanlış</th>
                 <th scope="col" className="r">Puan</th>
               </tr>
             </thead>
@@ -189,17 +223,12 @@ export default function HeroDemo() {
                   <tr key={row.name} className={on ? 'in' : undefined}>
                     <th scope="row">{row.name}</th>
                     <td className="r">{on ? row.right : '–'}</td>
-                    <td className="r col-wrong">{on ? row.wrong : '–'}</td>
                     <td className="r score">{on ? row.score : '–'}</td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
-          <p className="report-foot">
-            <span>Sınıf ortalaması <b>77,2</b></span>
-            <span>En zor soru <b>3. soru</b></span>
-          </p>
         </div>
       </div>
 
@@ -209,13 +238,8 @@ export default function HeroDemo() {
             <path d="M3 12a9 9 0 1 0 3-6.7" />
             <path d="M3 4v5h5" />
           </svg>
-          {playing ? 'Okunuyor…' : 'Okumayı baştan izleyin'}
+          {playing ? 'Okunuyor…' : 'Baştan izleyin'}
         </button>
-        <p className="desk-hint" aria-live="polite">
-          {playing
-            ? 'Şıklar anahtarla, el yazısı ölçütlerle karşılaştırılıyor.'
-            : 'Klasik soruya 5 üzerinden 4 önerildi. Son söz sizde.'}
-        </p>
       </div>
     </div>
   );

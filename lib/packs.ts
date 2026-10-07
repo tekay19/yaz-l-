@@ -49,7 +49,8 @@ export const PACKS: Record<PackName, Pack> = {
 export const DEFAULT_PLAN: PackName = 'Başlangıç';
 export const PAID_PACKS: Pack[] = [PACKS['Başlangıç'], PACKS['Öğretmen'], PACKS['Zümre']];
 
-export const tl = (n: number) => '₺' + n.toLocaleString('tr-TR');
+// "1.490 TL": the lira sign of the site's typeface reads as a pound sign
+export const tl = (n: number) => `${n.toLocaleString('tr-TR')} TL`;
 
 export const perPage = (p: Pack) =>
   (p.price / p.pages).toLocaleString('tr-TR', {

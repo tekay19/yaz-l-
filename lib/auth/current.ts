@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { getDb } from '@/db/client';
 import { users, type UserRole } from '@/db/schema';
 import { isUuid } from '@/lib/uuid';
-import { SESSION_COOKIE, issueSession, sessionCookieOptions, verifySession } from './session';
+import { SESSION_COOKIE, issueSession, sessionCookieOptions, sessionTtlSeconds, verifySession } from './session';
 
 export type CurrentUser = { id: string; email: string; name: string; role: UserRole; verified: boolean };
 
@@ -25,8 +25,9 @@ export async function currentUserId(): Promise<string | null> {
   return (await currentUser())?.id ?? null;
 }
 
-export async function signIn(userId: string, sessionVersion: number) {
-  (await cookies()).set(SESSION_COOKIE, issueSession(userId, sessionVersion), sessionCookieOptions());
+export async function signIn(userId: string, sessionVersion: number, role: UserRole) {
+  const ttl = sessionTtlSeconds(role);
+  (await cookies()).set(SESSION_COOKIE, issueSession(userId, sessionVersion, Date.now(), ttl), sessionCookieOptions(ttl));
 }
 
 export async function signOut() {

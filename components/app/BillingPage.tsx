@@ -43,7 +43,7 @@ export default function BillingPage() {
       <div className="app-stats">
         <Stat label="Kalan sayfa hakkı" value={num(me.pageBalance)} tone={me.pageBalance < 30 ? 'warn' : undefined} hint={me.pageBalance < 30 ? 'azaldı' : 'sayfa dolana kadar geçerli'} />
         <Stat label="Kullanılan sayfa" value={num(Math.max(0, used))} hint="iadeler düşülmüş" />
-        <Stat label="Toplam ödeme" value={`₺${num(spent / 100, 2)}`} />
+        <Stat label="Toplam ödeme" value={`${num(spent / 100, 2)} TL`} />
       </div>
 
       <section className="app-card">
@@ -68,7 +68,7 @@ export default function BillingPage() {
                     <td className="app-date">{dateTr(h.at, true)}</td>
                     <td><Badge tone={KIND[h.kind].tone}>{KIND[h.kind].label}</Badge></td>
                     <td>{h.label}</td>
-                    <td className="num">{h.amountKurus ? `₺${num(h.amountKurus / 100, 2)}` : '—'}</td>
+                    <td className="num">{h.amountKurus ? `${num(h.amountKurus / 100, 2)} TL` : '—'}</td>
                     <td className={`num strong ${h.delta > 0 ? 'plus' : ''}`}>{h.delta > 0 ? '+' : ''}{num(h.delta)}</td>
                   </tr>
                 ))}

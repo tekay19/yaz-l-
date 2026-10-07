@@ -18,6 +18,6 @@ export async function POST(req: Request) {
   const body = await readJson(req);
   const r = await register(getDb(), getMailer(), { name: body.name, email: body.email, password: body.password }, process.env.APP_URL!);
   if (!r.ok) return json({ error: r.message, field: r.field }, r.taken ? 409 : 400);
-  await signIn(r.user.id, r.user.sessionVersion);
+  await signIn(r.user.id, r.user.sessionVersion, r.user.role);
   return json({ ok: true, role: r.user.role }, 201);
 }

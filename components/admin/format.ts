@@ -7,11 +7,11 @@ const TZ = 'Europe/Istanbul';
 export const num = (n: number | null | undefined, digits = 0) =>
   (n ?? 0).toLocaleString('tr-TR', { maximumFractionDigits: digits, minimumFractionDigits: 0 });
 
-// kuruş → "₺1.234" or "₺12,50"
+// kuruş → "1.234 TL" or "12,50 TL"
 export const tlKurus = (k: number | null | undefined) => {
   const v = (k ?? 0) / 100;
   const frac = Math.round((k ?? 0)) % 100 !== 0;
-  return '₺' + v.toLocaleString('tr-TR', { minimumFractionDigits: frac ? 2 : 0, maximumFractionDigits: 2 });
+  return v.toLocaleString('tr-TR', { minimumFractionDigits: frac ? 2 : 0, maximumFractionDigits: 2 }) + ' TL';
 };
 
 // "6 Eki 2026 21:40"

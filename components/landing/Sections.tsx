@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import { Board } from '@/components/Board';
 import { PACKS, tl } from '@/lib/packs';
 
 // The landing page below the hero, built around what the product really
 // shows a teacher: the paper, the criteria, the evidence, the class's
-// results. No stock icons standing in for features; each section carries a
-// piece of the actual screen it talks about. Server-rendered throughout.
+// results. Each section carries a piece of the actual screen it talks
+// about, with as few words as will do. Server-rendered throughout.
 
 const OFFER = PACKS['Başlangıç'];
 
@@ -13,14 +14,13 @@ export function Steps() {
     <section className="lp-section" id="nasil">
       <div className="wrap">
         <header className="lp-head">
-          <h2>Dört adımda bir sınıfın kâğıtları.</h2>
-          <p className="lp-lead">Kâğıtları telefonla çekersiniz, SınavOku okur ve puan önerir, siz yalnızca işaretli yerlere bakarsınız.</p>
+          <h2>Bir sınıfın kâğıtları, dört adımda.</h2>
         </header>
         <ol className="lp-steps">
           <li>
             <span className="lp-step-n" aria-hidden="true">1</span>
-            <h3>Kâğıtları yükleyin</h3>
-            <p>Telefonun kamerasıyla, birkaç kâğıt birden. Her fotoğraf yüklenirken kontrol edilir.</p>
+            <h3>Fotoğrafları yükleyin</h3>
+            <p>Telefonla, birkaç kâğıt birden.</p>
             <div className="lp-frag" aria-hidden="true">
               <div className="lp-thumbs">
                 <span className="lp-thumb ok">uygun</span>
@@ -32,25 +32,25 @@ export function Steps() {
           <li>
             <span className="lp-step-n" aria-hidden="true">2</span>
             <h3>Ölçütleri onaylayın</h3>
-            <p>Klasik sınavda anahtarınızdan puanlama ölçütleri çıkar. Puanları ve kabul edilecek cevapları siz belirlersiniz.</p>
+            <p>Klasik sınavda puanlamayı siz belirlersiniz.</p>
             <div className="lp-frag" aria-hidden="true">
               <div className="lp-crit"><span>Denklemi doğru kurar</span><b>4 puan</b></div>
-              <div className="lp-crit"><span>Sonuç doğru, kendi adımlarından</span><b>6 puan</b></div>
+              <div className="lp-crit"><span>Sonuç doğru</span><b>6 puan</b></div>
             </div>
           </li>
           <li>
             <span className="lp-step-n" aria-hidden="true">3</span>
             <h3>İşaretli yerlere bakın</h3>
-            <p>Bütün kâğıtları değil, yalnızca sistemin size sorduğu yerleri kontrol edersiniz.</p>
+            <p>Bütün kâğıtlara değil, yalnız sorulan yerlere.</p>
             <div className="lp-frag" aria-hidden="true">
               <div className="lp-flag"><span>Mert K., 3. soru</span><em>okuma belirsiz</em></div>
-              <div className="lp-flag"><span>Zeynep A., 5. soru</span><em>anahtarda yok, doğru</em></div>
+              <div className="lp-flag"><span>Zeynep A., 5. soru</span><em>anahtarda yok</em></div>
             </div>
           </li>
           <li>
             <span className="lp-step-n" aria-hidden="true">4</span>
             <h3>Sonuçları alın</h3>
-            <p>Puan listesi, soru soru başarı ve sınıf özeti. Panelden indirin; e-postanıza da gelir.</p>
+            <p>Excel ve PDF, panelde ve e&#8209;postanızda.</p>
             <div className="lp-frag" aria-hidden="true">
               <div className="lp-mini-row"><span>Elif Yıldız</span><b>86</b></div>
               <div className="lp-mini-row"><span>Mert Kaya</span><b>72</b></div>
@@ -68,25 +68,23 @@ export function Roles() {
     <section className="lp-section" id="is-bolumu">
       <div className="wrap">
         <header className="lp-head">
-          <h2>Okumayı SınavOku yapar. Son sözü siz söylersiniz.</h2>
+          <h2>Okumayı SınavOku yapar. Son söz sizin.</h2>
         </header>
         <div className="lp-roles">
           <div className="lp-role">
             <h3>SınavOku</h3>
             <ul>
-              <li><strong>Her satırı olduğu gibi okur.</strong> Yazım hatasını düzeltmez, eksik adımı kendisi tamamlamaz.</li>
-              <li><strong>Cevabı ölçütlerinizle karşılaştırır.</strong> Verdiği her puan için kâğıttan alıntı gösterir.</li>
-              <li><strong>Emin olmadığını tahmin etmez,</strong> size işaretler: okunamayan kelime, şüpheli isim, anahtarda olmayan bir fikir.</li>
-              <li><strong>Puan listesini ve sınıf analizini hazırlar.</strong></li>
+              <li>Her satırı olduğu gibi okur, düzeltmez.</li>
+              <li>Her puanı kâğıttan bir alıntıyla gösterir.</li>
+              <li>Emin olmadığını tahmin etmez, size sorar.</li>
             </ul>
           </div>
           <div className="lp-role you">
             <h3>Siz</h3>
             <ul>
-              <li><strong>Kâğıtları ve anahtarı telefonla çekersiniz.</strong> Bulanık bir fotoğrafı sistem o an söyler.</li>
-              <li><strong>Klasik sınavda puanlama ölçütlerini onaylarsınız.</strong> Anahtarınızdan taslak hazırlanır, siz düzenlersiniz.</li>
-              <li><strong>Yalnızca işaretli yerlere bakarsınız.</strong> İsterseniz bir puanı değiştirir ya da bir cevabı kabul edersiniz.</li>
-              <li><strong>Onayladığınız puanlar rapora geçer.</strong></li>
+              <li>Kâğıtları telefonla çekersiniz.</li>
+              <li>Ölçütleri ve işaretli yerleri onaylarsınız.</li>
+              <li>Rapora yalnız onayladığınız puanlar geçer.</li>
             </ul>
           </div>
         </div>
@@ -101,16 +99,10 @@ export function KlasikSpotlight() {
       <div className="wrap lp-split">
         <div>
           <h2>Klasik sınavda puanın gerekçesi kâğıdın üstünde.</h2>
-          <p className="lp-lead">
-            Açık uçlu cevapta SınavOku tek bir not vermez; cevabı ölçüt ölçüt değerlendirir ve her kararı
-            öğrencinin kendi yazdığıyla gösterir. Siz bir bakışta neden o puanı aldığını görürsünüz.
-          </p>
           <ul className="lp-checks">
             <li>Kısmen doğru cevaba kısmi puan.</li>
-            <li>İşlem hatası yalnızca sonuç puanını götürür; doğru kurulan adımlar sayılır.</li>
-            <li>Anahtardakinden farklı ama doğru bir yol tam puan alır.</li>
-            <li>Anahtarda olmayan doğru bir fikri kabul eder ve size ayrıca sorar.</li>
-            <li>Yalnızca sonuç yazıp işlem göstermeyen cevap, istediğinizde puan almaz.</li>
+            <li>İşlem hatası yalnız sonucun puanını götürür.</li>
+            <li>Anahtardan farklı ama doğru yol tam puan alır.</li>
           </ul>
         </div>
         <figure className="lp-sheet" aria-label="Örnek değerlendirme: bir denklem sorusu">
@@ -159,14 +151,10 @@ export function Results() {
         </div>
         <div>
           <h2>Sınıfın nerede takıldığını görün.</h2>
-          <p className="lp-lead">
-            Her sınavın sonuçları öğretmen panelinizde: öğrenci puanları, soru soru başarı, puan dağılımı.
-            Excel listesini not çizelgenize aktarın, tek sayfalık PDF özeti zümre toplantısına götürün.
-          </p>
           <ul className="lp-checks">
-            <li>Sınıf listelerinizi bir kez kaydedin; isimler kâğıtlarla listeye göre eşleşir.</li>
-            <li>Geçmiş sınavlarınız ve raporlarınız tek yerde.</li>
-            <li>Sayfa hakkınızı ve ödemelerinizi panelden takip edin.</li>
+            <li>Soru soru başarı ve puan dağılımı.</li>
+            <li>Excel listesi not çizelgenize hazır.</li>
+            <li>Sınıf listeleriniz ve geçmiş sınavlarınız tek yerde.</li>
           </ul>
         </div>
       </div>
@@ -175,12 +163,12 @@ export function Results() {
 }
 
 const DETAILS = [
-  ['Birkaç sayfalık sınavlar', 'Sayfalar öğrencinin adından aynı kâğıtta toplanır; öğrenci öğrenci de çekseniz deste deste de.'],
-  ['Kötü fotoğrafa anında uyarı', 'Bulanık, karanlık ya da uzaktan çekilmiş bir kâğıdı yüklerken söyler; kâğıt elinizdeyken yeniden çekersiniz.'],
-  ['Okunamayan sayfa ücretsiz', 'Okunamayan her sayfanın hakkı hesabınıza iade edilir. Cevap anahtarı sayfa hakkından düşmez.'],
-  ['Puanlama tarzı sizin', 'Sıkı, dengeli ya da esnek. İsterseniz sınava bir not bırakın: "yazım hatalarını önemseme" gibi.'],
-  ['Çoktan seçmeli de var', 'Optik form bastırmadan, kendi hazırladığınız kâğıtla. Doğru, yanlış ve boş sayıları öğrenci öğrenci listelenir.'],
-  ['Fotoğraflar silinir', 'Kâğıtlar yalnızca okuma için işlenir ve en geç 7 gün içinde silinir. Reklam için kullanılmaz.'],
+  ['Birkaç sayfalık sınav', 'Sayfalar öğrencinin adından birleşir.'],
+  ['Kötü fotoğrafa anında uyarı', 'Kâğıt elinizdeyken yeniden çekersiniz.'],
+  ['Okunamayan sayfa ücretsiz', 'Hakkı hesabınıza iade edilir.'],
+  ['Puanlama tarzı sizin', 'Sıkı, dengeli ya da esnek.'],
+  ['Optik form gerekmez', 'Kendi hazırladığınız kâğıt yeter.'],
+  ['Fotoğraflar silinir', 'En geç 7 gün içinde, reklamsız.'],
 ];
 
 export function Details() {
@@ -214,7 +202,7 @@ export function Faq() {
     <section className="lp-section" id="sss">
       <div className="wrap lp-faq-wrap">
         <header className="lp-head">
-          <h2>Öğretmenlerin ilk sorduğu şeyler</h2>
+          <h2>Öğretmenlerin ilk sordukları</h2>
         </header>
         <div className="lp-faq">
           {FAQ.map(([q, a]) => (
@@ -229,18 +217,20 @@ export function Faq() {
   );
 }
 
+// The page ends where it began: on the board, with the one thing to do.
 export function Closing() {
   return (
     <section className="lp-closing">
-      <div className="wrap lp-closing-inner">
-        <div>
-          <h2>Bu hafta okunacak kâğıdınız var mı?</h2>
-          <p>İlk siparişinizde {OFFER.pages} sayfa {tl(OFFER.price)}. Abonelik yok.</p>
-        </div>
-        <div className="lp-cta-row">
-          <Link href="/yukle" className="btn lp-btn lp-btn-light">Kâğıtlarınızı yükleyin</Link>
-          <Link href="/hesap" className="lp-link-light">Hesabınıza giriş yapın</Link>
-        </div>
+      <div className="wrap">
+        <Board className="lp-closing-board">
+          <div className="lp-closing-inner">
+            <h2 className="chalk">Bu hafta okunacak kâğıdınız var mı?</h2>
+            <div className="lp-closing-act">
+              <Link href="/yukle" className="btn lp-chalk-btn">Kâğıtlarınızı yükleyin</Link>
+              <p className="lp-closing-note chalk">ilk siparişe {OFFER.pages} sayfa {tl(OFFER.price)}</p>
+            </div>
+          </div>
+        </Board>
       </div>
     </section>
   );

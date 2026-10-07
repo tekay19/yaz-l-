@@ -37,7 +37,23 @@ Gradyan arka planlar, renkli bloblar ve dekoratif yıkamalar yok.
 - **Gölge:** yalnızca yüzen öğelerde (menü, toast, dialog). Paneller gölgesiz, 1px çizgiyle durur.
 - Sola hizalı okuma düzeni. Ortalanmış içerik yalnızca tek odaklı ekranlarda (giriş) olur.
 - Odak halkası her yerde görünür: 2px tahta açık, 2px boşluk.
-- Hareket: yalnızca kullanıcının eylemine cevap olarak (açılma, onay). Kendiliğinden giriş animasyonu yok. `prefers-reduced-motion` kuralına uyulur.
+- Hareket: yalnızca kullanıcının eylemine cevap olarak (açılma, onay). Kendiliğinden giriş animasyonu yok; tek istisna tanıtım sayfasının hero sahnesidir (aşağıda). `prefers-reduced-motion` kuralına uyulur.
+
+## Tanıtım ve giriş sayfaları: kara tahta
+
+Herkese açık sayfalar (tanıtım, giriş, kayıt) sınıfın kara tahtası üstüne kurulur: `components/Board.tsx`. Ahşap çerçeve, tebeşir dokusu, silginin eski izleri, altta tebeşir rafı ve silgi.
+
+- Tahta üstünde yazı tebeşirdir: başlıklar Schibsted 800, `.chalk` filtresiyle (`ChalkDefs`, sayfada bir kez); notlar Caveat ile sarı tebeşir (`#F3E68F`).
+- Tanıtım sayfası tahtayla açılır (hero) ve tahtayla kapanır (son çağrı). Aradaki bölümler masa zemininde, büyük başlık ve az yazıyla durur.
+- Hero sahnesi ürünü üç hamlede gösterir: telefon kâğıdı çeker, kâğıt taranır ve kırmızı kalemle işaretlenir, sonuç listesi e-postayla gelir. Her hamlenin tebeşir etiketi sırası gelince yanar. Sayfa açılınca bir kez oynar; azaltılmış harekette bitmiş hâli gösterilir.
+- Giriş sayfalarında tahta sağdadır ve üstünde mıknatısla tutturulmuş, puanlanmış bir kâğıt vardır. Telefonda yalnızca form görünür.
+
+## Paneller (öğretmen ve yönetim)
+
+- Sol menü duvardaki tahtadır (`.chalk-side`): tahta dokusu, sağ kenarda meşe çerçeve, bütün yazılar tebeşir. Bulunulan sayfa sarı tebeşir çizgisiyle (`.chalk-mark`) işaretlenir; "Yeni sınav yükleyin" tebeşir beyazı düğmedir; sayfa hakkı sarı tebeşirle büyük yazılır. Telefonda üst çubuk da tahtadır.
+- İçerik alanı çalışma yeridir: masa zemini, kâğıt yüzeyler, ince çizgiler. Okunurluk orada tahtadan önce gelir.
+- Sayfa başlıkları 800 ağırlıkta ve büyüktür, tanıtım sayfasıyla aynı ses.
+- Yeni öğretmenin ilk ekranı ("Hoş geldiniz", üç adım) bir tahta üstündedir; tamamlanan adımın üstü sarı tebeşirle çizilir.
 
 ## Dil
 

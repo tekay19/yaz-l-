@@ -25,7 +25,7 @@ export default function Pricing() {
       <div className="wrap">
         <header className="lp-head">
           <h2>Sayfa başına ödeyin, abonelik yok.</h2>
-          <p className="lp-lead">Her öğrenci sayfası bir sayfa hakkı. Cevap anahtarı sayılmaz, okunamayan sayfa iade edilir. Sayfalar dolana kadar geçerlidir.</p>
+          <p className="lp-lead">Her öğrenci sayfası bir hak. Anahtar sayılmaz, okunamayan sayfa iade edilir.</p>
         </header>
         <div className="lp-prices">
           {PAID_PACKS.map((p) => (
@@ -37,7 +37,7 @@ export default function Pricing() {
               <div className="lp-price-tag"><PriceTag pack={p} /></div>
               <dl className="lp-price-facts">
                 <div><dt>Sayfa</dt><dd>{p.pages}</dd></div>
-                <div><dt>Sayfa başı</dt><dd>₺{perPage(p)}</dd></div>
+                <div><dt>Sayfa başı</dt><dd>{perPage(p)} TL</dd></div>
               </dl>
               <ul>{p.blurb.map((line) => <li key={line}><Check size={15} width={2.6} />{line}</li>)}</ul>
               <button type="button" className={`btn btn-block ${p.was ? 'btn-primary' : 'btn-ghost'}`} onClick={() => pick(p.name)}>

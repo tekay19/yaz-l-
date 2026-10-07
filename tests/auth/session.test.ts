@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { issueSession, verifySession } from '@/lib/auth/session';
+import { issueSession, sessionTtlSeconds, verifySession } from '@/lib/auth/session';
 
 beforeAll(() => { process.env.SESSION_SECRET = 'x'.repeat(40); });
 
@@ -27,5 +27,17 @@ describe('session', () => {
     expect(verifySession(t)).toBeNull();
     expect(() => issueSession(id, 0)).toThrow('SESSION_SECRET');
     process.env.SESSION_SECRET = 'x'.repeat(40);
+  });
+});
+
+describe('session length', () => {
+  const id = '6f1c2d3e-0000-4000-8000-000000000002';
+  it('ends an admin session after 12 hours and a teacher session after 30 days', () => {
+    const now = Date.UTC(2026, 9, 7, 9);
+    const admin = issueSession(id, 0, now, sessionTtlSeconds('admin'));
+    expect(verifySession(admin, now + 11 * 3_600_000)).not.toBeNull();
+    expect(verifySession(admin, now + 13 * 3_600_000)).toBeNull();
+    const teacher = issueSession(id, 0, now, sessionTtlSeconds('teacher'));
+    expect(verifySession(teacher, now + 29 * 86_400_000)).not.toBeNull();
   });
 });

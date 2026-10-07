@@ -15,6 +15,6 @@ export async function POST(req: Request) {
   const body = await readJson(req);
   const r = await resetPassword(getDb(), body.token, body.password);
   if (!r.ok) return json({ error: r.message }, 400);
-  await signIn(r.user.id, r.user.sessionVersion);
+  await signIn(r.user.id, r.user.sessionVersion, r.user.role);
   return json({ ok: true, role: r.user.role });
 }

@@ -4,6 +4,7 @@ import { Closing, Details, Faq, KlasikSpotlight, Results, Roles, Steps } from '@
 import Pricing from '@/components/Pricing';
 import Tracker from '@/components/Tracker';
 import './landing.css';
+import './hero.css';
 
 export default function Home() {
   return (

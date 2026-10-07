@@ -27,6 +27,6 @@ export async function POST(req: Request) {
       ? json({ error: 'Hesabınız askıya alınmış. Destek için bize yazın.' }, 403)
       : json({ error: 'E-posta ya da şifre hatalı. Daha önce e-postadaki bağlantıyla giriş yaptıysanız "Şifremi unuttum" ile şifre belirleyin.' }, 401);
   }
-  await signIn(r.user.id, r.user.sessionVersion);
+  await signIn(r.user.id, r.user.sessionVersion, r.user.role);
   return json({ ok: true, role: r.user.role });
 }

@@ -314,7 +314,6 @@ section { padding: clamp(56px, 8vw, 104px) 0; }
   text-decoration: line-through;
   text-decoration-thickness: 1.5px;
 }
-.price-tag .now { font-variant-numeric: tabular-nums; }
 .price-tag-md .was { font-size: 20px; }
 .price-tag-md .now { font-size: 34px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
 .price-tag-sm { gap: 7px; }
@@ -603,3 +602,83 @@ section { padding: clamp(56px, 8vw, 104px) 0; }
 
 .console-banner.warn { background: var(--amber-bg); color: #6E4A0E; border: 1px solid #EBD3A3; }
 .review-list { padding: 18px 20px; margin-bottom: 8px; }
+
+:root {
+  /* the board's face: grain, the eraser's old sweeps, a little light from above */
+  --board-texture:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .075 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(42% 14% at 22% 18%, rgba(238,243,238,.075), transparent 70%),
+    radial-gradient(36% 12% at 64% 86%, rgba(238,243,238,.06), transparent 70%),
+    radial-gradient(28% 10% at 88% 30%, rgba(238,243,238,.045), transparent 70%),
+    linear-gradient(170deg, #22503F 0%, #1C4638 45%, #173D31 100%);
+  --wood-edge: linear-gradient(90deg, #5F4027 0%, #8A6440 35%, #9A7048 55%, #6E4D30 100%);
+}
+
+/* ── the classroom board (components/Board.tsx) ──────────────────────
+   Shared by the landing page and the sign-in pages: a framed green board,
+   chalk grain, the eraser's old sweeps, and a ledge with chalk on it. */
+.board, .chalk-side {
+  --chalk: #EEF3EE;
+  --chalk-soft: rgba(238, 243, 238, .76);
+  --chalk-dim: rgba(238, 243, 238, .38);
+  --chalk-line: rgba(238, 243, 238, .18);
+  --chalk-yellow: #F3E68F;
+  --wood: #7A5534;
+  position: relative;
+  padding: clamp(8px, 1.1vw, 14px);
+  border-radius: 10px;
+  /* the frame: oak with its grain, lit from above */
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, transparent 2px 9px, rgba(255,255,255,.04) 9px 10px, transparent 10px 23px),
+    linear-gradient(180deg, #9A7048 0%, #7A5534 40%, #5F4027 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25), inset 0 -2px 0 rgba(0,0,0,.25),
+    0 1px 2px rgba(24,33,29,.18), 0 24px 60px -18px rgba(24,33,29,.45);
+  color: var(--chalk);
+}
+.board-surface {
+  position: relative; isolation: isolate; overflow: hidden;
+  border-radius: 4px;
+  background-color: #1C4638;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.35), inset 0 10px 30px rgba(0,0,0,.28), inset 0 -6px 24px rgba(0,0,0,.18);
+}
+.board-surface::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: var(--board-texture);
+}
+.board-tray {
+  position: relative; height: clamp(12px, 1.3vw, 16px); margin: clamp(6px, .8vw, 10px) -2px -4px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #A87C52 0%, #84603D 45%, #5F4027 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 3px 6px rgba(0,0,0,.25);
+}
+.board-chalk, .board-eraser { position: absolute; display: block; }
+.board-chalk { top: -6px; left: 16%; width: 58px; height: 8px; border-radius: 4px; background: linear-gradient(180deg, #FFFFFF, #DADDD6); transform: rotate(-3deg); box-shadow: 0 2px 2px rgba(0,0,0,.25); }
+.board-chalk.yellow { left: calc(16% + 74px); width: 34px; background: linear-gradient(180deg, #F8EEA8, #DCCF72); transform: rotate(5deg); }
+.board-eraser {
+  top: -15px; right: 14%; width: 96px; height: 20px; border-radius: 3px 3px 2px 2px;
+  background: linear-gradient(180deg, #C9A36E 0 55%, #3C3F44 55% 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 3px 5px rgba(0,0,0,.3);
+}
+.chalk { filter: url(#chalk); }
+@media (max-width: 600px) {
+  .board-eraser { width: 64px; height: 16px; top: -11px; }
+}
+
+/* ── the panels' menu: the same board, hung on the left wall ─────────
+   Used by the teacher panel (.app-side) and the admin panel (.adm-side):
+   board texture, an oak edge on the right, chalk for every word. */
+.chalk-side.chalk-side {
+  position: relative; color: var(--chalk);
+  background-color: #1C4638; background-image: var(--board-texture);
+  border-right: 0 !important;
+  box-shadow: inset -10px 0 0 #6E4D30;
+}
+.chalk-side::after {
+  content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 10px; pointer-events: none;
+  background: var(--wood-edge);
+  box-shadow: inset 1px 0 0 rgba(255,255,255,.18), -2px 0 6px rgba(0,0,0,.25);
+}
+.chalk-side :focus-visible { outline-color: var(--chalk-yellow) !important; }
+/* the page you are on: a stroke of yellow chalk */
+.chalk-mark { position: absolute; left: 4px; top: 50%; width: 14px; height: 4px; margin-top: -2px; border-radius: 3px; background: var(--chalk-yellow); transform: rotate(-8deg); }

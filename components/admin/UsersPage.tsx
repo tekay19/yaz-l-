@@ -68,7 +68,7 @@ export default function UsersPage() {
                     </td>
                     <td><UserBadges u={u} /></td>
                     <td className={`num${u.pageBalance ? '' : ' adm-muted'}`}>{num(u.pageBalance)}</td>
-                    <td className="num">{u.paidKurus ? tlKurus(u.paidKurus) : <span className="adm-muted">₺0</span>}</td>
+                    <td className="num">{u.paidKurus ? tlKurus(u.paidKurus) : <span className="adm-muted">0 TL</span>}</td>
                     <td className={`num${u.jobs ? '' : ' adm-muted'}`}>{num(u.jobs)}</td>
                     <td className="nowrap">{day(u.createdAt)}</td>
                     <td className="nowrap" title={u.lastLoginAt ?? undefined}>{u.lastLoginAt ? ago(u.lastLoginAt) : <span className="adm-muted">Hiç</span>}</td>

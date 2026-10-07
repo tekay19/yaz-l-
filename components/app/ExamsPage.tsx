@@ -4,6 +4,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { Board } from '@/components/Board';
 import type { JobView } from '@/components/console/api';
 import { useTeacher } from './context';
 import { IconCheck, IconPlus, IconSearch } from './icons';
@@ -87,6 +88,15 @@ export default function ExamsPage() {
         </section>
       )}
 
+      {jobs?.length === 0 && (
+        <Onboarding steps={[
+            { done: (classCount ?? 0) > 0, title: 'Sınıf listenizi kaydedin', text: 'İsimler kâğıtlarla bu listeye göre eşleşir; her sınavda yeniden yapıştırmazsınız.', href: '/hesap/siniflar', cta: 'Sınıf ekleyin' },
+            { done: me.pageBalance > 0, title: 'Sayfa hakkı alın', text: 'Her öğrenci sayfası bir sayfa. Sınavı gönderirken de alabilirsiniz.', href: '/hesap/paket', cta: 'Paketlere bakın' },
+            { done: false, title: 'İlk sınavınızı yükleyin', text: 'Cevap anahtarını ve kâğıtların fotoğraflarını ekleyin; okunup puanlanır.', href: '/yukle', cta: 'Sınav yükleyin' },
+          ]} />
+      )}
+
+      {jobs?.length !== 0 && (
       <section className="app-card app-flush">
         <div className="app-toolbar">
           <div className="app-chips" role="group" aria-label="Sınavları süzün">
@@ -107,12 +117,6 @@ export default function ExamsPage() {
 
         {jobs === null ? (
           <div className="app-skeleton" />
-        ) : jobs.length === 0 ? (
-          <Onboarding steps={[
-            { done: (classCount ?? 0) > 0, title: 'Sınıf listenizi kaydedin', text: 'İsimler kâğıtlarla bu listeye göre eşleşir; her sınavda yeniden yapıştırmazsınız.', href: '/hesap/siniflar', cta: 'Sınıf ekleyin' },
-            { done: me.pageBalance > 0, title: 'Sayfa hakkı alın', text: 'Her öğrenci sayfası bir sayfa. Sınavı gönderirken de alabilirsiniz.', href: '/hesap/paket', cta: 'Paketlere bakın' },
-            { done: false, title: 'İlk sınavınızı yükleyin', text: 'Cevap anahtarını ve kâğıtların fotoğraflarını ekleyin; okunup puanlanır.', href: '/yukle', cta: 'Sınav yükleyin' },
-          ]} />
         ) : shown.length === 0 ? (
           <Empty title="Bu süzgeçte sınav yok">Başka bir süzgeç seçin ya da aramayı temizleyin.</Empty>
         ) : (
@@ -153,6 +157,7 @@ export default function ExamsPage() {
           </div>
         )}
       </section>
+      )}
     </>
   );
 }
@@ -161,9 +166,9 @@ export default function ExamsPage() {
 function Onboarding({ steps }: { steps: { done: boolean; title: string; text: string; href: string; cta: string }[] }) {
   const next = steps.findIndex((s) => !s.done);
   return (
-    <div className="app-onboard">
-      <h2>Hoş geldiniz</h2>
-      <p className="app-onboard-sub">Üç adımda ilk sınıfınızın sonuçları hazır olur.</p>
+    <Board className="app-onboard">
+      <h2 className="chalk">Hoş geldiniz.</h2>
+      <p className="app-onboard-sub">Üç adımda ilk sınıfınızın sonuçları hazır.</p>
       <ol>
         {steps.map((s, i) => (
           <li key={s.title} className={s.done ? 'done' : i === next ? 'next' : undefined}>
@@ -172,10 +177,10 @@ function Onboarding({ steps }: { steps: { done: boolean; title: string; text: st
               <strong>{s.done && <span className="sr-only">Tamamlandı: </span>}{s.title}</strong>
               <p>{s.text}</p>
             </div>
-            {!s.done && <Link href={s.href} className={`btn btn-sm ${i === next ? 'btn-primary' : 'btn-ghost'}`}>{s.cta}</Link>}
+            {!s.done && <Link href={s.href} className={`btn btn-sm ${i === next ? 'lp-chalk-btn' : 'lp-chalk-ghost'}`}>{s.cta}</Link>}
           </li>
         ))}
       </ol>
-    </div>
+    </Board>
   );
 }

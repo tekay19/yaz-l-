@@ -7,6 +7,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { ChalkDefs } from '@/components/Board';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { createApi, type Me } from '@/components/console/api';
 import { LogoMark } from '@/components/LogoMark';
@@ -70,8 +71,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const active = (href: string, exact?: boolean) => (exact ? path === href || path.startsWith('/hesap/sinav') : path.startsWith(href));
   return (
     <TeacherContext.Provider value={{ api, me, refreshMe, signOut }}>
+      <ChalkDefs />
       <div className={`app${menu ? ' menu-open' : ''}`}>
-        <aside className="app-side" aria-label="Panel menüsü">
+        <aside className="app-side chalk-side" aria-label="Panel menüsü">
           <div className="app-brand">
             <Link href="/hesap" className="app-logo"><LogoMark /><span>SınavOku</span></Link>
             <button type="button" className="app-icon-btn app-only-sm" onClick={() => setMenu(false)} aria-label="Menüyü kapat"><IconClose /></button>
@@ -80,12 +82,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <nav className="app-nav">
             {NAV.map(({ href, label, icon: Icon, exact }) => (
               <Link key={href} href={href} className={active(href, exact) ? 'on' : undefined} aria-current={active(href, exact) ? 'page' : undefined}>
+                {active(href, exact) && <i className="chalk-mark" aria-hidden="true" />}
                 <Icon /> {label}
               </Link>
             ))}
           </nav>
           <div className="app-side-foot">
-            {me.role === 'admin' && <Link href="/admin" className="app-admin-link">Yönetim paneli</Link>}
             <Link href="/hesap/paket" className="app-balance">
               <span className="k">Sayfa hakkınız</span>
               <span className="v">{me.pageBalance.toLocaleString('tr-TR')}</span>
