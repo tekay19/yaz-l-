@@ -47,7 +47,7 @@ export default function UsersPage() {
           <Empty title="Eşleşen öğretmen yok">{q ? `“${q}” için sonuç bulunamadı.` : 'Bu filtrede hesap yok.'}</Empty>
         ) : (
           <div className={`adm-table-wrap${loading ? ' adm-stale' : ''}`}>
-            <table className="adm-table">
+            <table className="adm-table t-users">
               <thead>
                 <tr>
                   <th scope="col">Öğretmen</th>

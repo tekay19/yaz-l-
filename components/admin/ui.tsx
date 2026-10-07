@@ -50,6 +50,20 @@ export function useQueryState() {
   return { get, set };
 }
 
+// true below `px`: a detail page then moves its side column into its tabs,
+// so a phone never scrolls through every panel stacked on top of each other
+export function useNarrow(px = 1100) {
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const m = window.matchMedia(`(max-width: ${px}px)`);
+    const on = () => setNarrow(m.matches);
+    on();
+    m.addEventListener('change', on);
+    return () => m.removeEventListener('change', on);
+  }, [px]);
+  return narrow;
+}
+
 // ---- layout pieces -----------------------------------------------------------
 
 export function Header({ title, sub, back, actions }: {
@@ -115,7 +129,7 @@ function StatCell({ s }: { s: StatItem }) {
 // one ruled strip of figures: a single surface split by vertical rules, not a row of cards
 export function StatStrip({ items, label }: { items: StatItem[]; label?: string }) {
   return (
-    <section className="adm-stats" aria-label={label} style={{ '--n': items.length } as React.CSSProperties}>
+    <section className={`adm-stats n-${items.length}`} aria-label={label} style={{ '--n': items.length } as React.CSSProperties}>
       {items.map((s) => <StatCell key={s.label} s={s} />)}
     </section>
   );

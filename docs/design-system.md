@@ -24,14 +24,14 @@ Gradyan arka planlar, renkli bloblar ve dekoratif yıkamalar yok.
 
 - **Schibsted Grotesk** (400/500/600/700/800): arayüzün ve başlıkların tek ailesi. Gazete kökenli, sağlam ve kişilikli bir grotesk; Türkçe karakterleri tam.
 - **Caveat** (600): yalnızca kırmızı kalem notları için. Bir kâğıt üstündeki puan, "✓ 18/20", tanıtım sayfasındaki örnek kâğıt gibi. Arayüz etiketi olarak kullanılmaz.
-- `font-variant-numeric: tabular-nums` yalnızca alt alta hizalanan sayılara (tablo sayı hücreleri, istatistik değerleri) verilir; Schibsted'in tabular modu virgül ve noktayı da genişletir, bu yüzden metne ya da kapsayıcıya verilmez. Tablolarda sayısal sütunlar sağa hizalanır.
+- `font-variant-numeric: tabular-nums` hiçbir yerde kullanılmaz: Schibsted'in tablo rakamları virgül ve noktayı da genişletir ("1 . 490", "%44 , 4"). Tablolarda sayısal sütunlar yalnızca sağa hizalanır.
 - Ölçek (px): 12.5 · 14 · 15.5 · 17 · 20 · 26 · 34 · 48. Başlıklarda harf aralığı −0.02em; gövde 1.55 satır aralığı.
 - Yapılmayacaklar: TÜMÜ BÜYÜK HARF etiketler; başlıkta tek kelimeyi renklendirmek ya da italik yapmak; her başlığın üstüne küçük etiket koymak; bağlantı ve düğme metnine "→" eklemek; tek boşluklu (monospace) veri etiketleri.
 
 ## Düzen
 
 - **Not defteri ilkesi:** içerik kutulara doğranmaz. Bir sayfa; başlık satırı (solda başlık ve kısa açıklama, sağda eylemler), ardından ince çizgilerle ayrılmış bölümler. Kart yalnızca içerik gerçekten bir nesne olduğunda kullanılır (bir sınav, bir paket).
-- **İstatistik şeridi:** dört ayrı kart yerine, tek yüzey üzerinde dikey çizgilerle bölünmüş tek satır. Etiket küçük ve kurşun rengi, değer büyük ve tabular.
+- **İstatistik şeridi:** dört ayrı kart yerine, tek yüzey üzerinde dikey çizgilerle bölünmüş tek satır. Etiket küçük ve kurşun rengi, değer büyük.
 - **Tablolar** birincil kalıptır: 1px yatay çizgiler, başlık satırı kurşun rengi 12.5px ve normal harf, satır hover'ı masa rengi, sayılar sağda.
 - **Köşe yarıçapı hiyerarşisi:** kontroller 6px, paneller 10px, rozetler 999px. Her şeye aynı yarıçap verilmez.
 - **Gölge:** yalnızca yüzen öğelerde (menü, toast, dialog). Paneller gölgesiz, 1px çizgiyle durur.

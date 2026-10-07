@@ -5,14 +5,15 @@ import Link from 'next/link';
 import { adminUrl, userAction, type UserDetail as Data } from './api';
 import AuditTable from './AuditTable';
 import { FAIL_REASON, JOB_STATUS, LEDGER_REASON, MODE_LABEL, PAY_STATUS, ago, day, dt, num, packLabel, tlKurus } from './format';
-import { Card, Confirm, Dl, Empty, ErrorBox, Header, Loading, Notice, StatStrip, StateBadge, Tabs, useLoad } from './ui';
+import { Card, Confirm, Dl, Empty, ErrorBox, Header, Loading, Notice, StatStrip, StateBadge, Tabs, useLoad, useNarrow } from './ui';
 import { UserBadges } from './UsersPage';
 
-type Tab = 'jobs' | 'payments' | 'ledger' | 'actions';
+type Tab = 'jobs' | 'payments' | 'ledger' | 'actions' | 'manage' | 'account';
 
 export default function UserDetail({ id }: { id: string }) {
   const { data, error, loading, reload } = useLoad<Data>(adminUrl.user(id));
-  const [tab, setTab] = useState<Tab>('jobs');
+  const [picked, setTab] = useState<Tab>('jobs');
+  const narrow = useNarrow();
 
   if (!data) {
     return (
@@ -23,6 +24,19 @@ export default function UserDetail({ id }: { id: string }) {
     );
   }
   const u = data.user;
+  const tab: Tab = !narrow && picked === 'manage' ? 'jobs' : picked;
+  const accountCard = (
+    <Card title="Hesap">
+      <Dl items={[
+        ['Rol', u.role === 'admin' ? 'Yönetici' : 'Öğretmen'],
+        ['E-posta doğrulama', u.emailVerifiedAt ? dt(u.emailVerifiedAt) : 'Doğrulanmadı'],
+        ['Şifre', u.hasPassword ? 'Var' : 'Yok (bağlantıyla giriş)'],
+        ['Askı', u.suspendedAt ? dt(u.suspendedAt) : 'Yok'],
+        ['Son giriş', dt(u.lastLoginAt)],
+        ['Kayıt', dt(u.createdAt)],
+      ]} />
+    </Card>
+  );
   const flags = { verified: !!u.emailVerifiedAt, suspended: !!u.suspendedAt, role: u.role, hasPassword: u.hasPassword };
 
   return (
@@ -51,28 +65,26 @@ export default function UserDetail({ id }: { id: string }) {
               { id: 'payments', label: 'Ödemeler', count: data.payments.length },
               { id: 'ledger', label: 'Bakiye hareketleri', count: data.ledger.length },
               { id: 'actions', label: 'Yönetici işlemleri', count: data.actions.length },
+              { id: 'account', label: 'Hesap' },
+              ...(narrow ? [{ id: 'manage' as const, label: 'İşlemler' }] : []),
             ]}
           />
-          <Card flush>
-            {tab === 'jobs' && <JobsTab data={data} />}
-            {tab === 'payments' && <PaymentsTab data={data} />}
-            {tab === 'ledger' && <LedgerTab data={data} />}
-            {tab === 'actions' && <AuditTable rows={data.actions} showTarget={false} empty="Bu öğretmende yönetici işlemi yok." />}
-          </Card>
+          {tab === 'manage' ? <Actions data={data} reload={reload} />
+            : tab === 'account' ? accountCard
+            : (
+              <Card flush>
+                <div className="adm-scroll-y">
+                  {tab === 'jobs' && <JobsTab data={data} />}
+                  {tab === 'payments' && <PaymentsTab data={data} />}
+                  {tab === 'ledger' && <LedgerTab data={data} />}
+                  {tab === 'actions' && <AuditTable rows={data.actions} showTarget={false} empty="Bu öğretmende yönetici işlemi yok." />}
+                </div>
+              </Card>
+            )}
         </div>
-        <aside className="adm-detail-side" aria-label="İşlemler">
+        {!narrow && <aside className="adm-detail-side" aria-label="İşlemler">
           <Actions data={data} reload={reload} />
-          <Card title="Hesap">
-            <Dl items={[
-              ['Rol', u.role === 'admin' ? 'Yönetici' : 'Öğretmen'],
-              ['E-posta doğrulama', u.emailVerifiedAt ? dt(u.emailVerifiedAt) : 'Doğrulanmadı'],
-              ['Şifre', u.hasPassword ? 'Var' : 'Yok (bağlantıyla giriş)'],
-              ['Askı', u.suspendedAt ? dt(u.suspendedAt) : 'Yok'],
-              ['Son giriş', dt(u.lastLoginAt)],
-              ['Kayıt', dt(u.createdAt)],
-            ]} />
-          </Card>
-        </aside>
+        </aside>}
       </div>
     </>
   );

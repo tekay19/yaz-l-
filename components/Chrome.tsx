@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { PrivacyLink } from './PrivacyPreferences';
+import { LogoMark } from './LogoMark';
 
 export function Check({ size = 17, width = 3 }: { size?: number; width?: number }) {
   return (
@@ -40,9 +42,7 @@ export function Lock({ size = 15 }: { size?: number }) {
 export function Logo() {
   return (
     <Link href="/" className="logo" aria-label="SınavOku ana sayfa">
-      <span className="logo-mark" aria-hidden="true">
-        <Check />
-      </span>
+      <LogoMark />
       <span className="logo-text">SınavOku</span>
     </Link>
   );
@@ -100,6 +100,7 @@ export function LegalLinks() {
       <Link href="/kvkk">KVKK Aydınlatma Metni</Link>
       <Link href="/gizlilik">Gizlilik Politikası</Link>
       <Link href="/kullanim-kosullari">Kullanım Koşulları</Link>
+      <PrivacyLink />
     </nav>
   );
 }

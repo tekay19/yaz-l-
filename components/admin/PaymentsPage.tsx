@@ -55,7 +55,7 @@ export default function PaymentsPage() {
           <Empty title="Eşleşen ödeme yok">{q ? `“${q}” için sonuç bulunamadı.` : 'Bu filtrede ödeme yok.'}</Empty>
         ) : (
           <div className={`adm-table-wrap${loading ? ' adm-stale' : ''}`}>
-            <table className="adm-table">
+            <table className="adm-table t-pay">
               <thead>
                 <tr>
                   <th scope="col">Tarih</th>

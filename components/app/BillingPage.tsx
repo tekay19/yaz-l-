@@ -3,12 +3,15 @@
 // Paket ve ödemeler: the balance, buying pages, and where they went.
 
 import { useEffect, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import type { HistoryEntry } from '@/components/console/api';
 import PackageOptions from '@/components/PackageOptions';
 import { useToast } from '@/components/Toast';
 import type { PackName } from '@/lib/packs';
 import { useTeacher } from './context';
-import { Badge, Empty, PageHeader, Stat, dateTr, num } from './ui';
+import { Badge, Empty, PageHeader, Stat, Tabs, dateTr, num } from './ui';
+
+type Tab = 'paket' | 'hareket';
 
 const KIND: Record<HistoryEntry['kind'], { label: string; tone: 'green' | 'grey' | 'blue' }> = {
   purchase: { label: 'Satın alma', tone: 'green' },
@@ -23,6 +26,17 @@ export default function BillingPage() {
   const toast = useToast();
   const [history, setHistory] = useState<HistoryEntry[] | null>(null);
   const [busy, setBusy] = useState(false);
+  const params = useSearchParams();
+  const router = useRouter();
+  const path = usePathname();
+  const tab: Tab = params.get('sekme') === 'hareketler' ? 'hareket' : 'paket';
+  // ?odeme=... from the payment page is kept: the shell reads it for its message
+  const setTab = (t: Tab) => {
+    const next = new URLSearchParams(params.toString());
+    if (t === 'hareket') next.set('sekme', 'hareketler'); else next.delete('sekme');
+    const q = next.toString();
+    router.replace(q ? `${path}?${q}` : path, { scroll: false });
+  };
 
   useEffect(() => { api.history().then((r) => setHistory(r.ok ? r.data : [])); }, [api]);
 
@@ -46,21 +60,26 @@ export default function BillingPage() {
         <Stat label="Toplam ödeme" value={`${num(spent / 100, 2)} TL`} />
       </div>
 
-      <section className="app-card">
+      <Tabs<Tab> value={tab} onChange={setTab} tabs={[
+        { id: 'paket', label: 'Sayfa hakkı alın' },
+        { id: 'hareket', label: 'Hareketler' },
+      ]} />
+
+      {tab === 'paket' && <section className="app-card">
         <h2>Sayfa hakkı alın</h2>
         <p className="app-section-sub">iyzico&apos;nun güvenli ödeme sayfasına gidersiniz; ödeme sonrası bu sayfaya dönersiniz. Sayfalar dolana kadar geçerlidir, abonelik yoktur.</p>
         <div className={busy ? 'app-busy' : undefined}>
           <PackageOptions onSelect={buy} />
         </div>
-      </section>
+      </section>}
 
-      <section className="app-card app-flush">
+      {tab === 'hareket' && <section className="app-card app-flush">
         <div className="app-toolbar"><h2>Hareketler</h2></div>
         {history === null ? <div className="app-skeleton" /> : history.length === 0 ? (
           <Empty title="Henüz hareket yok">Paket aldığınızda ve sınav gönderdiğinizde burada görünür.</Empty>
         ) : (
-          <div className="app-table-wrap">
-            <table className="app-table">
+          <div className="app-table-wrap app-scroll-y">
+            <table className="app-table t-history">
               <thead><tr><th>Tarih</th><th>İşlem</th><th>Açıklama</th><th className="num">Tutar</th><th className="num">Sayfa</th></tr></thead>
               <tbody>
                 {history.map((h, i) => (
@@ -76,7 +95,7 @@ export default function BillingPage() {
             </table>
           </div>
         )}
-      </section>
+      </section>}
     </>
   );
 }

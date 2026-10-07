@@ -63,8 +63,7 @@ body {
 }
 
 a { color: inherit; text-decoration: none; }
-/* Schibsted's tabular figures also widen , and . — so only on numbers that line up in columns */
-.num, .tabular { font-variant-numeric: tabular-nums; }
+/* no tabular figures anywhere: Schibsted's widen "," and "." too, so "1.490" and "%44,4" fall apart */
 button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
 ul { list-style: none; }
 img, svg { max-width: 100%; }
@@ -96,7 +95,6 @@ p { text-wrap: pretty; }
 .muted { color: var(--ink-soft); }
 .small { font-size: 15.5px; }
 .tiny { font-size: 14px; }
-.num { font-variant-numeric: tabular-nums; }
 
 /* ── HEADER ── */
 .site-head {
@@ -114,13 +112,9 @@ p { text-wrap: pretty; }
   height: 64px;
 }
 .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; letter-spacing: -0.02em; color: var(--ink); flex: none; }
-.logo-mark {
-  width: 30px; height: 30px; flex: none;
-  border-radius: var(--r-ctl);
-  background: var(--board);
-  display: grid; place-items: center;
-  color: #fff;
-}
+.logo-mark { width: 32px; height: 32px; flex: none; display: block; }
+.logo-mark svg { display: block; }
+.logo-mark.bare { filter: drop-shadow(0 2px 3px rgba(0,0,0,.28)); }
 .head-nav { display: flex; align-items: center; gap: 20px; }
 .head-links { display: flex; align-items: center; gap: 24px; margin-right: 8px; }
 .head-links a { font-size: 15.5px; font-weight: 500; color: var(--ink-soft); }
@@ -190,7 +184,7 @@ section { padding: clamp(56px, 8vw, 104px) 0; }
   width: 24px; height: 24px; border-radius: 50%;
   display: grid; place-items: center;
   border: 1px solid var(--line-strong); color: var(--ink-soft); background: var(--paper);
-  font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums;
+  font-size: 12.5px; font-weight: 700;
   flex: none;
 }
 .stepper .s.done .dot { background: var(--board-bright); border-color: var(--board-bright); color: #fff; }
@@ -212,7 +206,7 @@ section { padding: clamp(56px, 8vw, 104px) 0; }
 @media (max-width: 900px) { .summary { position: static; } }
 .sum-row { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--line-soft); font-size: 15.5px; }
 .sum-row .k { color: var(--ink-soft); }
-.sum-row .v { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 62%; }
+.sum-row .v { font-weight: 600; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 62%; }
 .sum-row .v.missing { color: var(--amber); }
 
 /* ── FORM FIELDS ── */
@@ -300,9 +294,18 @@ section { padding: clamp(56px, 8vw, 104px) 0; }
 .pack-tag.offer { background: var(--board-bright); }
 .price-card.pack.featured.discounted .pack-tag:not(.offer) { display: none; }
 .pack-name { font-size: 15.5px; font-weight: 700; color: var(--ink); }
-.pack-unit { font-size: 14px; color: var(--ink-soft); margin-bottom: 18px; font-variant-numeric: tabular-nums; }
+.pack-unit { font-size: 14px; color: var(--ink-soft); margin-bottom: 18px; }
 @media (max-width: 900px) {
   .pack-grid { grid-template-columns: 1fr; max-width: 520px; gap: 24px; }
+}
+/* a phone swipes through the packs side by side instead of scrolling past three cards */
+@media (max-width: 640px) {
+  .pack-grid, .wizard .pack-grid {
+    display: flex; max-width: none; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory;
+    margin: 0 calc(var(--gutter) * -1); padding: 4px var(--gutter) 10px; scrollbar-width: none;
+  }
+  .pack-grid::-webkit-scrollbar { display: none; }
+  .pack-grid > * { flex: 0 0 84%; scroll-snap-align: center; }
 }
 
 /* a pack's price, with the pre-discount figure struck through */
@@ -310,7 +313,7 @@ section { padding: clamp(56px, 8vw, 104px) 0; }
 .price-tag .was {
   color: var(--ink-soft);
   font-weight: 500;
-  font-variant-numeric: tabular-nums;
+ 
   text-decoration: line-through;
   text-decoration-thickness: 1.5px;
 }
@@ -328,7 +331,7 @@ section { padding: clamp(56px, 8vw, 104px) 0; }
 /* ── Upload wizard (/yukle): one decision per page ─────────────────── */
 
 .wizard { padding: clamp(28px, 4vw, 48px) 0 clamp(48px, 6vw, 80px); }
-.wizard-count { font-size: 14px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; font-variant-numeric: tabular-nums; }
+.wizard-count { font-size: 14px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; }
 .wizard h1 { font-size: clamp(26px, 3.2vw, 34px); max-width: 24ch; }
 .wizard .lead { margin-top: 12px; max-width: 56ch; }
 
@@ -481,11 +484,15 @@ section { padding: clamp(56px, 8vw, 104px) 0; }
 .legal-contact { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 15.5px; }
 
 /* ── Analytics consent ─────────────────────────────────────────────── */
-.privacy-preferences { padding: 14px var(--gutter); border-top: 1px solid var(--line); background: var(--paper); font-size: 14.5px; color: var(--ink-soft); }
+.privacy-preferences {
+  position: fixed; z-index: 80; left: 16px; bottom: 16px; width: min(420px, calc(100vw - 32px));
+  padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r-md);
+  background: var(--paper); box-shadow: var(--shadow-float); font-size: 14px; color: var(--ink-soft);
+}
 .privacy-preferences p { max-width: 80ch; }
 .privacy-preferences a { color: var(--board-bright); text-decoration: underline; text-underline-offset: 3px; }
 .privacy-actions { display: flex; gap: 10px; margin-top: 12px; }
-.privacy-reopen { font-size: 14px; color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px; }
+.privacy-reopen { padding: 0; background: none; border: 0; cursor: pointer; font: inherit; font-size: 14px; color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px; }
 .privacy-reopen:hover { color: var(--ink); }
 
 /* ── Toasts: top-right, out of the form's way ───────────────────────── */
@@ -665,20 +672,35 @@ section { padding: clamp(56px, 8vw, 104px) 0; }
   .board-eraser { width: 64px; height: 16px; top: -11px; }
 }
 
-/* ── the panels' menu: the same board, hung on the left wall ─────────
+/* ── the panels' menu ─────────────────────────────────────────────────
    Used by the teacher panel (.app-side) and the admin panel (.adm-side):
-   board texture, an oak edge on the right, chalk for every word. */
+   the board's deep green without its props, so it reads as a working tool.
+   One thin line on the right, the page you are on lit from the left. */
 .chalk-side.chalk-side {
-  position: relative; color: var(--chalk);
-  background-color: #1C4638; background-image: var(--board-texture);
+  color: var(--chalk);
+  background-color: #173F33;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .045 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #1E4B3C 0%, #173F33 55%, #12352A 100%);
   border-right: 0 !important;
-  box-shadow: inset -10px 0 0 #6E4D30;
-}
-.chalk-side::after {
-  content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 10px; pointer-events: none;
-  background: var(--wood-edge);
-  box-shadow: inset 1px 0 0 rgba(255,255,255,.18), -2px 0 6px rgba(0,0,0,.25);
+  box-shadow: inset -1px 0 0 rgba(255,255,255,.07);
 }
 .chalk-side :focus-visible { outline-color: var(--chalk-yellow) !important; }
-/* the page you are on: a stroke of yellow chalk */
-.chalk-mark { position: absolute; left: 4px; top: 50%; width: 14px; height: 4px; margin-top: -2px; border-radius: 3px; background: var(--chalk-yellow); transform: rotate(-8deg); }
+/* the page you are on: a short bar of light at the item's left edge */
+.chalk-mark { position: absolute; left: 0; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0; background: var(--chalk-yellow); }
+
+@media (max-width: 640px) {
+  /* on a phone the analytics question is a slim bar, not a card over the page */
+  .privacy-preferences { left: 8px; right: 8px; bottom: 8px; width: auto; padding: 12px 14px; font-size: 13px; line-height: 1.45; }
+  .privacy-actions { margin-top: 8px; }
+  .privacy-actions .btn { height: 34px; flex: 1; }
+}
+
+@media (max-width: 960px) {
+  /* the wizard's next step stays under the thumb instead of below the summary */
+  .wizard-aside .wizard-next {
+    position: fixed; z-index: 45; left: 12px; right: 12px; bottom: 12px; width: auto; margin: 0;
+    height: 52px; box-shadow: 0 2px 4px rgba(24,33,29,.18), 0 12px 28px rgba(24,33,29,.22);
+  }
+  .wizard { padding-bottom: 84px; }
+}

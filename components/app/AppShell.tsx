@@ -75,7 +75,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <div className={`app${menu ? ' menu-open' : ''}`}>
         <aside className="app-side chalk-side" aria-label="Panel menüsü">
           <div className="app-brand">
-            <Link href="/hesap" className="app-logo"><LogoMark /><span>SınavOku</span></Link>
+            <Link href="/hesap" className="app-logo"><LogoMark bare /><span>SınavOku</span></Link>
             <button type="button" className="app-icon-btn app-only-sm" onClick={() => setMenu(false)} aria-label="Menüyü kapat"><IconClose /></button>
           </div>
           <Link href="/yukle" className="btn btn-primary app-new"><IconPlus size={17} /> Yeni sınav yükleyin</Link>
@@ -104,7 +104,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div className="app-main">
           <header className="app-top app-only-sm">
             <button type="button" className="app-icon-btn" onClick={() => setMenu(true)} aria-label="Menüyü açın"><IconMenu /></button>
-            <Link href="/hesap" className="app-logo"><LogoMark /><span>SınavOku</span></Link>
+            <Link href="/hesap" className="app-logo"><LogoMark bare /><span>SınavOku</span></Link>
             <Link href="/hesap/paket" className="app-pill" aria-label={`Sayfa hakkınız: ${me.pageBalance}`}>{me.pageBalance.toLocaleString('tr-TR')} sayfa</Link>
           </header>
           <main className="app-content">

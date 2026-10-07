@@ -3,11 +3,14 @@
 // Ayarlar: defaults for new exams, and the account itself.
 
 import { useState, type FormEvent } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import { MAX_TEACHER_NOTE } from '@/lib/limits';
 import type { GradingStyle } from '@/lib/types';
 import { useTeacher } from './context';
-import { PageHeader } from './ui';
+import { PageHeader, Tabs } from './ui';
+
+type Tab = 'puanlama' | 'hesap' | 'sil';
 
 const STYLES: { id: GradingStyle; label: string; text: string }[] = [
   { id: 'strict', label: 'Sıkı', text: 'Fikir eksiksiz ve kesin ifade edilmeli; eksik ya da belirsiz anlatım yarım puan alır.' },
@@ -22,6 +25,12 @@ export default function SettingsPage() {
   const [note, setNote] = useState(me.settings?.note ?? '');
   const [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState('');
+  // one section at a time, kept in the URL (?sekme=hesap) so a reload stays put
+  const params = useSearchParams();
+  const router = useRouter();
+  const path = usePathname();
+  const tab = (['puanlama', 'hesap', 'sil'] as const).find((t) => t === params.get('sekme')) ?? 'puanlama';
+  const setTab = (t: Tab) => router.replace(t === 'puanlama' ? path : `${path}?sekme=${t}`, { scroll: false });
 
   async function save() {
     setBusy(true);
@@ -42,7 +51,14 @@ export default function SettingsPage() {
     <>
       <PageHeader title="Ayarlar" sub="Yeni sınavlarınız bu ayarlarla başlar; her sınavda ayrıca değiştirebilirsiniz." />
 
+      <Tabs<Tab> value={tab} onChange={setTab} tabs={[
+        { id: 'puanlama', label: 'Puanlama' },
+        { id: 'hesap', label: 'Hesap ve şifre' },
+        { id: 'sil', label: 'Hesabı silin' },
+      ]} />
+
       <div className="app-card app-sheet">
+        {tab === 'puanlama' && <>
         <section className="app-sec" aria-labelledby="set-style">
           <div className="app-sec-head">
             <h2 id="set-style">Klasik sınavlarda puanlama tarzı</h2>
@@ -73,6 +89,9 @@ export default function SettingsPage() {
           </div>
         </section>
 
+        </>}
+
+        {tab === 'hesap' && <>
         <section className="app-sec" aria-labelledby="set-account">
           <div className="app-sec-head">
             <h2 id="set-account">Hesap</h2>
@@ -90,8 +109,9 @@ export default function SettingsPage() {
         </section>
 
         <PasswordCard />
+        </>}
 
-        <section className="app-sec app-danger-zone" aria-labelledby="set-delete">
+        {tab === 'sil' && <section className="app-sec app-danger-zone" aria-labelledby="set-delete">
           <div className="app-sec-head">
             <h2 id="set-delete">Hesabı silin</h2>
             <p>Hesabınız, sınavlarınız, sınıf listeleriniz ve kalan sayfa hakkınız kalıcı olarak silinir. Ödeme kayıtları yasal süre boyunca saklanır.</p>
@@ -107,7 +127,7 @@ export default function SettingsPage() {
               </button>
             </div>
           </div>
-        </section>
+        </section>}
       </div>
     </>
   );

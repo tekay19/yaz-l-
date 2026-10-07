@@ -2,11 +2,12 @@
    The page's one loud moment. Chalk title, yellow-chalk offer, and the
    product in three moves (components/HeroDemo.tsx) that play once on load. */
 
-.lp-hero { padding: clamp(20px, 3vw, 40px) 0 clamp(48px, 6vw, 80px); }
-.lp-board .board-surface { padding: clamp(28px, 4.4vw, 64px) clamp(22px, 4.4vw, 64px) clamp(22px, 3vw, 40px); }
+/* the whole board fits the first screen: below the 64px header, with a margin */
+.lp-hero { padding: clamp(12px, 2vh, 24px) 0 clamp(40px, 5vw, 64px); }
+.lp-board .board-surface { padding: clamp(24px, 4.5vh, 48px) clamp(22px, 4.4vw, 64px) clamp(10px, 1.6vh, 18px); }
 .lp-board-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(24px, 4vw, 56px); align-items: center; }
 .lp-board-title {
-  font-size: clamp(46px, 6.6vw, 98px); line-height: .96; letter-spacing: -0.04em; font-weight: 800;
+  font-size: clamp(42px, min(6.4vw, 10.5vh), 98px); line-height: .96; letter-spacing: -0.04em; font-weight: 800;
   color: var(--chalk); max-width: 8.6ch;
 }
 .lp-board-lead { margin-top: clamp(18px, 2vw, 28px); max-width: 26ch; font-size: clamp(18px, 1.6vw, 22px); line-height: 1.45; color: var(--chalk-soft); }
@@ -27,6 +28,7 @@
 .lp-chalk-note b { font-weight: 700; font-size: 1.2em; }
 .lp-chalk-note > span { white-space: nowrap; }
 .lp-chalk-note s { opacity: .7; font-size: .8em; text-decoration-thickness: 2px; }
+.lp-chalk-note b, .lp-chalk-note s { white-space: nowrap; }
 .lp-chalk-arrow { width: 54px; height: 38px; flex: none; margin-top: -14px; }
 .lp-chalk-arrow path { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -34,6 +36,12 @@
 .lp-board-scene { min-width: 0; scroll-margin-top: 90px; }
 .scene { --pencil: #2B3A67; --hand: #23408E; }
 .scene-stage { position: relative; height: 660px; color: var(--ink); }
+/* the scene is drawn at one size and scaled to the screen's height, so the
+   board never runs under the fold on a laptop */
+@media (max-height: 1000px) and (min-width: 1181px) { .scene-stage { zoom: .9; } }
+@media (max-height: 900px) and (min-width: 1181px) { .scene-stage { zoom: .8; } }
+@media (max-height: 800px) and (min-width: 1181px) { .scene-stage { zoom: .7; } }
+@media (max-height: 700px) and (min-width: 1181px) { .scene-stage { zoom: .6; } }
 
 .scene-steps { list-style: none; }
 .scene-step {
@@ -116,22 +124,26 @@
   .scene, .scene * { animation: none !important; transition: none !important; }
 }
 
-/* narrower boards: the scene stacks, the steps become a chalk line on top */
-@media (max-width: 1180px) {
-  .lp-board-grid { grid-template-columns: 1fr; }
+/* narrower screens: the same scene in miniature (zoom keeps its drawing
+   intact), so the whole board still fits the first screen */
+.scene-stage { width: 560px; max-width: none; }
+@media (max-width: 1180px) and (min-width: 821px) {
+  .scene-stage { zoom: .62; }
+  .lp-board-scene { display: flex; justify-content: center; }
+}
+@media (max-width: 820px) {
+  .lp-board-grid { grid-template-columns: 1fr; gap: 18px; }
   .lp-board-title { max-width: 11ch; }
-  .lp-board-scene { width: 100%; max-width: 600px; }
+  .lp-board-scene { display: flex; justify-content: center; }
+  .scene-stage { zoom: .8; }
+  .board .desk-controls { display: none; }
 }
 @media (max-width: 640px) {
-  .scene-stage { height: auto; display: flex; flex-direction: column; gap: 14px; }
-  .scene-steps { display: flex; flex-wrap: wrap; gap: 6px 16px; order: -1; }
-  .scene-step { position: static; font-size: 21px; }
-  .scene-n { width: 28px; height: 28px; font-size: 18px; }
-  .scene-phone { display: none; }
-  .scene .desk-paper, .scene .desk-report { position: relative; left: auto; right: auto; top: auto; }
-  .scene .desk-paper { width: calc(100% - 18px); margin-top: 26px; }
-  .scene .desk-report { width: min(100%, 320px); margin: -24px 0 0 auto; }
+  .scene-stage { zoom: .6; }
   .lp-board-cta .btn { width: 100%; }
+  .lp-board-cta .lp-chalk-ghost { display: none; }
   .lp-chalk-note { margin-left: 20px; }
   .lp-chalk-note > span { white-space: normal; }
 }
+@media (max-width: 480px) { .scene-stage { zoom: .5; } }
+@media (max-width: 360px) { .scene-stage { zoom: .44; } }

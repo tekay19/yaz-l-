@@ -5,7 +5,12 @@
 
 .page main.lp-main { padding: 0; }
 
-.lp-section { padding: clamp(72px, 9vw, 128px) 0; border-top: 1px solid var(--line); }
+/* The sections flow as one page: no rules between them, the ground
+   alternates between the desk and a sheet of paper laid across it. */
+.lp-section { padding: clamp(64px, 8vw, 112px) 0; }
+#is-bolumu, #sonuclar, #fiyat { background: var(--paper); box-shadow: 0 1px 0 var(--line-soft), 0 -1px 0 var(--line-soft); }
+#is-bolumu .lp-role li { border-bottom-color: var(--line-soft); }
+#fiyat .lp-prices { box-shadow: 0 1px 2px rgba(24,33,29,.05), 0 12px 32px rgba(24,33,29,.07); }
 .lp-head { max-width: 860px; margin-bottom: clamp(36px, 4.5vw, 60px); }
 .lp-head h2, .lp-split h2 { font-size: clamp(32px, 4.4vw, 58px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.02; text-wrap: balance; }
 .lp-lead { margin-top: 14px; font-size: 17px; color: var(--ink-soft); line-height: 1.6; max-width: 58ch; }
@@ -52,7 +57,7 @@
   gap: 7px 18px; border-block: 1px solid var(--line-soft);
 }
 .optik-row { display: flex; align-items: center; gap: 7px; }
-.q-no { width: 16px; text-align: right; font-size: 12px; font-weight: 700; color: var(--ink-soft); font-variant-numeric: tabular-nums; flex: none; }
+.q-no { width: 16px; text-align: right; font-size: 12px; font-weight: 700; color: var(--ink-soft); flex: none; }
 .bubbles { display: flex; gap: 4px; }
 .bubble {
   width: 17px; height: 17px; border-radius: 50%; border: 1px solid #B9C1BC;
@@ -115,7 +120,7 @@
 .desk-report tbody th { font-weight: 500; }
 .desk-report th:first-child, .desk-report td:first-child { padding-left: 16px; }
 .desk-report th:last-child, .desk-report td:last-child { padding-right: 16px; }
-.desk-report .r { text-align: right; font-variant-numeric: tabular-nums; }
+.desk-report .r { text-align: right; }
 .desk-report td.score { font-weight: 700; }
 .desk-report tr:not(.in) td { color: var(--ink-faint); }
 
@@ -146,7 +151,7 @@
 .lp-step-n {
   position: absolute; top: -20px; left: 0;
   width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
-  background: var(--board); color: #fff; font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums;
+  background: var(--board); color: #fff; font-size: 18px; font-weight: 800;
   box-shadow: 0 0 0 6px var(--canvas);
 }
 .lp-steps h3 { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; }
@@ -165,7 +170,7 @@
 .lp-thumb.bad { color: var(--mark); border-color: var(--mark); background: repeating-linear-gradient(180deg, #FDF6F5 0 9px, #F3DEDB 9px 10px); }
 .lp-crit, .lp-mini-row, .lp-flag { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 13.5px; padding: 6px 2px; }
 .lp-crit + .lp-crit, .lp-mini-row + .lp-mini-row, .lp-flag + .lp-flag { border-top: 1px solid var(--line-soft); }
-.lp-crit b, .lp-mini-row b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lp-crit b, .lp-mini-row b { white-space: nowrap; }
 .lp-flag { flex-wrap: wrap; }
 .lp-flag em { font-style: normal; font-weight: 600; font-size: 12.5px; color: var(--amber); background: var(--amber-bg); padding: 1px 8px; border-radius: 999px; }
 @media (max-width: 1000px) {
@@ -228,7 +233,7 @@
 .lp-v-label { font-weight: 600; }
 .lp-v-label i { display: block; font-style: normal; font-weight: 500; font-size: 13px; color: var(--amber); margin-top: 1px; }
 .lp-v q { grid-column: 1; font-size: 13.5px; color: var(--ink-soft); quotes: '“' '”'; }
-.lp-v b { grid-row: 1 / span 2; grid-column: 2; align-self: center; font-variant-numeric: tabular-nums; font-size: 15.5px; }
+.lp-v b { grid-row: 1 / span 2; grid-column: 2; align-self: center; font-size: 15.5px; }
 .lp-v.met b { color: var(--green); }
 .lp-v.miss b { color: var(--mark); }
 .lp-total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 12px; font-weight: 600; }
@@ -249,7 +254,7 @@
 .lp-bar em { display: block; height: 100%; border-radius: inherit; background: var(--board-bright); }
 .lp-bar.low em { background: var(--mark); }
 .lp-bar.low b { color: var(--mark); }
-.lp-bar b { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.lp-bar b { text-align: right; font-weight: 600; }
 .lp-panel-note { margin-top: 14px; padding: 9px 12px; border-radius: var(--r-ctl); background: var(--mark-bg); color: #8E2A22; font-size: 14px; font-weight: 600; }
 
 /* ── details ──────────────────────────────────────────────────────── */
@@ -284,6 +289,15 @@
   .lp-prices { grid-template-columns: 1fr; max-width: 520px; }
   .lp-price { border-left: 0; border-top: 1px solid var(--line); }
   .lp-price:first-child { border-top: 0; }
+}
+@media (max-width: 640px) {
+  .lp-prices {
+    display: flex; max-width: none; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+    background: transparent; border: 0; border-radius: 0; gap: 12px;
+    margin: 0 calc(var(--gutter) * -1); padding: 4px var(--gutter) 10px;
+  }
+  .lp-prices::-webkit-scrollbar { display: none; }
+  .lp-price, .lp-price:first-child { flex: 0 0 84%; scroll-snap-align: center; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--paper); }
 }
 
 /* ── faq ──────────────────────────────────────────────────────────── */

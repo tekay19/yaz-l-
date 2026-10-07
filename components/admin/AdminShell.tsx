@@ -53,7 +53,7 @@ export default function AdminShell({ me, children }: { me: { name: string; email
     <div className={`adm${menu ? ' menu-open' : ''}`}>
       <aside className="adm-side chalk-side" id="adm-side" aria-label="Yönetim menüsü">
         <div className="adm-brand">
-          <Link href="/admin" className="adm-logo"><LogoMark /><span className="adm-logo-text">SınavOku<small>Yönetim</small></span></Link>
+          <Link href="/admin" className="adm-logo"><LogoMark bare /><span className="adm-logo-text">SınavOku<small>Yönetim</small></span></Link>
           <button type="button" className="adm-icon-btn adm-only-sm" onClick={() => setMenu(false)} aria-label="Menüyü kapat"><IconClose /></button>
         </div>
         <nav className="adm-nav">
@@ -82,7 +82,7 @@ export default function AdminShell({ me, children }: { me: { name: string; email
       <div className="adm-main">
         <header className="adm-top">
           <button type="button" className="adm-icon-btn" onClick={() => setMenu(true)} aria-label="Menüyü aç" aria-controls="adm-side" aria-expanded={menu}><IconMenu /></button>
-          <Link href="/admin" className="adm-logo"><LogoMark /><span className="adm-logo-text">SınavOku<small>Yönetim</small></span></Link>
+          <Link href="/admin" className="adm-logo"><LogoMark bare /><span className="adm-logo-text">SınavOku<small>Yönetim</small></span></Link>
         </header>
         <main className="adm-content">{children}</main>
       </div>

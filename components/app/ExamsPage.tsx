@@ -57,7 +57,7 @@ export default function ExamsPage() {
       <PageHeader
         title="Sınavlarım"
         sub="Yüklediğiniz sınavlar, okuma durumu ve sonuçları."
-        actions={<Link href="/yukle" className="btn btn-primary"><IconPlus size={17} /> Yeni sınav</Link>}
+        actions={<Link href="/yukle" className="btn btn-primary app-hide-wide"><IconPlus size={17} /> Yeni sınav</Link>}
       />
 
       <div className="app-stats">
@@ -121,7 +121,7 @@ export default function ExamsPage() {
           <Empty title="Bu süzgeçte sınav yok">Başka bir süzgeç seçin ya da aramayı temizleyin.</Empty>
         ) : (
           <div className="app-table-wrap">
-            <table className="app-table">
+            <table className="app-table t-exams">
               <thead>
                 <tr><th>Sınav</th><th>Durum</th><th className="num">Sayfa</th><th>Tarih</th><th aria-label="İşlem" /></tr>
               </thead>

@@ -49,7 +49,7 @@ export default function JobsPage() {
           </Empty>
         ) : (
           <div className={`adm-table-wrap${loading ? ' adm-stale' : ''}`}>
-            <table className="adm-table">
+            <table className="adm-table t-jobs">
               <thead>
                 <tr>
                   <th scope="col">Başlık</th>

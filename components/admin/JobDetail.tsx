@@ -5,10 +5,14 @@ import Link from 'next/link';
 import { adminUrl, closeJob, type JobDetail as Data } from './api';
 import AuditTable from './AuditTable';
 import { CLOSABLE, FAIL_REASON, JOB_STATUS, MODE_LABEL, PAGE_STATUS, dt, num } from './format';
-import { Badge, Card, Dl, Empty, ErrorBox, Header, Loading, Notice, StatStrip, StateBadge, useLoad } from './ui';
+import { Badge, Card, Dl, Empty, ErrorBox, Header, Loading, Notice, StatStrip, StateBadge, Tabs, useLoad, useNarrow } from './ui';
+
+type Tab = 'pages' | 'actions' | 'timeline' | 'close';
 
 export default function JobDetail({ id }: { id: string }) {
   const { data, error, loading, reload } = useLoad<Data>(adminUrl.job(id));
+  const [picked, setTab] = useState<Tab>('pages');
+  const narrow = useNarrow();
 
   if (!data) {
     return (
@@ -24,6 +28,55 @@ export default function JobDetail({ id }: { id: string }) {
   const failed = data.pages.filter((p) => p.status === 'failed').length;
   const tokIn = data.pages.reduce((n, p) => n + (p.inputTokens ?? 0), 0);
   const tokOut = data.pages.reduce((n, p) => n + (p.outputTokens ?? 0), 0);
+
+  const closable = CLOSABLE.includes(j.status);
+  const sideOnly = (t: Tab) => t === 'timeline' || t === 'close';
+  const tab: Tab = (!narrow && sideOnly(picked)) || (picked === 'close' && !closable) ? 'pages' : picked;
+  const pagesCard = (
+    <Card title="Sayfalar" flush aside={<span className="adm-muted">Öğrenci cevapları burada gösterilmez</span>}>
+      {data.pages.length === 0 ? <Empty title="Sayfa yüklenmemiş" /> : (
+        <div className="adm-table-wrap adm-scroll-y">
+          <table className="adm-table compact">
+            <thead>
+              <tr>
+                <th scope="col">Tür</th><th scope="col" className="num">Sıra</th><th scope="col">Durum</th>
+                <th scope="col" className="num">Deneme</th><th scope="col">Hata</th>
+                <th scope="col" className="num">Token girdi</th><th scope="col" className="num">Token çıktı</th>
+                <th scope="col">Fotoğraf</th><th scope="col">Puanlandı</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.pages.map((p) => (
+                <tr key={p.id}>
+                  <td>{p.kind === 'key' ? <Badge tone="violet">Cevap anahtarı</Badge> : 'Öğrenci'}</td>
+                  <td className="num">{num(p.seq)}</td>
+                  <td><StateBadge map={PAGE_STATUS} value={p.status} /></td>
+                  <td className={`num${p.attempts > 1 ? ' adm-amber' : ''}`}>{num(p.attempts)}</td>
+                  <td className="adm-err-cell">{p.error ? <span title={p.error}>{p.error}</span> : <span className="adm-muted">—</span>}</td>
+                  <td className="num">{p.inputTokens != null ? num(p.inputTokens) : '—'}</td>
+                  <td className="num">{p.outputTokens != null ? num(p.outputTokens) : '—'}</td>
+                  <td>{p.hasPhoto ? 'Var' : <span className="adm-muted">Silindi</span>}</td>
+                  <td>{p.graded ? 'Evet' : <span className="adm-muted">Hayır</span>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Card>
+  );
+  const timelineCard = (
+    <Card title="Zaman çizelgesi">
+      <Dl items={[
+        ['Oluşturuldu', dt(j.createdAt)],
+        ['Gönderildi', dt(j.submittedAt)],
+        ['Ölçüt onayı', dt(j.rubricApprovedAt)],
+        ['Otomatik teslim', dt(j.autoDeliveredAt)],
+        ['Bitti', dt(j.finishedAt)],
+        ['Öğretmene bildirildi', dt(j.notifiedAt)],
+      ]} />
+    </Card>
+  );
 
   return (
     <>
@@ -48,54 +101,27 @@ export default function JobDetail({ id }: { id: string }) {
 
       <div className="adm-detail-grid">
         <div className="adm-detail-main">
-          <Card title="Sayfalar" flush aside={<span className="adm-muted">Öğrenci cevapları burada gösterilmez</span>}>
-            {data.pages.length === 0 ? <Empty title="Sayfa yüklenmemiş" /> : (
-              <div className="adm-table-wrap">
-                <table className="adm-table compact">
-                  <thead>
-                    <tr>
-                      <th scope="col">Tür</th><th scope="col" className="num">Sıra</th><th scope="col">Durum</th>
-                      <th scope="col" className="num">Deneme</th><th scope="col">Hata</th>
-                      <th scope="col" className="num">Token girdi</th><th scope="col" className="num">Token çıktı</th>
-                      <th scope="col">Fotoğraf</th><th scope="col">Puanlandı</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.pages.map((p) => (
-                      <tr key={p.id}>
-                        <td>{p.kind === 'key' ? <Badge tone="violet">Cevap anahtarı</Badge> : 'Öğrenci'}</td>
-                        <td className="num">{num(p.seq)}</td>
-                        <td><StateBadge map={PAGE_STATUS} value={p.status} /></td>
-                        <td className={`num${p.attempts > 1 ? ' adm-amber' : ''}`}>{num(p.attempts)}</td>
-                        <td className="adm-err-cell">{p.error ? <span title={p.error}>{p.error}</span> : <span className="adm-muted">—</span>}</td>
-                        <td className="num">{p.inputTokens != null ? num(p.inputTokens) : '—'}</td>
-                        <td className="num">{p.outputTokens != null ? num(p.outputTokens) : '—'}</td>
-                        <td>{p.hasPhoto ? 'Var' : <span className="adm-muted">Silindi</span>}</td>
-                        <td>{p.graded ? 'Evet' : <span className="adm-muted">Hayır</span>}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </Card>
-          <Card title="Yönetici işlemleri" flush>
-            <AuditTable rows={data.actions} showTarget={false} empty="Bu sınavda yönetici işlemi yok." />
-          </Card>
+          <Tabs<Tab> value={tab} onChange={setTab} tabs={[
+            { id: 'pages', label: 'Sayfalar', count: data.pages.length },
+            { id: 'actions', label: 'Yönetici işlemleri', count: data.actions.length },
+            ...(narrow ? [{ id: 'timeline' as const, label: 'Zaman çizelgesi' }] : []),
+            ...(narrow && closable ? [{ id: 'close' as const, label: 'Sınavı kapat' }] : []),
+          ]} />
+          {tab === 'pages' && pagesCard}
+          {tab === 'actions' && (
+            <Card flush>
+              <AuditTable rows={data.actions} showTarget={false} empty="Bu sınavda yönetici işlemi yok." />
+            </Card>
+          )}
+          {tab === 'timeline' && timelineCard}
+          {tab === 'close' && <CloseJob id={j.id} reload={reload} />}
         </div>
-        <aside className="adm-detail-side" aria-label="Sınav bilgileri">
-          {CLOSABLE.includes(j.status) && <CloseJob id={j.id} reload={reload} />}
-          <Card title="Zaman çizelgesi">
-            <Dl items={[
-              ['Oluşturuldu', dt(j.createdAt)],
-              ['Gönderildi', dt(j.submittedAt)],
-              ['Ölçüt onayı', dt(j.rubricApprovedAt)],
-              ['Otomatik teslim', dt(j.autoDeliveredAt)],
-              ['Bitti', dt(j.finishedAt)],
-              ['Öğretmene bildirildi', dt(j.notifiedAt)],
-            ]} />
-          </Card>
-        </aside>
+        {!narrow && (
+          <aside className="adm-detail-side" aria-label="Sınav bilgileri">
+            {closable && <CloseJob id={j.id} reload={reload} />}
+            {timelineCard}
+          </aside>
+        )}
       </div>
     </>
   );

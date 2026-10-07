@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { adminUrl, clearAnalytics, type Analytics } from './api';
 import { SmallMultiples } from './Chart';
 import { dt, num, shortDay } from './format';
-import { BarList, Card, Chips, Confirm, Empty, ErrorBox, Header, Loading, Notice, StatStrip, useLoad, useQueryState } from './ui';
+import { BarList, Card, Chips, Confirm, Empty, ErrorBox, Header, Loading, Notice, StatStrip, Tabs, useLoad, useQueryState } from './ui';
 
 const RANGES = [
   { id: '24h', label: 'Son 24 saat' },
@@ -65,7 +65,12 @@ export default function AnalyticsPage() {
   );
 }
 
+type Tab = 'huni' | 'gun' | 'kaynak' | 'eposta' | 'olay';
+
+// The figures stay on top; everything below is one tab at a time.
 function Body({ d }: { d: Analytics }) {
+  const q = useQueryState();
+  const tab = (['huni', 'gun', 'kaynak', 'eposta', 'olay'] as const).find((x) => x === q.get('sekme')) ?? 'huni';
   const t = d.totals;
   const dev = d.devices.mobile + d.devices.desktop;
   if (!t.events) return <Card><Empty title="Bu aralıkta olay yok">Ziyaretçi geldikçe veriler burada görünür.</Empty></Card>;
@@ -82,8 +87,15 @@ function Body({ d }: { d: Analytics }) {
         { label: 'Hata sayfası', value: num(t.error_view), tone: t.error_view ? 'mark' : undefined, hint: t.error_view ? 'görüntülendi' : 'Görüntülenmedi' },
       ]} />
 
-      <div className="adm-split">
-        <Card title="Huni" aside={<span className="adm-muted">Vitrine gelen oturumlara göre</span>}>
+      <Tabs<Tab> value={tab} onChange={(x) => q.set({ sekme: x === 'huni' ? null : x })} tabs={[
+        { id: 'huni', label: 'Huni' },
+        { id: 'gun', label: 'Günlük' },
+        { id: 'kaynak', label: 'Nereden, ne yaptılar' },
+        { id: 'eposta', label: 'E-posta bırakanlar', count: d.leads.length },
+        { id: 'olay', label: 'Son olaylar' },
+      ]} />
+
+      {tab === 'huni' && <Card title="Huni" aside={<span className="adm-muted">Vitrine gelen oturumlara göre</span>}>
           <ol className="adm-funnel">
             {d.funnel.map((f) => (
               <li key={f.key}>
@@ -93,17 +105,16 @@ function Body({ d }: { d: Analytics }) {
               </li>
             ))}
           </ol>
-        </Card>
-        <Card title="Günlük görüntüleme">
+        </Card>}
+      {tab === 'gun' && <Card title="Günlük görüntüleme">
           {d.byDay.length ? (
             <SmallMultiples labels={d.byDay.map((b) => shortDay(b.name))}
               series={[{ id: 'pv', title: 'Sayfa görüntüleme', kind: 'bar', values: d.byDay.map((b) => b.count), format: (n) => num(n), total: num(t.page_view), minStep: 1 }]}
               heights={[150]} />
           ) : <p className="adm-muted adm-pad">Bu aralıkta görüntüleme yok.</p>}
-        </Card>
-      </div>
+        </Card>}
 
-      <Card title="Nereden gelip ne yaptılar" flush>
+      {tab === 'kaynak' && <Card title="Nereden gelip ne yaptılar" flush>
         <div className="adm-breakdown">
           <section><h3>Sayfalar</h3><BarList rows={d.pageViews.slice(0, 10).map((r) => ({ name: pageName(r.name), value: r.count }))} /></section>
           <section><h3>Kaynaklar</h3><BarList rows={d.referrers.map((r) => ({ name: r.name, value: r.count }))} /></section>
@@ -124,9 +135,9 @@ function Body({ d }: { d: Analytics }) {
             )}
           </section>
         </div>
-      </Card>
+      </Card>}
 
-      <Card title="E-posta bırakanlar" flush aside={d.leads.length > 0 && (
+      {tab === 'eposta' && <Card title="E-posta bırakanlar" flush aside={d.leads.length > 0 && (
         <button type="button" className="adm-btn sm" onClick={() => downloadLeads(d.leads)}>CSV indir</button>
       )}>
         {d.leads.length === 0 ? <Empty title="Bu aralıkta e-posta bırakan yok" /> : (
@@ -141,9 +152,9 @@ function Body({ d }: { d: Analytics }) {
             </table>
           </div>
         )}
-      </Card>
+      </Card>}
 
-      <Card title="Son olaylar" flush>
+      {tab === 'olay' && <Card title="Son olaylar" flush>
         <div className="adm-table-wrap adm-scroll-y">
           <table className="adm-table compact">
             <thead><tr><th scope="col">Zaman</th><th scope="col">Olay</th><th scope="col">Sayfa</th><th scope="col">Etiket</th><th scope="col" className="num">Değer</th></tr></thead>
@@ -160,7 +171,7 @@ function Body({ d }: { d: Analytics }) {
             </tbody>
           </table>
         </div>
-      </Card>
+      </Card>}
     </>
   );
 }

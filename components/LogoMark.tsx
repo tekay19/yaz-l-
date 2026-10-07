@@ -1,5 +1,23 @@
-import { Check } from './Chrome';
-
-export function LogoMark() {
-  return <span className="logo-mark" aria-hidden="true"><Check /></span>;
+// SınavOku's mark: an exam sheet with its corner turned down, and the
+// teacher's red-pen tick running off it: the paper, read and graded. On a
+// light ground it sits in a chalkboard-green tile; on the green board itself
+// (`bare`) the tile is left out.
+export function LogoMark({ bare = false, className = '' }: { bare?: boolean; className?: string }) {
+  return (
+    <span className={`logo-mark${bare ? ' bare' : ''}${className ? ` ${className}` : ''}`} aria-hidden="true">
+      <svg viewBox="0 0 64 64" width="100%" height="100%" focusable="false">
+        {!bare && <rect width="64" height="64" rx="15" fill="#173F33" />}
+        <g transform="rotate(-7 30 33)">
+          <path d="M16 12h21l9 9v29a3 3 0 0 1-3 3H16a3 3 0 0 1-3-3V15a3 3 0 0 1 3-3z" fill="#FBFCFA" />
+          <path d="M37 12v6a3 3 0 0 0 3 3h6z" fill="#D5DDD8" />
+          <rect x="19" y="21" width="12" height="3" rx="1.5" fill="#C3CDC7" />
+          <rect x="19" y="28" width="18" height="3" rx="1.5" fill="#DCE3DF" />
+        </g>
+        <path
+          d="M19.6 37.2c1.3-1.2 2.9-.9 4.1.3l5.9 6.1L49.6 16.6c1.2-1.6 3.3-2 4.8-.8 1.4 1.1 1.5 3 .3 4.6L33.2 48.6c-1.5 2-4.2 2.2-5.9.4l-7.9-8.2c-1.1-1.1-1-2.6.2-3.6z"
+          fill="#E2402F"
+        />
+      </svg>
+    </span>
+  );
 }
