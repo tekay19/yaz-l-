@@ -115,4 +115,32 @@ describe('iyzico checkout', () => {
     expect(await reconcilePayments(db, api, new Date(Date.now() + 15 * 60 * 1000))).toBe(1);
     expect((await db.select().from(users).where(eq(users.id, u.id)))[0].pageBalance).toBe(150);
   });
+  it('keeps the payment open when iyzico gives no answer, so the sweep can settle it', async () => {
+    const db = await testDb();
+    const u = await makeUser(db);
+    const api = fakeApi(true);
+    await startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Başlangıç', ip: '1.2.3.4', appUrl: 'https://x' });
+    const real = api.retrieve;
+    api.retrieve = async () => ({ status: 'failure', errorCode: '10000', errorMessage: 'Sistem hatası' });
+    expect(await finishCheckout(db, api, 'tok-1')).toBe('pending');
+    expect((await db.select().from(payments))[0].status).toBe('pending');
+    api.retrieve = real;
+    expect(await reconcilePayments(db, api, new Date(Date.now() + 15 * 60 * 1000))).toBe(1);
+    expect((await db.select().from(users).where(eq(users.id, u.id)))[0].pageBalance).toBe(150);
+  });
+
+  it('opens one intro payment page when two requests arrive together', async () => {
+    const db = await testDb();
+    const u = await makeUser(db);
+    let n = 0;
+    const api: IyzicoApi = {
+      initialize: async () => ({ status: 'success', token: `tok-${++n}`, paymentPageUrl: 'https://sandbox/pay' }),
+      retrieve: async () => ({}),
+    };
+    const start = () => startCheckout(db, api, { userId: u.id, email: u.email, pack: 'Başlangıç', ip: '1.2.3.4', appUrl: 'https://x' });
+    const results = await Promise.allSettled([start(), start()]);
+    expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+    expect(results.find((r) => r.status === 'rejected')).toMatchObject({ reason: expect.any(IntroPackPending) });
+    expect(await db.select().from(payments)).toHaveLength(1);
+  });
 });

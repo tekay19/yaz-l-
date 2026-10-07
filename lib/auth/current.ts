@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import { cookies } from 'next/headers';
 import { getDb } from '@/db/client';
 import { users, type UserRole } from '@/db/schema';
+import { isUuid } from '@/lib/uuid';
 import { SESSION_COOKIE, issueSession, sessionCookieOptions, verifySession } from './session';
 
 export type CurrentUser = { id: string; email: string; name: string; role: UserRole; verified: boolean };
@@ -11,7 +12,7 @@ export type CurrentUser = { id: string; email: string; name: string; role: UserR
 export async function currentUser(): Promise<CurrentUser | null> {
   const jar = await cookies();
   const claim = verifySession(jar.get(SESSION_COOKIE)?.value);
-  if (!claim || !/^[0-9a-f-]{36}$/i.test(claim.userId)) return null;
+  if (!claim || !isUuid(claim.userId)) return null;
   const [u] = await getDb().select({
     id: users.id, email: users.email, name: users.name, role: users.role,
     version: users.sessionVersion, suspended: users.suspendedAt, verifiedAt: users.emailVerifiedAt,

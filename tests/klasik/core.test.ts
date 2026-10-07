@@ -261,6 +261,34 @@ describe('gradeInChunks', () => {
   });
 });
 
+describe('gradeInChunks on a cut-off answer', () => {
+  it('halves a group whose verdicts ran past the output limit', async () => {
+    const { gradeInChunks } = await import('@/lib/klasik/chunks');
+    const { OutputTruncated } = await import('@/lib/reader/types');
+    const calls: number[][] = [];
+    const reader: any = {
+      gradeKlasik: async ({ questions }: any) => {
+        calls.push(questions.map((q: any) => q.q));
+        if (questions.length > 2) throw new OutputTruncated('max_tokens');
+        return { read: { questions: questions.map((q: any) => ({ q: q.q })) }, usage: { inputTokens: 1, outputTokens: 1 } };
+      },
+    };
+    const qs = Array.from({ length: 5 }, (_, i) => ({ q: i + 1 }));
+    const answers = qs.map((q) => ({ q: q.q, lines: [], unclear: false, hasFigure: false }));
+    const out = await gradeInChunks(reader, { questions: qs as any, answers, images: [] }, 5);
+    expect(out.read.questions.map((q: any) => q.q)).toEqual([1, 2, 3, 4, 5]);
+    expect(calls).toEqual([[1, 2, 3, 4, 5], [1, 2, 3], [4, 5], [1, 2], [3]]);
+  });
+
+  it('gives up on a single question that still does not fit', async () => {
+    const { gradeInChunks } = await import('@/lib/klasik/chunks');
+    const { OutputTruncated } = await import('@/lib/reader/types');
+    const reader: any = { gradeKlasik: async () => { throw new OutputTruncated('max_tokens'); } };
+    const answers = [{ q: 1, lines: [], unclear: false, hasFigure: false }];
+    await expect(gradeInChunks(reader, { questions: [{ q: 1 }] as any, answers, images: [] })).rejects.toBeInstanceOf(OutputTruncated);
+  });
+});
+
 describe('strayWriting', () => {
   it('tells the teacher about writing no rubric question will grade', async () => {
     const { strayWriting } = await import('@/lib/klasik/sheets');

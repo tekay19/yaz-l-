@@ -1,17 +1,13 @@
 import { getDb } from '@/db/client';
-import { currentUser, currentUserId, unauthorized, unverified } from '@/lib/auth/current';
+import { currentUser, unauthorized, unverified } from '@/lib/auth/current';
 import { createJob } from '@/lib/jobs/pages';
 import { listJobs } from '@/lib/jobs/status';
-import { noStore, readJson } from '@/lib/http';
+import { noStore, readJson, withUser } from '@/lib/http';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
-  const userId = await currentUserId();
-  if (!userId) return unauthorized();
-  return Response.json(await listJobs(getDb(), userId), noStore);
-}
+export const GET = () => withUser(async (db, userId) => Response.json(await listJobs(db, userId), noStore));
 
 export async function POST(req: Request) {
   const me = await currentUser();

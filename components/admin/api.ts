@@ -107,6 +107,6 @@ export const userAction = (id: string, body: Record<string, unknown>) =>
 export const closeJob = (id: string, note: string) =>
   request<{ ok: true }>(adminUrl.job(id), withJson('POST', { action: 'close', note }));
 export const reconcilePayment = (id: string) =>
-  request<{ ok: true; result: 'paid' | 'failed' | 'unknown' }>(`/api/admin/payments/${encodeURIComponent(id)}`, withJson('POST', { action: 'reconcile' }));
+  request<{ ok: true; result: 'paid' | 'failed' | 'pending' | 'unknown' }>(`/api/admin/payments/${encodeURIComponent(id)}`, withJson('POST', { action: 'reconcile' }));
 export const clearAnalytics = () => request<{ ok: true }>('/api/admin/analytics', { method: 'DELETE' });
 export const logout = () => request<{ ok: true }>('/api/auth/logout', { method: 'POST' });

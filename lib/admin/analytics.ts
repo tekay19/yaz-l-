@@ -19,8 +19,6 @@ const toSorted = (map: Map<string, number>, limit = 50) =>
     .sort((a, b) => b.count - a.count)
     .slice(0, limit);
 
-export const RANGE_KEYS = Object.keys(RANGES);
-
 // Visitor funnel metrics from the tracked events, for the last `asked` range.
 export function visitorStats(all: TrackEvent[], asked: string, now = Date.now()) {
   const range = RANGES[asked] !== undefined ? asked : '7d';

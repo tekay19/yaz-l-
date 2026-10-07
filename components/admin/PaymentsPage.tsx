@@ -17,7 +17,8 @@ type Filter = (typeof FILTERS)[number]['id'];
 const RESULT: Record<string, { kind: 'ok' | 'err'; text: string }> = {
   paid: { kind: 'ok', text: 'iyzico ödemeyi onayladı; sayfa hakkı öğretmene eklendi.' },
   failed: { kind: 'err', text: 'iyzico ödemenin başarısız olduğunu bildirdi; kayıt başarısız olarak işaretlendi.' },
-  unknown: { kind: 'err', text: 'iyzico henüz kesin bir sonuç vermedi; ödeme bekliyor olarak kaldı.' },
+  pending: { kind: 'err', text: 'iyzico henüz kesin bir sonuç vermedi; ödeme bekliyor olarak kaldı.' },
+  unknown: { kind: 'err', text: 'Bu ödemenin iyzico kaydı bulunamadı.' },
 };
 
 export default function PaymentsPage() {

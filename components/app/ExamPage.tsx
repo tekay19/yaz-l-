@@ -48,7 +48,13 @@ export default function ExamPage({ id }: { id: string }) {
 
   const load = useCallback(async () => {
     const r = await api.job(id);
-    setJob(r.ok ? r.data : null);
+    // a dropped connection while following an exam keeps what is on screen
+    // (and the polling going); only a missing exam, or no first answer, shows "not found"
+    if (!r.ok) {
+      setJob((prev) => (r.status === 404 || prev === undefined ? null : prev));
+      return;
+    }
+    setJob(r.data);
     if (r.ok && r.data.status === 'draft') router.replace(`/yukle?sinav=${id}`);
     if (r.ok && HAS_RESULTS.has(r.data.status)) {
       const res = await api.results(id);

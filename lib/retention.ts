@@ -20,6 +20,9 @@ const ago = (now: Date, d: number) => new Date(now.getTime() - d * 86_400_000);
 export const sentBefore = (now: Date, days: number) =>
   sql`coalesce(${jobs.submittedAt}, ${jobs.createdAt}) < ${ago(now, days).toISOString()}::timestamptz`;
 
+const finishedBefore = (now: Date, days: number) =>
+  sql`coalesce(${jobs.finishedAt}, ${jobs.submittedAt}, ${jobs.createdAt}) < ${ago(now, days).toISOString()}::timestamptz`;
+
 export async function removePhotos(db: Db, storage: Storage, jobIds: string[]) {
   if (!jobIds.length) return 0;
   const withPhoto = and(inArray(pages.jobId, jobIds), isNotNull(pages.filePath));
@@ -70,10 +73,14 @@ export async function runRetention(db: Db, storage: Storage, now = new Date()) {
     and(ne(jobs.status, 'draft'), sentBefore(now, REVIEW_PHOTO_TTL_DAYS)), // backstop, whatever it waits for
   ));
   const photos = draftPhotos + await removePhotos(db, storage, stale.map((j) => j.id));
-  // only finished jobs go: done, or failed once the teacher has been told
-  const gone = await db.delete(jobs).where(and(
-    lt(jobs.createdAt, ago(now, RESULT_TTL_DAYS)),
-    or(inArray(jobs.status, ['draft', 'done']), and(eq(jobs.status, 'failed'), isNotNull(jobs.notifiedAt))),
+  // Only finished jobs go. A finished exam keeps its results for 30 days from
+  // the day they were ready, not from when its draft was opened: an exam
+  // prepared weeks ahead would otherwise vanish the day after delivery. A
+  // failed one goes once the teacher has been told, 30 days after it was sent.
+  const gone = await db.delete(jobs).where(or(
+    and(eq(jobs.status, 'draft'), lt(jobs.createdAt, ago(now, RESULT_TTL_DAYS))),
+    and(eq(jobs.status, 'done'), finishedBefore(now, RESULT_TTL_DAYS)),
+    and(eq(jobs.status, 'failed'), isNotNull(jobs.notifiedAt), sentBefore(now, RESULT_TTL_DAYS)),
   )).returning({ id: jobs.id });
   await db.delete(authTokens).where(lt(authTokens.expiresAt, ago(now, 1)));
   await db.delete(events).where(lt(events.ts, ago(now, EVENT_TTL_DAYS)));

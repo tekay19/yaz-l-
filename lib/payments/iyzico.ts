@@ -1,5 +1,5 @@
 import Iyzipay from 'iyzipay';
-import { and, eq, gt, isNotNull, lt } from 'drizzle-orm';
+import { and, eq, gt, isNotNull, lt, sql } from 'drizzle-orm';
 import type { Db } from '@/db/client';
 import { payments } from '@/db/schema';
 import { DEFAULT_PLAN, PACKS, type PackName } from '@/lib/packs';
@@ -41,20 +41,28 @@ export async function startCheckout(
   input: { userId: string; email: string; pack: PackName; ip: string; appUrl: string },
 ) {
   const pack = PACKS[input.pack];
-  if (pack.name === INTRO_PACK) {
-    const [earlier] = await db.select({ id: payments.id }).from(payments)
-      .where(and(eq(payments.userId, input.userId), eq(payments.status, 'paid'))).limit(1);
-    if (earlier) throw new IntroPackUsed('intro_pack_used');
-    const [open] = await db.select({ id: payments.id }).from(payments).where(and(
-      eq(payments.userId, input.userId), eq(payments.pack, INTRO_PACK), eq(payments.status, 'pending'),
-      isNotNull(payments.providerToken), gt(payments.createdAt, new Date(Date.now() - OPEN_CHECKOUT_MS)),
-    )).limit(1);
-    if (open) throw new IntroPackPending('intro_pack_pending');
-  }
   const amountKurus = pack.price * 100;
-  const [payment] = await db.insert(payments).values({
-    userId: input.userId, pack: pack.name, pages: pack.pages, amountKurus,
-  }).returning({ id: payments.id });
+  // The checks and the new row share one transaction under a per-teacher
+  // lock: two clicks at the same moment would otherwise both pass the checks
+  // and open two intro payment pages.
+  const payment = await db.transaction(async (tx) => {
+    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${'checkout:' + input.userId}))`);
+    if (pack.name === INTRO_PACK) {
+      const [earlier] = await tx.select({ id: payments.id }).from(payments)
+        .where(and(eq(payments.userId, input.userId), eq(payments.status, 'paid'))).limit(1);
+      if (earlier) throw new IntroPackUsed('intro_pack_used');
+      // a page still being opened (no token yet) counts as open too
+      const [open] = await tx.select({ id: payments.id }).from(payments).where(and(
+        eq(payments.userId, input.userId), eq(payments.pack, INTRO_PACK), eq(payments.status, 'pending'),
+        gt(payments.createdAt, new Date(Date.now() - OPEN_CHECKOUT_MS)),
+      )).limit(1);
+      if (open) throw new IntroPackPending('intro_pack_pending');
+    }
+    const [row] = await tx.insert(payments).values({
+      userId: input.userId, pack: pack.name, pages: pack.pages, amountKurus,
+    }).returning({ id: payments.id });
+    return row;
+  });
 
   const price = tl(amountKurus);
   const fail = () => db.update(payments).set({ status: 'failed' }).where(eq(payments.id, payment.id));
@@ -87,14 +95,22 @@ export async function startCheckout(
   return { paymentPageUrl: res.paymentPageUrl as string };
 }
 
-export async function finishCheckout(db: Db, api: IyzicoApi, token: string): Promise<'paid' | 'failed' | 'unknown'> {
+// 'pending': iyzico could not be asked or gave no answer (a timeout, its own
+// error). The payment stays open and the worker's sweep asks again; marking
+// it failed here would lose the pages of a payer who did pay.
+export type CheckoutResult = 'paid' | 'failed' | 'pending' | 'unknown';
+
+export async function finishCheckout(db: Db, api: IyzicoApi, token: string): Promise<CheckoutResult> {
   const [payment] = await db.select().from(payments).where(eq(payments.providerToken, token));
   if (!payment) return 'unknown';
   if (payment.status === 'paid') return 'paid';
 
   const res = await api.retrieve({ locale: 'tr', conversationId: payment.id, token });
-  const ok = res?.status === 'success'
-    && res.paymentStatus === 'SUCCESS'
+  if (res?.status !== 'success') {
+    console.error('[pay] retrieve gave no answer', payment.id, res?.errorCode ?? '', res?.errorMessage ?? '');
+    return payment.status === 'failed' ? 'failed' : 'pending';
+  }
+  const ok = res.paymentStatus === 'SUCCESS'
     && res.basketId === payment.id
     && Math.round(Number(res.paidPrice) * 100) >= payment.amountKurus;
 
@@ -125,7 +141,8 @@ export async function reconcilePayments(db: Db, api: IyzicoApi, now = new Date()
   let settled = 0;
   for (const { token } of open) {
     try {
-      if ((await finishCheckout(db, api, token!)) !== 'unknown') settled++;
+      const r = await finishCheckout(db, api, token!);
+      if (r === 'paid' || r === 'failed') settled++;
     } catch (e) {
       console.error('[pay] reconcile failed', e instanceof Error ? e.message : e);
     }

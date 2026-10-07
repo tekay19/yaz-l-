@@ -1,5 +1,7 @@
 import { createClaudeReader } from './claude';
-import type { Effort, Reader } from './types';
+import { OutputTruncated, type Effort, type Reader } from './types';
+import { readerTimeoutMs } from './config';
+import { LEASE_MS } from '@/lib/queue';
 import { createOpenAIReader } from './openai';
 import { createGeminiReader } from './gemini';
 import { crossReadKlasik } from './cross';
@@ -38,18 +40,26 @@ function make(role: Role, effort?: Effort): Reader {
   return createClaudeReader(undefined, opts);
 }
 
-// Try the main reader; on failure, the other provider once.
-function fallback<A extends unknown[], R>(main: (...a: A) => Promise<R>, spare: ((...a: A) => Promise<R>) | null, what: string) {
+// Try the main reader; on failure, the other provider once. The spare is
+// asked only while a full call still fits in the queue's lease: a main call
+// that failed late (a timeout) plus a second one would outlive the lease, and
+// another worker would read and pay for the same page meanwhile. An answer cut
+// off at the output limit is not passed on either: the caller splits the work.
+export function fallback<A extends unknown[], R>(main: (...a: A) => Promise<R>, spare: ((...a: A) => Promise<R>) | null, what: string) {
   if (!spare) return main;
   return async (...a: A): Promise<R> => {
+    const started = Date.now();
     try {
       return await main(...a);
     } catch (e) {
+      const late = Date.now() - started + readerTimeoutMs() > LEASE_MS - SPARE_MARGIN_MS;
+      if (late || e instanceof OutputTruncated) throw e;
       console.error(`[reader] ${what} failed, trying the other provider`, e instanceof Error ? e.message.slice(0, 200) : e);
       return spare(...a);
     }
   };
 }
+const SPARE_MARGIN_MS = 15_000;
 
 export function createReader(opts: { effort?: Effort } = {}): Reader {
   const r = roles();

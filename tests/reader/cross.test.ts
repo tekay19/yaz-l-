@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { crossReadKlasik, reconcile, sameReading } from '@/lib/reader/cross';
 import { roles } from '@/lib/reader';
 import { fakeReader, usage } from '../helpers/reader';
@@ -60,5 +60,23 @@ describe('model roles', () => {
     expect(r.reader).toEqual({ provider: 'gemini', model: 'gemini-3.8-flash' }); // never the grader's model on another vendor
     expect(r.grader).toEqual({ provider: 'openai', model: 'gpt-x' });
     expect(r.cross).toEqual({ provider: 'openai', model: 'gpt-5.6-terra' });
+  });
+});
+
+describe('the spare provider', () => {
+  it('stands in for a call that failed fast, never for a late one or a cut-off answer', async () => {
+    const { fallback } = await import('@/lib/reader');
+    const { OutputTruncated } = await import('@/lib/reader/types');
+    const spare = vi.fn(async () => 'spare');
+    expect(await fallback(async () => { throw new Error('503'); }, spare, 'x')()).toBe('spare');
+
+    let now = 1_000_000;
+    const clock = vi.spyOn(Date, 'now').mockImplementation(() => now);
+    const slow = fallback(async () => { now += 200_000; throw new Error('timeout'); }, spare, 'x');
+    await expect(slow()).rejects.toThrow('timeout');
+    clock.mockRestore();
+
+    await expect(fallback(async () => { throw new OutputTruncated('max_tokens'); }, spare, 'x')()).rejects.toBeInstanceOf(OutputTruncated);
+    expect(spare).toHaveBeenCalledTimes(1);
   });
 });

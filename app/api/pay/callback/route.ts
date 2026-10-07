@@ -17,6 +17,7 @@ export async function POST(req: Request) {
         return 'unknown' as const;
       })
     : 'unknown';
-  const q = result === 'paid' ? 'ok' : 'hata';
+  // pending: iyzico has not answered yet; the worker settles it within minutes
+  const q = result === 'paid' ? 'ok' : result === 'pending' ? 'bekliyor' : 'hata';
   return Response.redirect(`${process.env.APP_URL}/hesap/paket?odeme=${q}`, 303);
 }

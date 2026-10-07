@@ -3,6 +3,7 @@ import { and, count, eq, max } from 'drizzle-orm';
 import type { Db } from '@/db/client';
 import { jobs, pages, users } from '@/db/schema';
 import type { Storage } from '@/lib/storage';
+import { isUuid } from '@/lib/uuid';
 
 export { MAX_STUDENT_PAGES } from '@/lib/limits';
 export const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
@@ -25,7 +26,7 @@ export async function createJob(
 }
 
 export async function getOwnedJob(db: Db, jobId: string, userId: string) {
-  if (!/^[0-9a-f-]{36}$/i.test(jobId)) return null;
+  if (!isUuid(jobId)) return null;
   const [job] = await db.select().from(jobs).where(and(eq(jobs.id, jobId), eq(jobs.userId, userId)));
   return job ?? null;
 }

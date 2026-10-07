@@ -63,7 +63,11 @@ export async function register(db: Db, mailer: Mailer, input: RegisterInput, app
   if (!user) {
     return { ok: false, field: 'email', taken: true, message: 'Bu e-posta ile bir hesap var. Giriş yapın ya da şifrenizi sıfırlayın.' };
   }
-  await sendVerification(db, mailer, user.id, appUrl);
+  // the account exists either way: a mail that fails now is sent again from
+  // the account screen, instead of leaving an address that is "taken" but
+  // was never signed in
+  await sendVerification(db, mailer, user.id, appUrl)
+    .catch((e) => console.error('[auth] verification mail failed', e instanceof Error ? e.message : e));
   return { ok: true, user };
 }
 
@@ -109,11 +113,13 @@ export async function requestPasswordReset(db: Db, mailer: Mailer, rawEmail: unk
   const [u] = await db.select({ id: users.id, suspended: users.suspendedAt }).from(users).where(eq(users.email, email));
   if (!u || u.suspended) return true;
   const token = await issueToken(db, u.id, 'reset');
+  // a failed send answers like a sent one: an error only for existing
+  // addresses would tell who has an account
   await mailer.send({
     to: email,
     subject: 'SınavOku şifre sıfırlama',
     text: `SınavOku şifrenizi yenilemek için bağlantıyı açın (30 dakika geçerli):\n${appUrl}/sifre-yenile?token=${token}\n\nBu isteği siz yapmadıysanız e-postayı yok sayın; şifreniz değişmez.`,
-  });
+  }).catch((e) => console.error('[auth] reset mail failed', e instanceof Error ? e.message : e));
   return true;
 }
 

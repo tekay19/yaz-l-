@@ -2,17 +2,17 @@ import { requestPasswordReset } from '@/lib/auth/accounts';
 import { listActions, withAdmin } from '@/lib/admin/guard';
 import { adjustPages, markVerified, noteResetSent, setRole, setSuspended, userDetail } from '@/lib/admin/users';
 import { HttpError, json, readJson } from '@/lib/http';
+import { isUuid } from '@/lib/uuid';
 import { getMailer } from '@/lib/mail';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type Ctx = { params: Promise<{ id: string }> };
-const UUID = /^[0-9a-f-]{36}$/i;
 
 export const GET = (req: Request, { params }: Ctx) => withAdmin(req, async (db) => {
   const { id } = await params;
-  const detail = UUID.test(id) ? await userDetail(db, id) : null;
+  const detail = isUuid(id) ? await userDetail(db, id) : null;
   if (!detail) return json({ error: 'Öğretmen bulunamadı.' }, 404);
   const actions = await listActions(db, { offset: 0, size: 30, targetId: id });
   return json({ ...detail, actions: actions.rows });
@@ -21,7 +21,7 @@ export const GET = (req: Request, { params }: Ctx) => withAdmin(req, async (db) 
 // One endpoint for the actions on a teacher, chosen by `action`.
 export const POST = (req: Request, { params }: Ctx) => withAdmin(req, async (db, admin) => {
   const { id } = await params;
-  if (!UUID.test(id)) return json({ error: 'Öğretmen bulunamadı.' }, 404);
+  if (!isUuid(id)) return json({ error: 'Öğretmen bulunamadı.' }, 404);
   const body = await readJson(req);
   switch (body.action) {
     case 'pages': {

@@ -2,6 +2,7 @@ import { and, eq, isNull, lt } from 'drizzle-orm';
 import type { Db } from '@/db/client';
 import { jobs, users } from '@/db/schema';
 import type { Mailer } from '@/lib/mail';
+import { RESULT_TTL_DAYS } from '@/lib/retention';
 import { RUBRIC_EXPIRE_DAYS } from './worker';
 
 type Deps = { db: Db; mailer: Mailer };
@@ -65,6 +66,6 @@ export async function remindKlasikReview({ db, mailer }: Deps, now = new Date())
       subject: `${byId.get(id)!.title || 'Sınav'}: puan önerileri onayınızı bekliyor`,
       text: 'Hatırlatma: klasik sınavınızın puan önerileri hazır. Siz onaylamadan puanlar kesinleşmez ve rapor gönderilmez.'
         + `\nKontrol edip onaylamak için: ${link()}`
-        + '\nSonuçlar, sınavın oluşturulmasından 30 gün sonra silinir.',
+        + `\nOnaylanmayan sınav, gönderilmesinden ${RESULT_TTL_DAYS} gün sonra kapatılır ve silinir.`,
     }));
 }

@@ -3,7 +3,7 @@ import { getDb, type Db } from '@/db/client';
 import { adminActions } from '@/db/schema';
 import { currentUser, forbidden, unauthorized, type CurrentUser } from '@/lib/auth/current';
 import { fromOwnOrigin } from '@/lib/auth/origin';
-import { HttpError } from '@/lib/http';
+import { handled } from '@/lib/http';
 
 // Every /api/admin route: a signed-in user whose role is admin. Anyone else
 // gets 401 or 403 and learns nothing about the data. A change (anything but
@@ -13,12 +13,7 @@ export async function withAdmin(req: Request, fn: (db: Db, admin: CurrentUser) =
   const me = await currentUser();
   if (!me) return unauthorized();
   if (me.role !== 'admin') return forbidden();
-  try {
-    return await fn(getDb(), me);
-  } catch (e) {
-    if (e instanceof HttpError) return Response.json({ error: e.message }, { status: e.status, headers: { 'Cache-Control': 'no-store' } });
-    throw e;
-  }
+  return handled(() => fn(getDb(), me));
 }
 
 export type Actor = Pick<CurrentUser, 'id' | 'email'>;

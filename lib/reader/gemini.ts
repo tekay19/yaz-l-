@@ -18,6 +18,8 @@ const BLOCKED = new Set(['SAFETY', 'PROHIBITED_CONTENT', 'BLOCKLIST', 'SPII', 'R
 const RETRY_STATUS = new Set([429, 500, 502, 503, 504]);
 const RETRY_WAIT_MS = [2_000, 8_000, 20_000];
 const MAX_RETRY_WAIT_MS = 60_000;
+// all the waiting of one call together, so the call stays inside the queue's lease
+const RETRY_BUDGET_MS = 90_000;
 
 // a rate limit says how long to wait ("retryDelay": "23s"); else the fixed steps
 async function waitMs(res: Awaited<ReturnType<GeminiFetch>>, attempt: number): Promise<number> {
@@ -53,6 +55,7 @@ const transport = (doFetch: GeminiFetch, key: string, model: string): Ask => asy
     },
   });
   let res!: Awaited<ReturnType<GeminiFetch>>;
+  let waited = 0;
   for (let attempt = 0; ; attempt++) {
     try {
       res = await doFetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
@@ -70,9 +73,11 @@ const transport = (doFetch: GeminiFetch, key: string, model: string): Ask => asy
     }
     if (res.ok || !RETRY_STATUS.has(res.status) || attempt >= RETRY_WAIT_MS.length) break;
     const wait = await waitMs(res, attempt);
+    if (waited + wait > RETRY_BUDGET_MS) break;
+    waited += wait;
     await new Promise((r) => setTimeout(r, wait));
   }
-  if (!res.ok) throw new Error(`gemini_${res.status}: ${(await res.text()).slice(0, 300)}`);
+  if (!res.ok) throw new Error(`gemini_${res.status}: ${(await res.text().catch(() => '')).slice(0, 300)}`);
   const out = await res.json();
   if (out.promptFeedback?.blockReason) throw new ReadRefused(`blocked:${out.promptFeedback.blockReason}`);
   const cand = out.candidates?.[0];

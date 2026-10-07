@@ -55,6 +55,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     }
     if (payment === 'ok') toast('Ödeme alındı; sayfa hakkınız hesabınıza eklendi.', 'success');
     if (payment === 'hata') toast('Ödeme tamamlanamadı; sayfa hakkı eklenmedi.', 'error');
+    if (payment === 'bekliyor') toast('Ödemeniz kontrol ediliyor; onaylanınca sayfa hakkınız birkaç dakika içinde eklenir.', 'success');
   }, [me, payment, toast]);
 
   // signed out: to the sign-in page, back here afterwards

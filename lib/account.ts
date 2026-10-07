@@ -4,6 +4,7 @@ import { classes, jobs, ledger, payments, users, type UserSettings } from '@/db/
 import { GRADING_STYLES, type GradingStyle } from '@/lib/types';
 import { MAX_TEACHER_NOTE } from '@/lib/limits';
 import { HttpError } from '@/lib/http';
+import { isUuid } from '@/lib/uuid';
 
 // What a teacher keeps between exams: saved class lists, defaults for new
 // exams, and the history of their page balance.
@@ -111,4 +112,3 @@ export async function balanceHistory(db: Db, userId: string, limit = 100): Promi
   });
 }
 
-const isUuid = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);

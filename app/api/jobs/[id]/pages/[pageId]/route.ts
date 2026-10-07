@@ -5,15 +5,18 @@ import { OptikPatch, saveKeyOverride, savePageOverride } from '@/lib/jobs/review
 import { getStorage } from '@/lib/storage';
 import { saveKlasikOverride } from '@/lib/klasik/jobs';
 import { withOwnedJob } from '@/lib/http';
+import { isUuid } from '@/lib/uuid';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type Ctx = { params: Promise<{ id: string; pageId: string }> };
+const noPage = () => Response.json({ error: 'Sayfa bulunamadı.' }, { status: 404 });
 
 // the page photo, for the review screen; only the owner, only while it exists
 export async function GET(_req: Request, { params }: Ctx) {
   const { id, pageId } = await params;
+  if (!isUuid(pageId)) return noPage();
   return withOwnedJob(id, async (db) => {
     const [p] = await db.select({ filePath: pages.filePath }).from(pages).where(and(eq(pages.id, pageId), eq(pages.jobId, id)));
     // the row can outlive its file for a moment while retention runs
@@ -27,6 +30,7 @@ export async function GET(_req: Request, { params }: Ctx) {
 
 export async function PATCH(req: Request, { params }: Ctx) {
   const { id, pageId } = await params;
+  if (!isUuid(pageId)) return noPage();
   return withOwnedJob(id, async (db, job) => {
     if (job.status !== 'review') return Response.json({ error: 'Sınav kontrol aşamasında değil.' }, { status: 409 });
     const body = await req.json().catch(() => null);
@@ -44,9 +48,10 @@ export async function PATCH(req: Request, { params }: Ctx) {
 
 export async function DELETE(_req: Request, { params }: Ctx) {
   const { id, pageId } = await params;
+  if (!isUuid(pageId)) return noPage();
   return withOwnedJob(id, async (db, job) => {
     if (job.status !== 'draft') return Response.json({ error: 'Gönderilmiş sınav değiştirilemez.' }, { status: 409 });
     const ok = await removePage(db, getStorage(), id, pageId);
-    return ok ? new Response(null, { status: 204 }) : Response.json({ error: 'Sayfa bulunamadı.' }, { status: 404 });
+    return ok ? new Response(null, { status: 204 }) : noPage();
   });
 }

@@ -112,4 +112,18 @@ describe('retention', () => {
     expect((await db.select().from(users).where(eq(users.id, u.id)))[0].pageBalance).toBe(10);
     expect((await runRetention(db, st)).jobs).toBe(1);
   });
+  it('keeps the results of an exam finished lately, even if its draft is old', async () => {
+    const db = await testDb();
+    const st = memoryStorage();
+    const u = await makeUser(db);
+    const [late] = await db.insert(jobs).values({
+      userId: u.id, status: 'done', createdAt: days(45), submittedAt: days(3), finishedAt: days(2),
+    }).returning();
+    const [old] = await db.insert(jobs).values({
+      userId: u.id, status: 'done', createdAt: days(45), submittedAt: days(40), finishedAt: days(31),
+    }).returning();
+    expect((await runRetention(db, st)).jobs).toBe(1);
+    expect(await db.select().from(jobs).where(eq(jobs.id, late.id))).toHaveLength(1);
+    expect(await db.select().from(jobs).where(eq(jobs.id, old.id))).toHaveLength(0);
+  });
 });

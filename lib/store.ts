@@ -24,9 +24,6 @@ export type TrackEvent = {
   ua: string;
 };
 
-// Events live in Postgres on our own server, so they always persist.
-export const isPersistent = () => true;
-
 export async function pushEvents(list: TrackEvent[], db: Db = getDb()) {
   if (!list.length) return;
   await db.insert(eventsTable).values(
