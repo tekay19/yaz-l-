@@ -63,7 +63,8 @@ export type QuestionScore = {
   flags: ScoreFlag[];
   criteria: ScoredCriterion[];
   grade: QuestionGrade | null;
-  // graded twice and the two disagree: the second grade's points
+  // graded twice or looked at again, and the grades disagree: the points of
+  // the one that did not decide
   altPoints?: number;
 };
 export type SheetScore = { total: number; max: number; percent: number; questions: QuestionScore[]; pending: number };
@@ -107,7 +108,9 @@ export function scoreQuestion(
   const g = grade ?? null;
   const base = { q: rq.q, max, grade: g };
   if (teacherPoints !== undefined) {
-    return { ...base, points: clamp(halfPoints(teacherPoints), 0, max), status: 'teacher', flags: [], criteria: describe(rq, g) };
+    // next to the teacher's points, the verdicts that decided the suggestion
+    const shown = g?.review && !g.review.failed && g.review.rev === g.rev ? g.review : g;
+    return { ...base, grade: shown, points: clamp(halfPoints(teacherPoints), 0, max), status: 'teacher', flags: [], criteria: describe(rq, shown) };
   }
   if (!answer) return { ...base, points: 0, status: 'missing', flags: ['missing'], criteria: describe(rq, null) };
   const text = answerText(answer);
@@ -197,12 +200,33 @@ export function scoreQuestion(
     else if (!flags.has('evidence_unverified')) flags.add('low_confidence');
   }
   const scored: QuestionScore = { ...base, points: clamp(halfPoints(points), 0, max), status: 'graded', flags: [...flags], criteria };
+  const apart = (a: number, b: number) => Math.abs(a - b) >= Math.max(2, 0.15 * max);
+  const usable = (x: QuestionGrade | null | undefined): x is QuestionGrade => Boolean(x && !x.failed && x.rev === g.rev);
   // graded twice: two clearly different points mean an unsure judgment
-  if (g.second && !g.second.failed && g.second.rev === g.rev) {
-    const alt = scoreQuestion(rq, answer, { ...g.second, second: null }).points;
-    if (Math.abs(alt - scored.points) >= Math.max(2, 0.15 * max)) return { ...scored, flags: [...scored.flags, 'unstable_grade'], altPoints: alt };
+  const alt = usable(g.second) ? scoreQuestion(rq, answer, { ...g.second, second: null, review: null }).points : undefined;
+  // looked at again by a stronger model where this grading was unsure: its
+  // verdicts decide the points, but the doubt is settled only when every
+  // grade agrees. Measured on 50 math sheets (2026-10-08): settling it when
+  // the stronger model agreed with just one of the two let 7.4% of the
+  // answers through wrong by 5+ points without a word, against 6.1% this way
+  // (49% asked without the second look, 39% and 45% with it).
+  if (usable(g.review)) {
+    const decided = scoreQuestion(rq, answer, { ...g.review, second: null, review: null });
+    const firsts = [scored.points, ...(alt === undefined ? [] : [alt])];
+    if (firsts.every((p) => !apart(p, decided.points))) return decided;
+    const other = firsts.find((p) => apart(p, decided.points))!;
+    return { ...decided, flags: [...decided.flags, 'unstable_grade'], altPoints: other };
   }
+  if (alt !== undefined && apart(alt, scored.points)) return { ...scored, flags: [...scored.flags, 'unstable_grade'], altPoints: alt };
   return scored;
+}
+
+// The doubts a second grading could settle: what asks for the teacher's
+// attention, but not the reader's own doubt or a figure, which go to the
+// teacher whatever another grading says.
+export function gradeDoubts(rq: RubricQuestion, answer: KlasikAnswer, grade: QuestionGrade): ScoreFlag[] {
+  const s = scoreQuestion(rq, { ...answer, unclear: false }, grade);
+  return attentionFlags(s).filter((f) => f !== 'figure' && f !== 'text_only');
 }
 
 export function scoreSheet(

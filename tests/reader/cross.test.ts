@@ -52,8 +52,14 @@ describe('cross-reading', () => {
 describe('model roles', () => {
   it('runs everything on one model by default, as before', () => {
     expect(roles({ GRADER_PROVIDER: 'openai', GRADER_MODEL: 'gpt-x' })).toEqual({
-      reader: { provider: 'openai', model: 'gpt-x' }, grader: { provider: 'openai', model: 'gpt-x' }, cross: null,
+      reader: { provider: 'openai', model: 'gpt-x' }, grader: { provider: 'openai', model: 'gpt-x' }, cross: null, escalate: null,
     });
+  });
+  it('adds a stronger model for second looks only when one is named', () => {
+    const r = roles({ GRADER_MODEL: 'claude-haiku-5-5', ESCALATE_PROVIDER: 'anthropic', ESCALATE_MODEL: 'claude-sonnet-5-5' });
+    expect(r.grader).toEqual({ provider: 'anthropic', model: 'claude-haiku-5-5' });
+    expect(r.escalate).toEqual({ provider: 'anthropic', model: 'claude-sonnet-5-5' });
+    expect(roles({ ESCALATE_MODEL: 'claude-sonnet-5-5' }).escalate).toBeNull(); // no provider, no second look
   });
   it('splits reading, grading and the second reading', () => {
     const r = roles({ READER_PROVIDER: 'gemini', GRADER_PROVIDER: 'openai', GRADER_MODEL: 'gpt-x', CROSS_READ_PROVIDER: 'openai' });

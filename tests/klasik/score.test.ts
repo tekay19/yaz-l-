@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { finalNumbers, scoreQuestion, scoreSheet, attentionFlags } from '@/lib/klasik/score';
+import { finalNumbers, gradeDoubts, scoreQuestion, scoreSheet, attentionFlags } from '@/lib/klasik/score';
 import type { KlasikAnswer, QuestionGrade, RubricQuestion, Verdict } from '@/lib/types';
 
 // 2x + 3 = 11, işlemleriyle: setup 3 + steps 3 + result 4
@@ -313,5 +313,43 @@ describe('graded twice', () => {
     expect(same.altPoints).toBeUndefined();
     const half = grade({ criteria: [v('c1', 'met', '2x = 11 - 3'), v('c2', 'partial', '2x = 8'), v('c3', 'met', 'x = 4')], resultCorrect: true, resultPath: 'valid' });
     expect(scoreQuestion(islem(), solved, grade({ criteria: allMet, resultCorrect: true, resultPath: 'valid', second: half })).flags).not.toContain('unstable_grade');
+  });
+});
+
+describe('looked at again by a stronger model', () => {
+  const full = () => grade({ criteria: allMet, resultCorrect: true, resultPath: 'valid' });
+  const setupOnly = () => grade({ criteria: [v('c1', 'met', '2x = 11 - 3'), v('c2', 'not_met'), v('c3', 'not_met')], resultCorrect: true, resultPath: 'valid' });
+
+  it('decides the points, and settles the doubt when every grade agrees', () => {
+    const s = scoreQuestion(islem(), solved, grade({ ...full(), confidence: 'low', second: full(), review: full() }));
+    expect([s.points, s.altPoints]).toEqual([10, undefined]);
+    expect(attentionFlags(s)).toEqual([]);
+    expect(s.grade?.confidence).toBe('high'); // the screens show the verdicts that decided
+  });
+
+  it('agreeing with only one of the two first grades still goes to the teacher, with the other shown', () => {
+    const one = scoreQuestion(islem(), solved, grade({ ...setupOnly(), second: full(), review: full() }));
+    expect([one.points, one.altPoints]).toEqual([10, 3]);
+    expect(attentionFlags(one)).toEqual(['unstable_grade']);
+    const none = scoreQuestion(islem(), solved, grade({ ...full(), confidence: 'low', review: setupOnly() }));
+    expect([none.points, none.altPoints]).toEqual([3, 10]);
+    expect(attentionFlags(none)).toEqual(['unstable_grade']);
+  });
+
+  it('keeps its own doubts, and a failed or stale second look changes nothing', () => {
+    const unsure = scoreQuestion(islem(), solved, grade({ ...full(), confidence: 'low', review: { ...full(), confidence: 'low' } }));
+    expect(attentionFlags(unsure)).toContain('low_confidence');
+    for (const review of [{ ...setupOnly(), failed: true }, { ...setupOnly(), rev: 0 }]) {
+      const s = scoreQuestion(islem(), solved, grade({ ...full(), review }));
+      expect([s.points, s.flags]).toEqual([10, []]);
+    }
+  });
+
+  it('is asked about doubts a grading can settle, not the reader\'s own or a figure', () => {
+    expect(gradeDoubts(islem(), solved, grade({ ...full(), confidence: 'low' }))).toEqual(['low_confidence']);
+    expect(gradeDoubts(islem(), solved, grade({ ...full(), second: setupOnly() }))).toEqual(['unstable_grade']);
+    expect(gradeDoubts(islem(), { ...solved, unclear: true }, full())).toEqual([]);
+    expect(gradeDoubts(islem(), { ...solved, hasFigure: true }, full())).toEqual([]);
+    expect(gradeDoubts(islem(), { ...solved, unclear: true }, grade({ ...full(), flags: ['unclear_reading'] }))).toEqual(['unclear_reading']);
   });
 });

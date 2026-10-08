@@ -82,6 +82,9 @@ export type QuestionGrade = {
   textOnly: boolean; // a figure question graded without its photo
   // KLASIK_DOUBLE_GRADE: the same answer graded a second time, to compare
   second?: QuestionGrade | null;
+  // ESCALATE_*: a stronger model's grade of an answer this grading was unsure
+  // of; its verdicts decide the points (lib/klasik/score.ts)
+  review?: QuestionGrade | null;
 };
 export type KlasikGrade = { questions: QuestionGrade[] };
 

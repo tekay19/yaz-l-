@@ -10,6 +10,7 @@ import { answerText, mergeSheets, nameFixes, type Sheet, type SheetPage } from '
 import { failedGrade, toGrade } from './grade';
 import { gradeInChunks } from './chunks';
 import { emptyRubric, normalizeDraft, rubricProblems } from './rubric';
+import { gradeDoubts } from './score';
 
 // The klasik steps of the worker loop, each a job-level pass like delivery:
 //   draftPendingRubrics  key read (or typed) → rubric draft → grading starts at once;
@@ -205,8 +206,11 @@ export function pendingQuestions(job: Pick<Job, 'rubric'>, sheet: Sheet) {
   });
 }
 
+const addUsage = (a: Usage, b: Usage): Usage => ({ inputTokens: a.inputTokens + b.inputTokens, outputTokens: a.outputTokens + b.outputTokens });
+
 async function gradeSheet({ db, storage, reader }: Deps, job: Job, sheet: Sheet, hold: Hold, now: Date) {
   const todo = pendingQuestions(job, sheet);
+  let held = hold;
   try {
     let fresh: QuestionGrade[] = [];
     let usage: Usage | undefined;
@@ -226,18 +230,42 @@ async function gradeSheet({ db, storage, reader }: Deps, job: Job, sheet: Sheet,
         const o2 = again?.read.questions.find((x) => x.q === rq.q);
         return { ...toGrade(rq, o, textOnly), ...(o2 ? { second: toGrade(rq, o2, textOnly) } : {}) };
       });
-      usage = again
-        ? { inputTokens: out.usage.inputTokens + again.usage.inputTokens, outputTokens: out.usage.outputTokens + again.usage.outputTokens }
-        : out.usage;
+      usage = again ? addUsage(out.usage, again.usage) : out.usage;
+
+      // ESCALATE_*: the stronger model grades again only what this grading is
+      // unsure of. It gets a lease of its own, since the first grading may
+      // have used up most of the claim's; when it fails, the first grades
+      // stand with their doubts and the teacher checks them.
+      const doubtful = reader.expert ? todo.flatMap((rq, i) => (gradeDoubts(rq, answers[i], fresh[i]).length ? [i] : [])) : [];
+      if (reader.expert && doubtful.length) {
+        const lease = new Date(Date.now() + LEASE_MS);
+        const [renewed] = await db.update(pages).set({ gradeLeaseUntil: lease }).where(holding(sheet.pageId, held)).returning({ id: pages.id });
+        if (renewed) {
+          held = { attempts: held.attempts, lease };
+          const looked = await gradeInChunks(reader.expert, {
+            questions: doubtful.map((i) => todo[i]), answers: doubtful.map((i) => answers[i]), images, note: job.teacherNote,
+          }).catch((e) => {
+            console.error('[klasik] second_look_failed', sheet.pageId, e instanceof Error ? e.message : e);
+            return null;
+          });
+          if (looked) {
+            for (const i of doubtful) {
+              const o = looked.read.questions.find((x) => x.q === todo[i].q);
+              if (o) fresh[i] = { ...fresh[i], review: toGrade(todo[i], o, fresh[i].textOnly) };
+            }
+            usage = addUsage(usage, looked.usage);
+          }
+        }
+      }
     }
-    await settle(db, job, sheet, hold, fresh, usage);
+    await settle(db, job, sheet, held, fresh, usage);
   } catch (e) {
     console.error('[klasik] grade_failed', sheet.pageId, e instanceof Error ? e.message : e);
-    if (hold.attempts >= GRADE_MAX_ATTEMPTS) {
-      await settle(db, job, sheet, hold, todo.map(failedGrade));
+    if (held.attempts >= GRADE_MAX_ATTEMPTS) {
+      await settle(db, job, sheet, held, todo.map(failedGrade));
     } else {
-      await db.update(pages).set({ gradeLeaseUntil: new Date(now.getTime() + retryBackoffMs(hold.attempts)) })
-        .where(holding(sheet.pageId, hold));
+      await db.update(pages).set({ gradeLeaseUntil: new Date(now.getTime() + retryBackoffMs(held.attempts)) })
+        .where(holding(sheet.pageId, held));
     }
   }
 }

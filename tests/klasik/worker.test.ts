@@ -299,6 +299,44 @@ describe('klasik worker', () => {
     }
   });
 
+  it('asks the stronger model again only about what the first grading is unsure of', async () => {
+    const { db, storage } = await submitted({ key: 'key', students: ['front1', 'back1'] });
+    const asked: number[][] = [];
+    const expert = fakeReader({
+      gradeKlasik: async ({ questions, answers }) => { asked.push(questions.map((q) => q.q)); return { read: gradeAll(questions, answers), usage }; },
+    });
+    // unsure of the first question only
+    const r = reader({
+      expert,
+      gradeKlasik: async ({ questions, answers }) => ({
+        read: { questions: gradeAll(questions, answers).questions.map((g) => (g.q === 1 ? { ...g, confidence: 'low' as const } : g)) }, usage,
+      }),
+    });
+    await drain(db, storage, r);
+    await draftPendingRubrics({ db, storage, reader: r });
+    expect(await gradePending({ db, storage, reader: r }, 10)).toBe(1);
+    expect(asked).toEqual([[1]]);
+    const [sheet] = (await db.select().from(pages).where(eq(pages.seq, 1))).filter((p: { kind: string }) => p.kind === 'student');
+    const [q1, q2] = sheet.grade!.questions;
+    expect([q1.confidence, q1.review?.confidence, q2.review]).toEqual(['low', 'high', undefined]);
+    expect(sheet.inputTokens).toBe(30); // the reading, the grading and the second look
+  });
+
+  it('keeps the first grades and their doubts when the stronger model fails', async () => {
+    const { db, storage } = await submitted({ key: 'key', students: ['front1', 'back1'] });
+    const r = reader({
+      expert: fakeReader({ gradeKlasik: async () => { throw new Error('overloaded'); } }),
+      gradeKlasik: async ({ questions, answers }) => ({
+        read: { questions: gradeAll(questions, answers).questions.map((g) => ({ ...g, confidence: 'low' as const })) }, usage,
+      }),
+    });
+    await drain(db, storage, r);
+    await draftPendingRubrics({ db, storage, reader: r });
+    expect(await gradePending({ db, storage, reader: r }, 10)).toBe(1);
+    const [sheet] = (await db.select().from(pages).where(eq(pages.seq, 1))).filter((p: { kind: string }) => p.kind === 'student');
+    expect(sheet.grade!.questions.map((q: QuestionGrade) => [q.confidence, q.review ?? null, q.failed])).toEqual([['low', null, false], ['low', null, false]]);
+  });
+
   it('never sends a klasik report without the teacher', async () => {
     const { db, id } = await submitted({ key: 'key', students: ['front1'] });
     await db.update(jobs).set({ status: 'review', finishedAt: new Date(Date.now() - 30 * 86_400_000) }).where(eq(jobs.id, id));

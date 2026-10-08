@@ -22,6 +22,8 @@ export type Reader = {
   readRoster?(image: Buffer): Promise<{ read: { names: string[] }; usage: Usage }>;
   draftRubric(input: { keyText: string; maxPoints: number[]; note?: string }): Promise<{ read: RubricDraft; usage: Usage }>;
   gradeKlasik(input: { questions: RubricQuestion[]; answers: KlasikAnswer[]; images: Buffer[]; note?: string }): Promise<{ read: GradeOutput; usage: Usage }>;
+  // ESCALATE_*: a stronger model, asked again only where this one was unsure
+  expert?: Reader;
 };
 export class ReadRefused extends Error {}
 // The answer hit the output limit and its JSON is cut off; asking again with
