@@ -28,6 +28,12 @@ export const RUBRIC_EXPIRE_DAYS = 7;
 // KLASIK_DOUBLE_GRADE=true: every answer is graded twice; clearly different
 // points send it to the teacher (lib/klasik/score.ts)
 const doubleGrade = () => process.env.KLASIK_DOUBLE_GRADE === 'true';
+// ESCALATE_GRADING=true: the stronger model (ESCALATE_*) also grades again
+// what this grading is unsure of. Off by default: measured on 50 math and 50
+// Turkish sheets (2026-10-08) it asked the teacher 3-5 points less often but
+// was no more accurate, at half the exam's cost; the second reading and the
+// rubric draft are what paid.
+const escalateGrading = () => process.env.ESCALATE_GRADING === 'true';
 
 type Deps = { db: Db; storage: Storage; reader: Reader };
 // Proof that an attempt still holds a sheet. The attempt counter alone is not
@@ -232,11 +238,11 @@ async function gradeSheet({ db, storage, reader }: Deps, job: Job, sheet: Sheet,
       });
       usage = again ? addUsage(out.usage, again.usage) : out.usage;
 
-      // ESCALATE_*: the stronger model grades again only what this grading is
-      // unsure of. It gets a lease of its own, since the first grading may
-      // have used up most of the claim's; when it fails, the first grades
-      // stand with their doubts and the teacher checks them.
-      const doubtful = reader.expert ? todo.flatMap((rq, i) => (gradeDoubts(rq, answers[i], fresh[i]).length ? [i] : [])) : [];
+      // ESCALATE_GRADING: the stronger model grades again only what this
+      // grading is unsure of. It gets a lease of its own, since the first
+      // grading may have used up most of the claim's; when it fails, the first
+      // grades stand with their doubts and the teacher checks them.
+      const doubtful = reader.expert && escalateGrading() ? todo.flatMap((rq, i) => (gradeDoubts(rq, answers[i], fresh[i]).length ? [i] : [])) : [];
       if (reader.expert && doubtful.length) {
         const lease = new Date(Date.now() + LEASE_MS);
         const [renewed] = await db.update(pages).set({ gradeLeaseUntil: lease }).where(holding(sheet.pageId, held)).returning({ id: pages.id });

@@ -13,11 +13,11 @@ import { crossReadKlasik } from './cross';
 //   CROSS_READ_PROVIDER / CROSS_READ_MODEL   a second, independent klasik reading
 //   ESCALATE_PROVIDER / ESCALATE_MODEL       a stronger model asked only where the
 //                                            others were unsure: a klasik page with
-//                                            an unclear answer is read again, and a
-//                                            doubtful grade graded again. It also
-//                                            drafts the rubric: one call per exam
-//                                            whose every point split reaches every
-//                                            sheet, so worth the stronger model
+//                                            an unclear answer is read again (and,
+//                                            with ESCALATE_GRADING, a doubtful grade
+//                                            graded again). It also drafts the
+//                                            rubric: one call per exam whose every
+//                                            point split reaches every sheet
 // Providers: "anthropic" (default), "openai", "gemini". With only GRADER_* set
 // one model does everything, as before. A call that fails on one provider
 // (an outage, an exhausted quota) is retried once on the other one.
