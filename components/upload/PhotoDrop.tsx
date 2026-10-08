@@ -3,10 +3,11 @@
 import { useRef, useState } from 'react';
 
 // Where photos come in: drag and drop, the gallery, or straight from the
-// phone's camera. At most PER_PICK at a time, so a teacher adds a few
-// sheets, sees each one checked, and adds the next few — a bad photo is
-// caught while the sheet is still on the desk.
-export const PER_PICK = 4;
+// phone's camera. A bounded number at a time (a whole class of student
+// sheets, but only a klasik key's worth of key pages), so the teacher sees
+// each one checked before adding the next batch.
+export const PER_PICK_STUDENT = 200;
+export const PER_PICK_KEY = 10;
 const ACCEPT = 'image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif';
 
 type Props = {
@@ -15,10 +16,11 @@ type Props = {
   busy: boolean;
   full?: boolean;
   single?: boolean;
+  perPick: number;
   onPick: (files: File[]) => void;
 };
 
-export default function PhotoDrop({ title, hint, busy, full = false, single = false, onPick }: Props) {
+export default function PhotoDrop({ title, hint, busy, full = false, single = false, perPick, onPick }: Props) {
   const gallery = useRef<HTMLInputElement>(null);
   const camera = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
@@ -44,7 +46,7 @@ export default function PhotoDrop({ title, hint, busy, full = false, single = fa
           Kamerayla çekin
         </button>
         <button type="button" className="btn btn-ghost btn-sm" disabled={off} onClick={() => gallery.current?.click()}>
-          {single ? 'Fotoğraf seçin' : `Fotoğraf seçin (en fazla ${PER_PICK})`}
+          {single ? 'Fotoğraf seçin' : `Fotoğraf seçin (en fazla ${perPick})`}
         </button>
       </div>
       <p className="tiny muted drop-status" aria-live="polite">{busy ? 'Fotoğraflar yükleniyor ve kontrol ediliyor…' : ''}</p>

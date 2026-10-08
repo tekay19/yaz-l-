@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { quoteFound } from '@/lib/klasik/evidence';
-import { answerText, mergeSheets, type SheetPage } from '@/lib/klasik/sheets';
+import { answerText, mergeSheets, nameFixes, type SheetPage } from '@/lib/klasik/sheets';
 import { RubricInput, amendRubric, fromInput, normalizeDraft, rubricProblems, splitPoints } from '@/lib/klasik/rubric';
 import { failedGrade, toGrade } from '@/lib/klasik/grade';
 import type { KlasikRead, RubricQuestion } from '@/lib/types';
+import { keyPointsOf } from '@/lib/klasik/worker';
+import { cleanName, markContinuation } from '@/worker/process';
 
 describe('quoteFound', () => {
   it('forgives case, spacing, quote marks and uncertainty markers', () => {
@@ -50,6 +52,22 @@ const page = (seq: number, read: Partial<KlasikRead> | null, over: Partial<Sheet
 const lines = (...t: string[]) => t.map((text) => ({ text, crossed: false }));
 
 describe('mergeSheets', () => {
+  it('joins a later page without a name to its student even when it was read as a front', () => {
+    // a four-page exam, the name only on the first page; the last page looks
+    // like a front to the reader (a printed header, no name field)
+    const qa = (...qs: number[]) => qs.map((q) => ({ q, lines: lines(`${q}. cevap`), unclear: false, hasFigure: false }));
+    const reads: Partial<KlasikRead>[] = [
+      { studentName: 'Elif Yıldız', answers: qa(1) }, { isBackSide: true, answers: qa(2, 3) },
+      { isBackSide: true, answers: qa(4, 5) }, { isBackSide: false, answers: qa(6, 7) },
+      { studentName: 'Mert Kaya', answers: qa(1) }, { isBackSide: false, answers: qa(2, 3) },
+      // a student who forgot the name: the first question starts a sheet of its own
+      { isBackSide: false, answers: qa(1) },
+    ];
+    const full = (r: Partial<KlasikRead>): KlasikRead => ({ isBackSide: false, studentName: null, nameConfidence: 'high', unreadable: false, answers: [], ...r });
+    const { sheets } = mergeSheets(reads.map((r, i) => page(i + 1, markContinuation(full(r)))));
+    expect(sheets.map((s) => s.seqs)).toEqual([[1, 2, 3, 4], [5, 6], [7]]);
+  });
+
   it('appends a back side, continuing an answer that ran over the page break', () => {
     const { sheets, failed } = mergeSheets([
       page(2, { isBackSide: true, answers: [{ q: 2, lines: lines('devamı'), unclear: true, hasFigure: false }, { q: 3, lines: lines('3 cevap'), unclear: false, hasFigure: false }] }),
@@ -202,7 +220,7 @@ describe('rubric', () => {
     const r = fromInput(RubricInput.parse({ questions: [{ ...q, type: 'yorum', prompt: '' }] }));
     expect(r.questions[0]).toMatchObject({ rev: 1, prompt: null, criteria: [{ role: 'other' }] });
     expect(rubricProblems(r)).toEqual([]);
-    expect(rubricProblems({ questions: [] })).toEqual(['Rubrikte hiç soru yok.']);
+    expect(rubricProblems({ questions: [] })).toEqual(['Cevap anahtarında hiç soru bulunamadı.']);
   });
 
   it('adds an accepted answer and sends only that question back for grading', () => {
@@ -302,5 +320,75 @@ describe('strayWriting', () => {
     expect(notes).toHaveLength(2);
     expect(notes[0]).toContain('Soru numarası olmayan yazı: "Fotosentez kloroplastta olur."');
     expect(notes[1]).toContain('Sınavda olmayan 7. soru');
+  });
+});
+
+describe('keyPointsOf', () => {
+  const key = (answers: { q: number; text: string[] }[]) => ({
+    result: { type: 'klasik-key' as const, read: { isBackSide: false, studentName: null, nameConfidence: 'high' as const, unreadable: false,
+      answers: answers.map((a) => ({ q: a.q, lines: a.text.map((text) => ({ text, crossed: false })), unclear: false, hasFigure: false })) } },
+  });
+  it('takes the points printed with each question on the key', () => {
+    expect(keyPointsOf([key([
+      { q: 1, text: ['Soru: K değerini işlemlerinizi göstererek bulunuz. (15 puan)', 'K = 5006'] },
+      { q: 2, text: ['Soru: Sonucu bulunuz. (12,5 Puan)', '√5/3'] },
+    ]), key([{ q: 4, text: ['Soru: A ∩ B kümesini yazınız. (10 puan)', '[800, 1200]'] }])])).toEqual([15, 12.5, 0, 10]);
+  });
+  it('gives nothing when the key prints no points, or only inside an answer', () => {
+    expect(keyPointsOf([key([{ q: 1, text: ['Soru: Açıklayınız.', 'Her doğru fikir (5 puan)'] }])])).toEqual([]);
+    expect(keyPointsOf([{ result: null }])).toEqual([]);
+  });
+});
+
+describe('cleanName', () => {
+  const name = (studentName: string | null) =>
+    cleanName({ isBackSide: false, studentName, nameConfidence: 'high', unreadable: false, answers: [] }).studentName;
+  it('drops a label written before the name', () => {
+    expect(name('Ad: Burak Demir')).toBe('Burak Demir');
+    expect(name('Ad Burak Demir')).toBe('Burak Demir');
+    expect(name('Adı: Elif Şahin')).toBe('Elif Şahin');
+    expect(name('ADI SOYADI: Zeynep Kaya')).toBe('Zeynep Kaya');
+    expect(name('İsim - Can Öztürk')).toBe('Can Öztürk');
+  });
+  it('leaves names that only start like a label, and a lone label', () => {
+    expect(name('Adem Yılmaz')).toBe('Adem Yılmaz');
+    expect(name('Ada Kaya')).toBe('Ada Kaya');
+    expect(name('Adil Koç')).toBe('Adil Koç');
+    expect(name('Ad:')).toBe('Ad:');
+    expect(name(null)).toBeNull();
+  });
+});
+
+describe('nameFixes', () => {
+  const qa = (...qs: number[]) => qs.map((q) => ({ q, lines: lines(`${q}. cevap`), unclear: false, hasFigure: false }));
+  it('gives a page whose name was misread the name on the student\'s other pages', () => {
+    const rows = [
+      page(1, { studentName: 'Emre Şahin', answers: qa(1) }), page(2, { studentName: 'Emre Şahin', answers: qa(2, 3) }),
+      page(3, { studentName: 'Seltin Aydın', answers: qa(1) }), page(4, { studentName: 'Selin Aydın', answers: qa(2, 3) }),
+      page(5, { studentName: 'Ad: Selin Aydın', answers: qa(4, 5) }),
+    ];
+    const fixes = nameFixes(rows);
+    expect([...fixes]).toEqual([['p3', 'Selin Aydın']]);
+    const mended = rows.map((p) => (fixes.has(p.id) && p.result?.type === 'klasik-student'
+      ? { ...p, result: { ...p.result, read: { ...p.result.read, studentName: fixes.get(p.id)! } } } : p));
+    expect(mergeSheets(mended).sheets.map((s) => s.seqs)).toEqual([[1, 2], [3, 4, 5]]);
+  });
+
+  it('also mends a first page with only the name on it (the first question left blank)', () => {
+    expect([...nameFixes([
+      page(1, { studentName: 'Deniz Köş', answers: [{ q: 1, lines: [], unclear: false, hasFigure: false }] }),
+      page(2, { studentName: 'Deniz Koç', answers: qa(2, 3) }), page(3, { studentName: 'Deniz Koç', answers: qa(4, 5) }),
+    ])]).toEqual([['p1', 'Deniz Koç']]);
+    // but a blank page is never joined to a student who starts from the first question
+    expect(nameFixes([
+      page(1, { studentName: 'Ali Kaya', answers: [] }), page(2, { studentName: 'Ali Kara', answers: qa(1, 2) }),
+    ]).size).toBe(0);
+  });
+
+  it('never joins two students with close names', () => {
+    // the second starts again from the first question: another student
+    expect(nameFixes([
+      page(1, { studentName: 'Ali Kaya', answers: qa(1, 2) }), page(2, { studentName: 'Ali Kara', answers: qa(1, 2) }),
+    ]).size).toBe(0);
   });
 });

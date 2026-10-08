@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Api, KlasikReview, ReviewQuestion, ReviewSheet } from './api';
 import { FailedSheets, NoteBanner } from './ui';
+import RosterPhoto, { mergeNames } from '@/components/upload/RosterPhoto';
 import { ReviewFrame, ReviewPhoto } from './ReviewFrame';
 
 const VERDICT: Record<string, string> = { met: 'Karşılandı', partial: 'Kısmen', not_met: 'Karşılanmadı' };
@@ -66,11 +67,12 @@ export default function KlasikReviewCard({ api, jobId, onApproved }: Props) {
   const shown = showAll || !flagged ? sheets : sheets.filter(needs);
   return (
     <ReviewFrame
-      summary={<>{data.sheets.length} kâğıt, {attention} soruda işaret. Puanlar siz onaylayana kadar öneridir; onaylayınca rapor e-postanıza gider.</>}
+      summary={<>{data.sheets.length} kâğıt, {attention} soruda işaret. Puanlar siz onaylayana kadar öneridir; onaylayınca rapor e-postanıza gider, sonuçlar panelde de kalır.</>}
       flagged={flagged} total={data.sheets.length} showAll={showAll || !flagged} onShowAll={setShowAll}
       onApprove={approve} approveDisabled={busy || data.pending > 0}
       hint={data.pending > 0 ? `${data.pending} kâğıt yeniden puanlanıyor; bitince onaylayabilirsiniz.` : undefined}
       roster={roster} onRoster={setRoster} onSaveRoster={saveRoster}
+      rosterExtra={<RosterPhoto api={api} onNames={(names) => setRoster((cur) => mergeNames(cur, names))} />}
       after={<><FailedSheets failed={data.failed} refunded /><NoteBanner note={error ? { ok: false, text: error } : null} /></>}
     >
       {shown.map((s) => <SheetCard key={s.pageId} api={api} jobId={jobId} sheet={s} onChanged={load} />)}
@@ -159,7 +161,7 @@ function QuestionBlock({ api, jobId, pageId, question: q, onChanged }: {
     const why = window.prompt('Bu cevap neden doğru? (isteğe bağlı kısa not; diğer kâğıtlarda da bu yol tam puan alacak)', '');
     if (why === null) return;
     const r = await api.acceptAnswer(jobId, pageId, q.q, why);
-    done(r, 'Rubriğe eklendi; bu soru tüm sınıf için yeniden puanlanıyor.');
+    done(r, 'Kaydedildi; bu soru tüm sınıf için yeniden puanlanıyor.');
   }
 
   async function retry() {
@@ -169,7 +171,7 @@ function QuestionBlock({ api, jobId, pageId, question: q, onChanged }: {
   return (
     <div className={`klasik-q${attention.length ? ' flagged' : ''}`}>
       <div className="console-row between">
-        <strong className="small">{q.q}. soru <span className="review-pts">{q.points} / {q.max}</span></strong>
+        <strong className="small">{q.q}. soru <span className={`review-pts ${q.points >= q.max ? 'full' : q.points > 0 ? 'part' : 'zero'}`}>{q.points} / {q.max}</span></strong>
         {STATUS[q.status] && <span className="tiny muted">{STATUS[q.status]}</span>}
       </div>
       {attention.length > 0 && <ul className="small console-list console-err">{attention.map((n) => <li key={n.code}>{n.text}</li>)}</ul>}
@@ -200,21 +202,24 @@ function QuestionBlock({ api, jobId, pageId, question: q, onChanged }: {
       )}
 
       {q.criteria.some((c) => c.verdict) && (
-        <table className="klasik-crit">
-          <tbody>
-            {q.criteria.map((c) => (
-              <tr key={c.id}>
-                <td>{c.text}{c.role === 'result' ? ' (sonuç)' : ''}</td>
-                <td className="nowrap">{c.verdict ? VERDICT[c.verdict] : '—'}</td>
-                <td className="nowrap">{c.earned} / {c.points}</td>
-                <td className="tiny muted">
-                  {c.evidence && <>“{c.evidence}”</>}
-                  {c.verdict && c.verdict !== 'not_met' && !c.counted && <> — sayılmadı</>}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <details className="klasik-why" open={attention.length > 0}>
+          <summary>Puan nasıl verildi?</summary>
+          <table className="klasik-crit">
+            <tbody>
+              {q.criteria.map((c) => (
+                <tr key={c.id}>
+                  <td>{c.text}{c.role === 'result' ? ' (sonuç)' : ''}</td>
+                  <td className="nowrap">{c.verdict ? VERDICT[c.verdict] : '—'}</td>
+                  <td className="nowrap">{c.earned} / {c.points}</td>
+                  <td className="tiny muted">
+                    {c.evidence && <>“{c.evidence}”</>}
+                    {c.verdict && c.verdict !== 'not_met' && !c.counted && <> — sayılmadı</>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </details>
       )}
 
       <div className="console-row">
@@ -223,7 +228,7 @@ function QuestionBlock({ api, jobId, pageId, question: q, onChanged }: {
         <button type="button" className="btn btn-ghost btn-sm" onClick={() => savePoints(parsePoints(points))}>Puanı kaydet</button>
         {q.status === 'teacher' && <button type="button" className="console-link" onClick={() => savePoints(null)}>öneriye dön</button>}
         {q.lines.some((l) => !l.crossed) && q.status !== 'teacher' && (
-          <button type="button" className="btn btn-ghost btn-sm" onClick={accept}>Bu cevabı kabul et, rubriğe ekle</button>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={accept} title="Bu çözüm yolu bütün sınıfta tam puan alır">Bu cevap da doğru</button>
         )}
         {q.status === 'failed' && <button type="button" className="btn btn-ghost btn-sm" onClick={retry}>Yeniden dene</button>}
       </div>

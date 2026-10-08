@@ -6,16 +6,17 @@ import type { Reader, Usage } from '@/lib/reader/types';
 import { refundPages } from '@/lib/credits';
 import { LEASE_MS, retryBackoffMs } from '@/lib/queue';
 import type { PageResult, QuestionGrade, Rubric } from '@/lib/types';
-import { answerText, mergeSheets, type Sheet } from './sheets';
+import { answerText, mergeSheets, nameFixes, type Sheet, type SheetPage } from './sheets';
 import { failedGrade, toGrade } from './grade';
 import { gradeInChunks } from './chunks';
-import { emptyRubric, normalizeDraft } from './rubric';
+import { emptyRubric, normalizeDraft, rubricProblems } from './rubric';
 
 // The klasik steps of the worker loop, each a job-level pass like delivery:
-//   draftPendingRubrics  key read (or typed) → rubric draft → job waits in 'rubric'
+//   draftPendingRubrics  key read (or typed) → rubric draft → grading starts at once;
+//                        only a draft that cannot grade waits in 'rubric'
 //   gradePending         rubric approved + pages read → verdicts per sheet
 //   completeKlasikJobs   everything graded → 'review', unread pages refunded
-//   expireRubrics        rubric never approved → job cancelled, full refund
+//   expireRubrics        key never given → job cancelled, full refund
 
 export const RUBRIC_MAX_ATTEMPTS = 3;
 // longer than one draft call may take (the reader timeout), so a slow draft
@@ -45,6 +46,19 @@ export function keyTextOf(job: Pick<Job, 'keyText'>, keyPages: { result: PageRes
   return [job.keyText.trim(), ...fromPhotos].filter(Boolean).join('\n\n');
 }
 
+// The points printed on the key next to each question ("(15 puan)"), from the
+// "Soru:" line the key reading keeps; [] when the key shows none.
+export function keyPointsOf(keyPages: { result: PageResult | null }[]): number[] {
+  const out: number[] = [];
+  for (const a of keyPages.flatMap((p) => (p.result?.type === 'klasik-key' ? p.result.read.answers : []))) {
+    if (a.q < 1 || a.q > 200) continue;
+    const line = a.lines.find((l) => /^\s*soru\s*:/i.test(l.text));
+    const m = line?.text.match(/\(\s*(\d+(?:[.,]5)?)\s*puan\s*\)/i);
+    if (m) out[a.q - 1] = Number(m[1].replace(',', '.'));
+  }
+  return out.some((p) => p > 0) ? Array.from(out, (p) => p ?? 0) : [];
+}
+
 const keyPagesSettled = sql`not exists (select 1 from pages k where k.job_id = ${jobs.id} and k.kind = 'key' and k.status in ('queued', 'reading'))`;
 
 export async function draftPendingRubrics({ db, reader }: Deps, now = new Date()): Promise<number> {
@@ -67,15 +81,17 @@ export async function draftPendingRubrics({ db, reader }: Deps, now = new Date()
       .where(and(eq(pages.jobId, id), eq(pages.kind, 'key'), eq(pages.status, 'read')))
       .orderBy(asc(pages.seq));
     const keyText = keyTextOf(job, keyPages);
+    // the teacher's points, else the ones printed on the key, else 10 each
+    const maxPoints = job.klasikMax.length ? job.klasikMax : keyPointsOf(keyPages);
     let rubric: Rubric | null = null;
     if (!keyText) {
       rubric = emptyRubric(); // nothing readable: the teacher types the key or builds the rubric
     } else {
       try {
-        const { read } = await reader.draftRubric({ keyText, maxPoints: job.klasikMax, note: job.teacherNote });
+        const { read } = await reader.draftRubric({ keyText, maxPoints, note: job.teacherNote });
         // the teacher's default grading style starts every question
         const [owner] = await db.select({ settings: users.settings }).from(users).where(eq(users.id, job.userId));
-        rubric = normalizeDraft(read, job.klasikMax, owner?.settings.style);
+        rubric = normalizeDraft(read, maxPoints, owner?.settings.style);
       } catch (e) {
         console.error('[klasik] rubric_draft_failed', id, e instanceof Error ? e.message : e);
         if (job.rubricDraftAttempts >= RUBRIC_MAX_ATTEMPTS) rubric = emptyRubric();
@@ -87,9 +103,16 @@ export async function draftPendingRubrics({ db, reader }: Deps, now = new Date()
 }
 
 async function enterRubric(db: Db, jobId: string, rubric: Rubric, now: Date) {
-  // the 7-day clock starts once and is not reset by a redraft
+  // A draft that can grade is approved at once: the teacher checks the
+  // points afterwards, not the criteria before. Only one that cannot (the key
+  // was unreadable, a question has no criteria) waits in 'rubric' for the
+  // teacher to give the key. The 7-day clock starts once and is not reset by
+  // a redraft.
+  const readyAt = sql`coalesce(${jobs.rubricReadyAt}, ${now.toISOString()}::timestamptz)`;
   const moved = await db.update(jobs)
-    .set({ rubric, status: 'rubric', rubricReadyAt: sql`coalesce(${jobs.rubricReadyAt}, ${now.toISOString()}::timestamptz)` })
+    .set(rubricProblems(rubric).length
+      ? { rubric, status: 'rubric', rubricReadyAt: readyAt }
+      : { rubric, status: 'processing', rubricReadyAt: readyAt, rubricApprovedAt: now, rubricRev: 1 })
     .where(and(eq(jobs.id, jobId), inArray(jobs.status, ['queued', 'processing']), isNull(jobs.rubric)))
     .returning({ id: jobs.id });
   return moved.length > 0;
@@ -107,6 +130,21 @@ async function loadPhotos(storage: Storage, keys: string[]): Promise<Buffer[]> {
   return out;
 }
 
+// Once, before the first grade of a job without a roster: a student's name
+// misread on one page is mended, so their pages make one sheet. Later the
+// grouping must not change under grades already written.
+async function mendNames<T extends SheetPage>(db: Db, rows: T[]): Promise<T[]> {
+  const fixes = nameFixes(rows);
+  if (!fixes.size) return rows;
+  return Promise.all(rows.map(async (p) => {
+    const name = fixes.get(p.id);
+    if (!name || p.result?.type !== 'klasik-student') return p;
+    const result = { ...p.result, read: { ...p.result.read, studentName: name } };
+    await db.update(pages).set({ result }).where(eq(pages.id, p.id));
+    return { ...p, result };
+  }));
+}
+
 export async function gradePending(deps: Deps, limit: number, now = new Date()): Promise<number> {
   const { db } = deps;
   const due = await db.select().from(jobs).where(and(
@@ -119,7 +157,8 @@ export async function gradePending(deps: Deps, limit: number, now = new Date()):
 
   const work: Promise<void>[] = [];
   for (const job of due) {
-    const rows = await db.select().from(pages).where(and(eq(pages.jobId, job.id), eq(pages.kind, 'student')));
+    let rows = await db.select().from(pages).where(and(eq(pages.jobId, job.id), eq(pages.kind, 'student')));
+    if (!job.roster.length && rows.every((p) => p.gradedRev === 0)) rows = await mendNames(db, rows);
     for (const sheet of mergeSheets(rows, job.roster).sheets) {
       if (work.length >= limit) break;
       if (sheet.gradedRev >= job.rubricRev) {

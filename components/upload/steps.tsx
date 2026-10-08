@@ -10,13 +10,15 @@ import PackageOptions from '@/components/PackageOptions';
 import { useToast } from '@/components/Toast';
 import type { PackName } from '@/lib/packs';
 import { MAX_KEY_PAGES, MAX_TEACHER_NOTE } from '@/lib/limits';
-import PhotoDrop, { PER_PICK } from './PhotoDrop';
+import PhotoDrop, { PER_PICK_KEY, PER_PICK_STUDENT } from './PhotoDrop';
+import RosterPhoto, { mergeNames } from './RosterPhoto';
 import { PhotoTips } from './PhotoGrid';
 
 type Mode = 'optik' | 'klasik';
 type Pick = (files: File[]) => void;
 
-export function ExamStep({ showMode, mode, setMode, created, title, setTitle, classes, roster, setRoster, saveAs, setSaveAs }: {
+export function ExamStep({ api, showMode, mode, setMode, created, title, setTitle, classes, roster, setRoster, saveAs, setSaveAs }: {
+  api: ReturnType<typeof createApi>;
   showMode: boolean; mode: Mode; setMode: (m: Mode) => void; created: boolean;
   title: string; setTitle: (v: string) => void; classes: ClassView[];
   roster: string; setRoster: (v: string) => void; saveAs: string; setSaveAs: (v: string) => void;
@@ -51,6 +53,7 @@ export function ExamStep({ showMode, mode, setMode, created, title, setTitle, cl
         )}
         <textarea id="exam-roster" className="console-text" value={roster} onChange={(e) => setRoster(e.target.value)}
           placeholder={'Her satıra bir öğrenci\nElif Yılmaz\nMert Kaya'} />
+        <RosterPhoto api={api} onNames={(names) => setRoster(mergeNames(roster, names))} />
         <span className="field-hint">Kâğıttaki isimler bu listeyle eşleştirilir; birkaç sayfalık sınavda sayfalar isimden aynı öğrencide toplanır. e-Okul&apos;dan kopyalayıp yapıştırabilirsiniz.</span>
         {roster.trim() && !classes.some((c) => c.students.join('\n') === roster.trim()) && (
           <label className="console-check">
@@ -76,6 +79,7 @@ export function KeyStep({ klasik, uploading, keyCount, onPick, grid, keyText, se
         hint={klasik ? 'Birden fazla sayfa olabilir; sırayla ekleyin.' : 'Doğru şıkların işaretli olduğu tek sayfa. Yenisi eskisinin yerine geçer.'}
         busy={uploading}
         single={!klasik}
+        perPick={PER_PICK_KEY}
         full={klasik && keyCount >= MAX_KEY_PAGES}
         onPick={onPick}
       />
@@ -100,8 +104,9 @@ export function StudentsStep({ uploading, onPick, grid, names, need }: {
     <>
       <PhotoDrop
         title="Öğrenci kâğıtları"
-        hint={`Her seferde en fazla ${PER_PICK} fotoğraf. Bir öğrencinin sayfalarını sırayla ekleyin (ön yüz, arka yüz, sonraki sayfalar). Sayfalarda isim yazıyorsa sıra karışsa da isimden toplanır.`}
+        hint={`Her seferde en fazla ${PER_PICK_STUDENT} fotoğraf. Bir öğrencinin sayfalarını sırayla ekleyin (ön yüz, arka yüz, sonraki sayfalar). Sayfalarda isim yazıyorsa sıra karışsa da isimden toplanır.`}
         busy={uploading}
+        perPick={PER_PICK_STUDENT}
         onPick={onPick}
       />
       <PhotoTips />
@@ -115,12 +120,41 @@ export function StudentsStep({ uploading, onPick, grid, names, need }: {
   );
 }
 
+// No class list yet: the last chance to give one, typed or from a photo.
+// Without it a misread name ("Deniz Köş") can count as a student of its own.
+function RosterMissing({ api, onSave, noRoster, setNoRoster }: {
+  api: ReturnType<typeof createApi>; onSave: (text: string) => Promise<void>; noRoster: boolean; setNoRoster: (v: boolean) => void;
+}) {
+  const [text, setText] = useState('');
+  const [busy, setBusy] = useState(false);
+  return (
+    <div className="wizard-roster-missing">
+      <p className="console-banner warn">
+        Sınıf listesi eklenmedi. Liste olmadan isimler yalnız fotoğraftan okunur: yanlış okunan bir isim (ör. &quot;Deniz Köş&quot;)
+        ayrı bir öğrenci sayılabilir. Listeyi eklerseniz her isim listedeki en yakın isimle eşleştirilir.
+      </p>
+      <textarea className="console-text" value={text} onChange={(e) => setText(e.target.value)} aria-label="Sınıf listesi"
+        placeholder={'Her satıra bir öğrenci\nElif Yılmaz\nMert Kaya'} />
+      <div className="console-row">
+        <button type="button" className="btn btn-primary btn-sm" disabled={busy || !text.trim()}
+          onClick={async () => { setBusy(true); await onSave(text); setBusy(false); }}>Listeyi ekleyin</button>
+      </div>
+      <RosterPhoto api={api} onNames={(names) => setText((cur) => mergeNames(cur, names))} />
+      <label className="console-check">
+        <input type="checkbox" checked={noRoster} onChange={(e) => setNoRoster(e.target.checked)} />
+        Sınıf listesi olmadan devam et: isimler yalnız fotoğraftan okunur, bir listeyle karşılaştırılmaz.
+      </label>
+    </div>
+  );
+}
+
 export function ReviewStep(p: {
+  api: ReturnType<typeof createApi>; onSaveRoster: (text: string) => Promise<void>;
   title: string; klasik: boolean; keyCount: number; need: number; balance: number; names: string[];
   noRoster: boolean; setNoRoster: (v: boolean) => void; note: string; setNote: (v: string) => void;
   consent: boolean; setConsent: (v: boolean) => void; onAddPages: () => void; onBuy: (name: PackName) => void;
 }) {
-  const { title, klasik, keyCount, need, balance, names, noRoster, setNoRoster, note, setNote, consent, setConsent, onAddPages, onBuy } = p;
+  const { api, onSaveRoster, title, klasik, keyCount, need, balance, names, noRoster, setNoRoster, note, setNote, consent, setConsent, onAddPages, onBuy } = p;
   const short = need > balance;
   return (
     <>
@@ -134,18 +168,13 @@ export function ReviewStep(p: {
       {names.length > 0 && need < names.length && (
         <p className="console-banner warn">Listede {names.length} öğrenci var, {need} sayfa eklendi. Bilerek mi? Değilse <button type="button" className="console-link" onClick={onAddPages}>kâğıt ekleyin</button>.</p>
       )}
-      {!names.length && (
-        <label className="console-check">
-          <input type="checkbox" checked={noRoster} onChange={(e) => setNoRoster(e.target.checked)} />
-          Sınıf listesi olmadan devam et: isimler yalnız fotoğraftan okunur, bir listeyle karşılaştırılmaz.
-        </label>
-      )}
+      {!names.length && <RosterMissing api={api} onSave={onSaveRoster} noRoster={noRoster} setNoRoster={setNoRoster} />}
       {klasik && (
         <div className="field" style={{ marginTop: 18 }}>
           <label htmlFor="teacher-note">Okuma ve puanlama için notunuz <span className="muted">(isteğe bağlı)</span></label>
           <textarea id="teacher-note" className="console-text" maxLength={MAX_TEACHER_NOTE} value={note} onChange={(e) => setNote(e.target.value)}
             placeholder={'Örnekler:\n• Cevaplar kâğıdın arkasında devam edebilir.\n• 3. soruda birimi yazmayana puan kırmayın.\n• Bu sınavda yazım hatalarını önemsemeyin.'} />
-          <span className="field-hint">Yapay zekâ kâğıtları okurken ve puanlarken bu notu dikkate alır. Puanlar yine onayladığınız ölçütlerle hesaplanır.</span>
+          <span className="field-hint">Yapay zekâ kâğıtları okurken ve puanlarken bu notu dikkate alır.</span>
         </div>
       )}
       <label className="console-check">

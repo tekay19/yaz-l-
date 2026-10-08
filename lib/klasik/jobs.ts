@@ -1,5 +1,5 @@
 import { HttpError } from '@/lib/http';
-import { and, asc, count, eq, lt } from 'drizzle-orm';
+import { and, asc, count, eq, inArray, lt } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Db } from '@/db/client';
 import { jobs, pages } from '@/db/schema';
@@ -47,11 +47,11 @@ export function rubricView(job: Job) {
 }
 
 export async function saveRubric(db: Db, job: Job, body: unknown): Promise<Rubric> {
-  if (job.status !== 'rubric') fail(409, 'Rubrik şu anda düzenlenemez.');
+  if (job.status !== 'rubric') fail(409, 'Puanlama şu anda düzenlenemez.');
   const parsed = RubricInput.safeParse(body);
   if (!parsed.success) {
     const custom = parsed.error.issues.find((i) => i.code === 'custom');
-    fail(400, custom?.message ?? 'Rubrik eksik ya da hatalı: her sorunun en az bir ölçütü olmalı; ölçüt metni boş, puanı sıfır olamaz.');
+    fail(400, custom?.message ?? 'Puanlama eksik ya da hatalı: her sorunun en az bir ölçütü olmalı; ölçüt metni boş, puanı sıfır olamaz.');
   }
   const rubric = fromInput(parsed.data!);
   await db.update(jobs).set({ rubric }).where(and(eq(jobs.id, job.id), eq(jobs.status, 'rubric')));
@@ -59,19 +59,19 @@ export async function saveRubric(db: Db, job: Job, body: unknown): Promise<Rubri
 }
 
 export async function approveRubric(db: Db, job: Job) {
-  if (job.status !== 'rubric') fail(409, 'Rubrik onay beklemiyor.');
+  if (job.status !== 'rubric') fail(409, 'Puanlama onay beklemiyor.');
   const problems = rubricProblems(job.rubric);
   if (problems.length) fail(400, problems.join(' '));
   const moved = await db.update(jobs).set({ rubricApprovedAt: new Date(), rubricRev: 1, status: 'processing' })
     .where(and(eq(jobs.id, job.id), eq(jobs.status, 'rubric')))
     .returning({ id: jobs.id });
-  if (!moved.length) fail(409, 'Rubrik onay beklemiyor.');
+  if (!moved.length) fail(409, 'Puanlama onay beklemiyor.');
 }
 
 // Draft the rubric again, e.g. after the teacher typed the key the photo
 // could not give. The 7-day deadline keeps running.
 export async function redraftRubric(db: Db, job: Job) {
-  if (job.status !== 'rubric') fail(409, 'Rubrik şu anda yeniden oluşturulamaz.');
+  if (job.status !== 'rubric') fail(409, 'Puanlama şu anda yeniden hazırlanamaz.');
   await db.update(jobs).set({ rubric: null, rubricDraftAt: null, rubricDraftAttempts: 0, status: 'processing' })
     .where(and(eq(jobs.id, job.id), eq(jobs.status, 'rubric')));
 }
@@ -101,7 +101,7 @@ export async function acceptAnswer(db: Db, job: Job, input: { pageId: string; q:
   await db.transaction(async (tx) => {
     const [locked] = await tx.select().from(jobs).where(eq(jobs.id, job.id)).for('update');
     if (locked.status !== 'review' || !locked.rubric) fail(409, 'Sınav kontrol aşamasında değil.');
-    if (!locked.rubric!.questions.some((x) => x.q === input.q)) fail(400, 'Rubrikte böyle bir soru yok.');
+    if (!locked.rubric!.questions.some((x) => x.q === input.q)) fail(400, 'Sınavda böyle bir soru yok.');
     const text = input.note.trim() || `Kâğıt ${sheet.seqs[0]}'deki cevap tam doğru kabul edildi.`;
     const rubric = amendRubric(locked.rubric!, input.q, { text: text.slice(0, 500), example: example.slice(0, 4000), by: 'teacher' });
     await tx.update(jobs).set({ rubric, rubricRev: locked.rubricRev + 1 }).where(eq(jobs.id, job.id));
@@ -124,7 +124,7 @@ export async function saveKlasikOverride(db: Db, job: Job, pageId: string, body:
   const patch = parsed.data!;
   const rubric = rubricOf(job);
   const asked = [...(patch.points ?? []).map((p) => p.q), ...(patch.texts ?? []).map((t) => t.q)];
-  if (asked.some((q) => !rubric.questions.some((x) => x.q === q))) fail(400, 'Rubrikte böyle bir soru yok.');
+  if (asked.some((q) => !rubric.questions.some((x) => x.q === q))) fail(400, 'Sınavda böyle bir soru yok.');
   const sheet = await findSheet(db, job, pageId);
 
   const prev: PageOverride = sheet.override;
@@ -157,6 +157,18 @@ export async function requestRegrade(db: Db, job: Job, pageId: string) {
   if (job.status !== 'review') fail(409, 'Sınav kontrol aşamasında değil.');
   const sheet = await findSheet(db, job, pageId);
   await db.update(pages).set({ gradedRev: 0, gradeAttempts: 0, gradeLeaseUntil: null }).where(eq(pages.id, sheet.pageId));
+}
+
+// The teacher changed the class list during review: the sheets regroup by
+// the names. A sheet whose pages changed is graded again (the questions from
+// its new pages have no verdict on it yet); the review waits until it is.
+export async function regradeRegrouped(db: Db, jobId: string, before: string[], after: string[]): Promise<number> {
+  const rows = await db.select().from(pages).where(and(eq(pages.jobId, jobId), eq(pages.kind, 'student')));
+  const old = new Set(mergeSheets(rows, before).sheets.map((s) => s.pageIds.join(',')));
+  const changed = mergeSheets(rows, after).sheets.filter((s) => !old.has(s.pageIds.join(',')));
+  const ids = changed.flatMap((s) => s.pageIds);
+  if (ids.length) await db.update(pages).set({ gradedRev: 0, gradeAttempts: 0, gradeLeaseUntil: null }).where(inArray(pages.id, ids));
+  return changed.length;
 }
 
 export async function regradesPending(db: Db, job: Pick<Job, 'id' | 'rubricRev'>): Promise<number> {

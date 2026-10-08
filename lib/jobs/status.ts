@@ -4,15 +4,17 @@ import { jobs, pages } from '@/db/schema';
 
 export type JobStatusView = {
   id: string; title: string; mode: 'optik' | 'klasik'; status: string;
-  pages: { key: number; students: number; read: number; failed: number };
-  // klasik: the teacher approved the rubric (a 'processing' job is then being graded)
+  // graded: klasik pages graded against the current rubric (a sheet's back
+  // pages count once its front is graded)
+  pages: { key: number; students: number; read: number; failed: number; graded: number };
+  // klasik: the rubric is approved (a 'processing' job is then being graded)
   rubricApproved: boolean;
   createdAt: string;
 };
 
 async function views(db: Db, rows: (typeof jobs.$inferSelect)[]): Promise<JobStatusView[]> {
   if (!rows.length) return [];
-  const all = await db.select({ jobId: pages.jobId, kind: pages.kind, status: pages.status })
+  const all = await db.select({ jobId: pages.jobId, kind: pages.kind, status: pages.status, gradedRev: pages.gradedRev })
     .from(pages).where(inArray(pages.jobId, rows.map((r) => r.id)));
   return rows.map((j) => {
     const mine = all.filter((p) => p.jobId === j.id);
@@ -25,6 +27,7 @@ async function views(db: Db, rows: (typeof jobs.$inferSelect)[]): Promise<JobSta
         students: students.length,
         read: students.filter((p) => p.status === 'read').length,
         failed: students.filter((p) => p.status === 'failed').length,
+        graded: j.rubricRev > 0 ? students.filter((p) => p.status === 'read' && p.gradedRev >= j.rubricRev).length : 0,
       },
     };
   });

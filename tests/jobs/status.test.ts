@@ -14,7 +14,7 @@ describe('job status', () => {
       { jobId: j.id, kind: 'student', seq: 2, status: 'reading' },
       { jobId: j.id, kind: 'student', seq: 3, status: 'failed' },
     ]);
-    expect((await jobStatus(db, j.id)).pages).toEqual({ key: 1, students: 3, read: 1, failed: 1 });
+    expect((await jobStatus(db, j.id)).pages).toEqual({ key: 1, students: 3, read: 1, failed: 1, graded: 0 });
     expect(await listJobs(db, u.id)).toHaveLength(1);
   });
 });

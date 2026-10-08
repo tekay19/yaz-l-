@@ -2,6 +2,7 @@ import { and, eq, inArray, isNotNull, lt, ne, notInArray, or, sql, type SQL } fr
 import type { Db } from '@/db/client';
 import { authTokens, events, jobs, pages, users } from '@/db/schema';
 import type { Storage } from '@/lib/storage';
+import { refundPages } from '@/lib/credits';
 
 export const PHOTO_TTL_DAYS = 7;
 // Düzeltme.md D5: a job still in the pipeline (being read, waiting for its
@@ -85,6 +86,23 @@ export async function runRetention(db: Db, storage: Storage, now = new Date()) {
   await db.delete(authTokens).where(lt(authTokens.expiresAt, ago(now, 1)));
   await db.delete(events).where(lt(events.ts, ago(now, EVENT_TTL_DAYS)));
   return { closed, photos, jobs: gone.length };
+}
+
+// The teacher deletes an exam from the list: the photos and every row go at
+// once. Never while it is queued, read or graded (a worker holds its pages).
+// An exam waiting for its key had nothing graded: its reserved pages come
+// back, as they would on its cancellation.
+export const DELETABLE_STATUSES = ['draft', 'rubric', 'review', 'delivering', 'done', 'failed'] as const;
+
+export async function deleteJob(db: Db, storage: Storage, jobId: string): Promise<boolean> {
+  const files = await db.select({ filePath: pages.filePath }).from(pages)
+    .where(and(eq(pages.jobId, jobId), isNotNull(pages.filePath)));
+  const [gone] = await db.delete(jobs).where(and(eq(jobs.id, jobId), inArray(jobs.status, [...DELETABLE_STATUSES])))
+    .returning({ userId: jobs.userId, status: jobs.status, reservedPages: jobs.reservedPages });
+  if (!gone) return false;
+  if (gone.status === 'rubric') await refundPages(db, gone.userId, gone.reservedPages, jobId);
+  for (const f of files) await storage.remove(f.filePath!).catch(() => undefined);
+  return true;
 }
 
 export async function deleteAccount(db: Db, storage: Storage, userId: string) {

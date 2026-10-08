@@ -605,6 +605,13 @@ section { padding: clamp(56px, 8vw, 104px) 0; }
 .klasik-crit { width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 14px; }
 .klasik-crit td { padding: 6px 8px 6px 0; border-top: 1px solid var(--line-soft); vertical-align: top; }
 .klasik-crit .nowrap { white-space: nowrap; }
+.klasik-why { margin-top: 10px; }
+.roster-photo { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 8px; }
+.wizard-roster-missing { margin-top: 16px; }
+.wizard-roster-missing .console-text { margin-top: 10px; }
+.klasik-why > summary { cursor: pointer; font-size: 13.5px; color: var(--ink-soft); }
+.klasik-advanced { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
+.klasik-advanced > summary { cursor: pointer; font-size: 14.5px; font-weight: 600; margin-bottom: 8px; }
 .klasik-thumb + .klasik-thumb, a + a .klasik-thumb { margin-top: 8px; }
 
 .console-banner.warn { background: var(--amber-bg); color: #6E4A0E; border: 1px solid #EBD3A3; }

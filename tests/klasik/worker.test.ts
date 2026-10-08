@@ -93,7 +93,7 @@ const approve = (db: any, id: string) =>
   db.update(jobs).set({ rubricApprovedAt: new Date(), rubricRev: 1, status: 'processing' }).where(eq(jobs.id, id));
 
 describe('klasik worker', () => {
-  it('reads every page at once, drafts the rubric from the key and waits for the teacher', async () => {
+  it('reads every page at once, drafts the rubric from the key and starts grading without asking', async () => {
     const { db, storage, id } = await submitted({ key: 'key', students: ['front1', 'back1'] });
     const r = reader();
     await drain(db, storage, r);
@@ -101,17 +101,18 @@ describe('klasik worker', () => {
 
     expect(await draftPendingRubrics({ db, storage, reader: r })).toBe(1);
     const job = await jobRow(db, id);
-    expect(job.status).toBe('rubric');
+    // a usable draft is approved on its own: the teacher checks the points later
+    expect(job.status).toBe('processing');
+    expect(job.rubricApprovedAt).not.toBeNull();
+    expect(job.rubricRev).toBe(1);
     expect(job.rubricReadyAt).not.toBeNull();
     expect(job.rubric.questions.map((q: RubricQuestion) => [q.q, q.criteria.map((c) => c.points)])).toEqual([[1, [4, 6]], [2, [5]]]);
     expect(r.calls.draft[0]).toBe('1. soru:\n2x + 3 = 11\nx = 4\n\n2. soru:\nLirik şiir duyguyu anlatır');
 
+    // no mail asks for an approval, and grading starts at once
     const mailer = fakeMailer();
-    expect(await notifyRubric({ db, mailer })).toBe(1);
-    expect(mailer.sent[0].subject).toBe('10-A Karma: puanlama ölçütlerini onaylayın');
     expect(await notifyRubric({ db, mailer })).toBe(0);
-    // nothing is graded before the teacher approves the rubric
-    expect(await gradePending({ db, storage, reader: r }, 10)).toBe(0);
+    expect(await gradePending({ db, storage, reader: r }, 10)).toBe(1);
   });
 
   it('drafts from a typed key alone, and hands over an empty rubric when nothing is readable', async () => {
@@ -131,7 +132,8 @@ describe('klasik worker', () => {
     expect(r2.calls.draft).toEqual([]);
     const mailer = fakeMailer();
     await notifyRubric({ db: blank.db, mailer });
-    expect(mailer.sent[0].text).toContain('Cevap anahtarınız okunamadı');
+    expect(mailer.sent[0].subject).toBe('10-A Karma: cevap anahtarı okunamadı');
+    expect(mailer.sent[0].text).toContain('Cevap anahtarınızın fotoğrafı okunamadı');
   });
 
   it('gives up drafting after three failures and lets the teacher build the rubric', async () => {
@@ -266,8 +268,8 @@ describe('klasik worker', () => {
     expect(sheet.grade!.questions[0]).toMatchObject({ textOnly: true, confidence: 'low' });
   });
 
-  it('cancels a rubric nobody approves within 7 days and gives every page back', async () => {
-    const { db, storage, u, id } = await submitted({ key: 'key', students: ['front1', 'front2'], balance: 2 });
+  it('cancels an exam whose unreadable key nobody gives within 7 days and gives every page back', async () => {
+    const { db, storage, u, id } = await submitted({ key: 'blankkey', students: ['front1', 'front2'], balance: 2 });
     const r = reader();
     await drain(db, storage, r);
     await draftPendingRubrics({ db, storage, reader: r });

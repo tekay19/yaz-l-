@@ -23,7 +23,7 @@ export type Me = {
 };
 export type JobView = {
   id: string; title: string; mode: 'optik' | 'klasik'; status: string;
-  pages: { key: number; students: number; read: number; failed: number };
+  pages: { key: number; students: number; read: number; failed: number; graded: number };
   rubricApproved: boolean;
   createdAt: string;
 };
@@ -85,6 +85,12 @@ export function createApi(fetchImpl: typeof fetch = (input, init) => fetch(input
       return call<{ id: string; seq: number }>(`/api/jobs/${id}/pages`, { method: 'POST', body: form });
     },
     removePage: (id: string, pageId: string) => call<null>(`/api/jobs/${id}/pages/${pageId}`, { method: 'DELETE' }),
+    deleteJob: (id: string) => call<null>(`/api/jobs/${id}`, { method: 'DELETE' }),
+    readRosterPhoto: (file: Blob) => {
+      const form = new FormData();
+      form.set('file', file);
+      return call<{ names: string[] }>('/api/roster/photo', { method: 'POST', body: form });
+    },
     setRoster: (id: string, roster: string) => call<{ count: number }>(`/api/jobs/${id}/roster`, withJson('PUT', { roster })),
     submit: (id: string, noRoster = false) =>
       call<{ ok: true; reserved: number }>(`/api/jobs/${id}/submit`, withJson('POST', noRoster ? { consent: true, noRoster: true } : { consent: true })),

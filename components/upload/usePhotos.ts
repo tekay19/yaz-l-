@@ -4,7 +4,7 @@ import { useState, type Dispatch, type SetStateAction } from 'react';
 import type { Api, Draft } from '@/components/console/api';
 import { useToast } from '@/components/Toast';
 import { MAX_KEY_PAGES } from '@/lib/limits';
-import { PER_PICK } from './PhotoDrop';
+import { PER_PICK_KEY, PER_PICK_STUDENT } from './PhotoDrop';
 
 export type Kind = 'key' | 'student';
 // a photo on its way up, or one the server refused (kept on screen with the reason)
@@ -24,7 +24,7 @@ export function usePhotos(api: Api, draft: Draft | null, setDraft: Dispatch<SetS
     const klasik = draft.mode === 'klasik';
     const single = kind === 'key' && !klasik;
     const keys = draft.pages.filter((p) => p.kind === 'key').length;
-    const limit = Math.min(single ? 1 : PER_PICK, kind === 'key' && klasik ? MAX_KEY_PAGES - keys : Infinity);
+    const limit = Math.min(single ? 1 : kind === 'key' ? PER_PICK_KEY : PER_PICK_STUDENT, kind === 'key' && klasik ? MAX_KEY_PAGES - keys : Infinity);
     const picked = files.slice(0, limit);
     if (files.length > limit) {
       toast(single

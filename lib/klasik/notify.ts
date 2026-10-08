@@ -29,7 +29,8 @@ async function once(db: Db, mailer: Mailer, jobIds: { id: string; userId: string
   return sent;
 }
 
-// The rubric is ready: nothing is graded until the teacher approves it.
+// The key gave no usable rubric (a usable one is approved on its own and
+// never waits): nothing is graded until the teacher gives the key.
 export async function notifyRubric({ db, mailer }: Deps, now = new Date()): Promise<number> {
   const due = await db.select({ id: jobs.id, userId: jobs.userId, title: jobs.title, rubric: jobs.rubric }).from(jobs)
     .where(and(eq(jobs.status, 'rubric'), isNull(jobs.rubricNotifiedAt))).limit(10);
@@ -41,12 +42,13 @@ export async function notifyRubric({ db, mailer }: Deps, now = new Date()): Prom
       const job = byId.get(id)!;
       const empty = !job.rubric?.questions.length;
       return {
-        subject: `${job.title || 'Sınav'}: puanlama ölçütlerini onaylayın`,
+        subject: `${job.title || 'Sınav'}: cevap anahtarı okunamadı`,
         text: (empty
-          ? 'Cevap anahtarınız okunamadı. Anahtarı yazarak girip taslağı yeniden oluşturabilir ya da ölçütleri kendiniz ekleyebilirsiniz.'
-          : 'Cevap anahtarınızdan her soru için puanlama ölçütleri (rubrik) hazırlandı. Kâğıtlar, siz onayladıktan sonra bu ölçütlere göre puanlanacak; farklı ama doğru çözümler de tam puan alır.')
-          + `\nKontrol edip onaylamak için: ${link()}`
-          + `\n${RUBRIC_EXPIRE_DAYS} gün içinde onaylanmazsa sınav iptal edilir ve sayfa hakkınız iade edilir.`,
+          ? 'Cevap anahtarınızın fotoğrafı okunamadı, bu yüzden kâğıtlar henüz puanlanmadı.'
+          : 'Cevap anahtarınızdaki bazı sorular okunamadı, bu yüzden kâğıtlar henüz puanlanmadı.')
+          + ' Anahtarı yazarak girin; kâğıtlar hemen puanlanmaya başlar.'
+          + `\nAnahtarı girmek için: ${link()}`
+          + `\n${RUBRIC_EXPIRE_DAYS} gün içinde girilmezse sınav iptal edilir ve sayfa hakkınız iade edilir.`,
       };
     });
 }

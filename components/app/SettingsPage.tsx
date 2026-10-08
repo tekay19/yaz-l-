@@ -62,7 +62,7 @@ export default function SettingsPage() {
         <section className="app-sec" aria-labelledby="set-style">
           <div className="app-sec-head">
             <h2 id="set-style">Klasik sınavlarda puanlama tarzı</h2>
-            <p>Açık uçlu cevapların ne kadar cömert puanlanacağı. Rubrik onay ekranında sınav başına değiştirilebilir.</p>
+            <p>Açık uçlu cevapların ne kadar cömert puanlanacağı. Bütün klasik sınavlarınıza uygulanır.</p>
           </div>
           <div className="app-options" role="radiogroup" aria-labelledby="set-style">
             {STYLES.map((s) => (

@@ -6,9 +6,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Board } from '@/components/Board';
 import type { JobView } from '@/components/console/api';
+import { useToast } from '@/components/Toast';
 import { useTeacher } from './context';
 import { IconCheck, IconPlus, IconSearch } from './icons';
-import { Empty, PageHeader, Stat, StatusBadge, dateTr, examHref, isActive, needsTeacher, num, statusOf } from './ui';
+import { Empty, PageHeader, Stat, StatusBadge, dateTr, examHref, isActive, needsTeacher, num, progressOf, statusOf } from './ui';
 
 type Filter = 'all' | 'waiting' | 'reading' | 'done' | 'draft';
 const FILTERS: { id: Filter; label: string; match: (j: JobView) => boolean }[] = [
@@ -20,7 +21,8 @@ const FILTERS: { id: Filter; label: string; match: (j: JobView) => boolean }[] =
 ];
 
 export default function ExamsPage() {
-  const { api, me } = useTeacher();
+  const { api, me, refreshMe } = useTeacher();
+  const toast = useToast();
   const [jobs, setJobs] = useState<JobView[] | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
   const [q, setQ] = useState('');
@@ -31,6 +33,17 @@ export default function ExamsPage() {
     if (r.ok) setJobs(r.data);
   }, [api]);
   useEffect(() => { load(); }, [load]);
+
+  // an exam being read or graded cannot go: a worker holds its pages
+  const canDelete = (j: JobView) => j.status !== 'queued' && j.status !== 'processing';
+  async function remove(j: JobView) {
+    if (!window.confirm(`"${j.title || 'Adsız sınav'}" silinsin mi? Fotoğraflar ve sonuçlar kalıcı olarak silinir.`)) return;
+    const r = await api.deleteJob(j.id);
+    if (!r.ok) { toast(r.error, 'error'); return; }
+    setJobs((list) => list && list.filter((x) => x.id !== j.id));
+    refreshMe(); // an exam waiting for its key gives its pages back
+    toast('Sınav silindi.', 'success');
+  }
   useEffect(() => { api.classes().then((r) => setClassCount(r.ok ? r.data.length : 0)); }, [api]);
   // exams being read move on their own: keep the list fresh while any is
   const reading = jobs?.some(isActive) ?? false;
@@ -133,12 +146,15 @@ export default function ExamsPage() {
                       <div className="app-row-sub">{j.mode === 'klasik' ? 'Klasik' : 'Çoktan seçmeli'}</div>
                     </td>
                     <td>
-                      <StatusBadge status={j.status} />
-                      {isActive(j) && j.pages.students > 0 && (
-                        <div className="app-progress" role="progressbar" aria-label="Okunan sayfa" aria-valuemin={0} aria-valuemax={j.pages.students} aria-valuenow={j.pages.read + j.pages.failed} title={`${j.pages.read + j.pages.failed} / ${j.pages.students}`}>
-                          <span style={{ width: `${Math.round(((j.pages.read + j.pages.failed) / j.pages.students) * 100)}%` }} />
-                        </div>
-                      )}
+                      <StatusBadge status={j.status} rubricApproved={j.rubricApproved} />
+                      {isActive(j) && (() => {
+                        const p = progressOf(j);
+                        return p.total > 0 && (
+                          <div className="app-progress" role="progressbar" aria-label={p.label} aria-valuemin={0} aria-valuemax={p.total} aria-valuenow={p.done} title={`${p.done} / ${p.total} sayfa ${p.verb}`}>
+                            <span style={{ width: `${Math.round((p.done / p.total) * 100)}%` }} />
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td className="num">
                       {j.pages.students}
@@ -146,9 +162,15 @@ export default function ExamsPage() {
                     </td>
                     <td className="app-date">{dateTr(j.createdAt)}</td>
                     <td className="right">
-                      <Link href={examHref(j)} className={`btn btn-sm ${needsTeacher(j) ? 'btn-primary' : 'btn-ghost'}`}>
-                        {statusOf(j.status).action ?? 'Aç'}
-                      </Link>
+                      <div className="app-row-actions">
+                        <Link href={examHref(j)} className={`btn btn-sm ${needsTeacher(j) ? 'btn-primary' : 'btn-ghost'}`}>
+                          {statusOf(j.status).action ?? 'Aç'}
+                        </Link>
+                        {canDelete(j) && (
+                          <button type="button" className="btn btn-ghost btn-sm app-row-delete" onClick={() => remove(j)}
+                            aria-label={`${j.title || 'Adsız sınav'} sınavını sil`}>Sil</button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

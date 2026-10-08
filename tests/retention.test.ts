@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { testDb, makeUser } from './helpers/db';
 import { memoryStorage } from './helpers/storage';
 import { jobs, pages, payments, users } from '@/db/schema';
-import { deleteAccount, runRetention, sentBefore } from '@/lib/retention';
+import { deleteAccount, deleteJob, runRetention, sentBefore } from '@/lib/retention';
 import { deliverPending } from '@/lib/jobs/deliver';
 import { refundPages } from '@/lib/credits';
 import { fakeMailer } from './helpers/mail';
@@ -125,5 +125,37 @@ describe('retention', () => {
     expect((await runRetention(db, st)).jobs).toBe(1);
     expect(await db.select().from(jobs).where(eq(jobs.id, late.id))).toHaveLength(1);
     expect(await db.select().from(jobs).where(eq(jobs.id, old.id))).toHaveLength(0);
+  });
+});
+
+describe('deleteJob', () => {
+  it('deletes a finished exam with its photos, but never one being read', async () => {
+    const db = await testDb();
+    const st = memoryStorage();
+    const u = await makeUser(db);
+    const [done] = await db.insert(jobs).values({ userId: u.id, status: 'done' }).returning();
+    const [busy] = await db.insert(jobs).values({ userId: u.id, status: 'processing' }).returning();
+    await st.write('jobs/d/1.jpg', Buffer.from('x'));
+    await st.write('jobs/b/1.jpg', Buffer.from('x'));
+    await db.insert(pages).values([
+      { jobId: done.id, kind: 'student', seq: 1, filePath: 'jobs/d/1.jpg' },
+      { jobId: busy.id, kind: 'student', seq: 1, filePath: 'jobs/b/1.jpg' },
+    ]);
+    expect(await deleteJob(db, st, done.id)).toBe(true);
+    expect(await db.select().from(jobs).where(eq(jobs.id, done.id))).toHaveLength(0);
+    expect(await db.select().from(pages).where(eq(pages.jobId, done.id))).toHaveLength(0);
+    expect(await deleteJob(db, st, busy.id)).toBe(false);
+    expect(await db.select().from(jobs).where(eq(jobs.id, busy.id))).toHaveLength(1);
+    expect([...st.files.keys()]).toEqual(['jobs/b/1.jpg']);
+  });
+
+  it('gives the reserved pages back for an exam still waiting for its key', async () => {
+    const db = await testDb();
+    const st = memoryStorage();
+    const u = await makeUser(db);
+    const [waiting] = await db.insert(jobs).values({ userId: u.id, mode: 'klasik', status: 'rubric', reservedPages: 3 }).returning();
+    const before = (await db.select().from(users).where(eq(users.id, u.id)))[0].pageBalance;
+    expect(await deleteJob(db, st, waiting.id)).toBe(true);
+    expect((await db.select().from(users).where(eq(users.id, u.id)))[0].pageBalance).toBe(before + 3);
   });
 });

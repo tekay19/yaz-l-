@@ -1,5 +1,5 @@
 import type { KlasikAnswer, KlasikGrade, KlasikRead, PageOverride, PageResult } from '@/lib/types';
-import { normalizeName, rosterName, stripNameLabel } from '@/lib/grading/names';
+import { matchRoster, normalizeName, rosterName, stripNameLabel } from '@/lib/grading/names';
 
 // The page columns sheet building needs (a subset of a `pages` row).
 export type SheetPage = {
@@ -41,6 +41,44 @@ const copy = (a: KlasikAnswer): KlasikAnswer => ({ ...a, lines: a.lines.map((l) 
 // A klasik answer can run over the page break, so a continuation page's lines
 // for a question already on the sheet are appended rather than dropped. A page
 // after an unreadable one never joins an earlier, unrelated student.
+// A name misread on one page ("Seltin Aydın" for "Selin Aydın") would split a
+// student in two when there is no roster to match it to. Runs of pages in
+// upload order (a named page and the unnamed ones after it) that sit next to
+// each other, carry on each other's questions and bear names a letter or two
+// apart are one student; the pages of the name written on fewer pages take
+// the other. Two students with close names are never joined: the second
+// starts again from an earlier question. The pages to rename, by id.
+export function nameFixes(rows: SheetPage[]): Map<string, string> {
+  type Run = { name: string; named: string[]; qs: number[] };
+  const runs: Run[] = [];
+  for (const p of [...rows].sort((a, b) => a.seq - b.seq)) {
+    if (p.status !== 'read' || p.result?.type !== 'klasik-student') continue;
+    const read = p.result.read;
+    const name = read.studentName ? stripNameLabel(read.studentName) : '';
+    const qs = read.answers.filter((a) => a.q > 0 && answerText(a).trim()).map((a) => a.q);
+    const last = runs[runs.length - 1];
+    if (last && (!name || normalizeName(name) === normalizeName(last.name))) {
+      if (name) last.named.push(p.id);
+      last.qs.push(...qs);
+    } else runs.push({ name, named: name ? [p.id] : [], qs });
+  }
+  const pagesOf = new Map<string, number>();
+  for (const r of runs) if (r.name) pagesOf.set(normalizeName(r.name), (pagesOf.get(normalizeName(r.name)) ?? 0) + r.named.length);
+  const fixes = new Map<string, string>();
+  for (let i = 1; i < runs.length; i++) {
+    const [a, b] = [runs[i - 1], runs[i]];
+    if (!a.name || !b.name || !matchRoster(b.name, [a.name])) continue;
+    // the second carries on the first: it starts after the first stopped or,
+    // after a page with nothing answered (a blank first question), anywhere
+    // but at the first question
+    if (!b.qs.length || Math.min(...b.qs) <= (a.qs.length ? Math.max(...a.qs) : 1)) continue;
+    const keep = (pagesOf.get(normalizeName(b.name)) ?? 0) > (pagesOf.get(normalizeName(a.name)) ?? 0) ? b : a;
+    for (const id of (keep === a ? b : a).named) fixes.set(id, keep.name);
+    runs[i] = { name: keep.name, named: [...a.named, ...b.named], qs: [...a.qs, ...b.qs] }; // the next pair sees the whole student
+  }
+  return fixes;
+}
+
 export function mergeSheets(rows: SheetPage[], roster: string[] = []): { sheets: Sheet[]; failed: SheetPage[] } {
   const sheets: Sheet[] = [];
   const failed: SheetPage[] = [];

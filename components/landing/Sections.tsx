@@ -31,8 +31,8 @@ export function Steps() {
           </li>
           <li>
             <span className="lp-step-n" aria-hidden="true">2</span>
-            <h3>Ölçütleri onaylayın</h3>
-            <p>Klasik sınavda puanlamayı siz belirlersiniz.</p>
+            <h3>Puanlama hazırlanır</h3>
+            <p>Cevap anahtarınızdan, soru soru.</p>
             <div className="lp-frag" aria-hidden="true">
               <div className="lp-crit"><span>Denklemi doğru kurar</span><b>4 puan</b></div>
               <div className="lp-crit"><span>Sonuç doğru</span><b>6 puan</b></div>
@@ -83,7 +83,7 @@ export function Roles() {
             <h3>Siz</h3>
             <ul>
               <li>Kâğıtları telefonla çekersiniz.</li>
-              <li>Ölçütleri ve işaretli yerleri onaylarsınız.</li>
+              <li>İşaretli yerlere bakıp puanları onaylarsınız.</li>
               <li>Rapora yalnız onayladığınız puanlar geçer.</li>
             </ul>
           </div>
@@ -189,7 +189,7 @@ export function Details() {
 }
 
 const FAQ = [
-  ['Puanı yapay zekâ mı veriyor?', 'Yapay zekâ öneriyor, karar sizin. Klasik sınavda puanlama ölçütlerini siz onaylarsınız; sistemin emin olmadığı her yer size gösterilir ve rapora sizin onayladığınız puanlar geçer.'],
+  ['Puanı yapay zekâ mı veriyor?', 'Yapay zekâ öneriyor, karar sizin. Klasik sınavda puanlama cevap anahtarınızdan hazırlanır; sistemin emin olmadığı her yer size gösterilir ve rapora sizin onayladığınız puanlar geçer.'],
   ['Öğrencinin el yazısı çok kötüyse?', 'Okuyamadığı kelimeyi uydurmaz, işaretler. Her sayfa iki ayrı okumadan geçer; okumalar uyuşmazsa cevap "okuma belirsiz" olarak size gelir ve okunan metni düzeltebilirsiniz.'],
   ['Optik form bastırmam gerekiyor mu?', 'Hayır. Kendi hazırladığınız sınav kâğıdı yeterli; okula tarayıcı da gerekmez, telefonun kamerası yeter.'],
   ['Kaç sayfa hakkı harcanır?', 'Her öğrenci sayfası için bir sayfa. Cevap anahtarı sayılmaz, okunamayan sayfaların hakkı iade edilir.'],

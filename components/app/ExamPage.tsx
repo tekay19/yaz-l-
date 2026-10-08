@@ -1,7 +1,8 @@
 'use client';
 
-// One exam: where it stands, and the teacher's part of it — approving the
-// rubric, checking the papers — and its results and report files.
+// One exam: where it stands, and the teacher's part of it — checking the
+// papers, or giving the key when its photo could not be read — and its
+// results and report files.
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -13,7 +14,7 @@ import ReviewCard from '@/components/console/ReviewCard';
 import { useTeacher } from './context';
 import { IconAlert, IconCheck, IconClock, IconDownload } from './icons';
 import ResultsView from './ResultsView';
-import { Empty, PageHeader, StatusBadge, Tabs, dateTr, isActive, statusOf } from './ui';
+import { Empty, PageHeader, StatusBadge, Tabs, dateTr, isActive, progressOf, statusOf } from './ui';
 
 type Tab = 'durum' | 'olcutler' | 'kontrol' | 'sonuclar';
 const HAS_RESULTS = new Set(['review', 'delivering', 'done']);
@@ -21,13 +22,12 @@ const HAS_RESULTS = new Set(['review', 'delivering', 'done']);
 // the exam's road, with where it is now
 function steps(job: JobView) {
   const klasik = job.mode === 'klasik';
-  const phase = { draft: 0, queued: 1, processing: klasik && job.rubricApproved ? 3 : 1, failed: 1, rubric: 2, review: 4, delivering: 5, done: 6 }[job.status] ?? 0;
+  const phase = { draft: 0, queued: 1, processing: 1, failed: 1, rubric: 1, review: 2, delivering: 3, done: 4 }[job.status] ?? 0;
   const list = [
     { label: 'Yüklendi', from: 1 },
-    { label: 'Okundu', from: 2 },
-    ...(klasik ? [{ label: 'Ölçütler onaylandı', from: 3 }, { label: 'Puanlandı', from: 4 }] : []),
-    { label: 'Kontrol edildi', from: 5 },
-    { label: 'Rapor gönderildi', from: 6 },
+    { label: klasik ? 'Okundu ve puanlandı' : 'Okundu', from: 2 },
+    { label: 'Kontrol edildi', from: 3 },
+    { label: 'Rapor gönderildi', from: 4 },
   ];
   let current = false;
   return list.map((s) => {
@@ -81,7 +81,8 @@ export default function ExamPage({ id }: { id: string }) {
   const meta = statusOf(job.status);
   const tabs: { id: Tab; label: string; badge?: string | null }[] = [
     { id: 'durum', label: 'Genel bakış' },
-    ...(klasik ? [{ id: 'olcutler' as Tab, label: 'Puanlama ölçütleri', badge: job.status === 'rubric' ? '!' : null }] : []),
+    // only when the key's photo could not be read: the teacher gives the key here
+    ...(klasik && job.status === 'rubric' ? [{ id: 'olcutler' as Tab, label: 'Cevap anahtarı', badge: '!' }] : []),
     { id: 'kontrol', label: 'Kontrol', badge: job.status === 'review' ? '!' : null },
     { id: 'sonuclar', label: 'Sonuçlar' },
   ];
@@ -92,16 +93,11 @@ export default function ExamPage({ id }: { id: string }) {
     </>
   );
 
+  const current = tabs.some((t) => t.id === tab) ? tab : 'durum';
   let body: React.ReactNode;
-  if (tab === 'olcutler' && klasik) {
-    body = job.status === 'rubric'
-      ? <section className="app-card"><RubricCard api={api} jobId={id} onChanged={settled} /></section>
-      : <Empty icon={<IconCheck size={26} />} title={['queued', 'processing'].includes(job.status) ? 'Ölçütler hazırlanıyor' : 'Ölçütler onaylandı'}>
-        {['queued', 'processing'].includes(job.status)
-          ? 'Cevap anahtarınız okunuyor; puanlama ölçütleri hazır olunca onayınıza sunulacak ve size e-posta gelecek.'
-          : 'Kâğıtlar onayladığınız ölçütlerle puanlandı. Kontrol ekranında bir cevabı kabul ederek ölçütlere ekleyebilirsiniz.'}
-      </Empty>;
-  } else if (tab === 'kontrol') {
+  if (current === 'olcutler') {
+    body = <section className="app-card"><RubricCard api={api} jobId={id} onChanged={settled} /></section>;
+  } else if (current === 'kontrol') {
     body = job.status === 'review'
       ? (klasik
         ? <KlasikReviewCard api={api} jobId={id} onApproved={settled} />
@@ -111,16 +107,18 @@ export default function ExamPage({ id }: { id: string }) {
           ? 'Onayladığınız puanlar rapora işlendi.'
           : 'Kâğıtlar okunup puanlanınca, sistemin emin olmadığı yerler burada size gösterilir.'}
       </Empty>;
-  } else if (tab === 'sonuclar') {
+  } else if (current === 'sonuclar') {
     body = results
       ? <>
-        {!results.final && <p className="console-banner warn">Önizleme: puanlar kontrolünüzü onaylayınca kesinleşir.</p>}
+        {results.final
+          ? <p className="app-note">Bu sonuçlar e-postanıza gönderilen raporla aynıdır; Excel ve PDF'i yukarıdan da indirebilirsiniz.</p>
+          : <p className="console-banner warn">Önizleme: puanlar kontrolünüzü onaylayınca kesinleşir ve rapor e-postanıza gider.</p>}
         <ResultsView r={results} />
       </>
       : <Empty icon={<IconClock size={26} />} title="Sonuçlar henüz hazır değil">Kâğıtlar okunup puanlanınca sonuçlar burada görünür.</Empty>;
   } else {
     const total = job.pages.students;
-    const doneN = job.pages.read + job.pages.failed;
+    const progress = progressOf(job);
     body = (
       <div className="app-card app-split wide-left">
         <section>
@@ -146,12 +144,13 @@ export default function ExamPage({ id }: { id: string }) {
             <div><dt>Öğrenci sayfası</dt><dd>{total}</dd></div>
             <div><dt>Okunan</dt><dd>{job.pages.read}</dd></div>
             <div><dt>Okunamayan</dt><dd className={job.pages.failed ? 'app-attn' : undefined}>{job.pages.failed}{job.pages.failed ? <span className="app-dd-note">hakkı iade edildi</span> : null}</dd></div>
+            {klasik && job.rubricApproved && <div><dt>Puanlanan</dt><dd>{job.pages.graded} / {job.pages.read}</dd></div>}
             <div><dt>Cevap anahtarı</dt><dd>{job.pages.key ? `${job.pages.key} fotoğraf` : 'yazılı metin'}</dd></div>
           </dl>
-          {isActive(job) && total > 0 && (
+          {isActive(job) && progress.total > 0 && (
             <>
-              <div className="app-progress big" role="progressbar" aria-label="Okunan sayfa" aria-valuemin={0} aria-valuemax={total} aria-valuenow={doneN}><span style={{ width: `${Math.round((doneN / total) * 100)}%` }} /></div>
-              <p className="app-note">{doneN} / {total} sayfa okundu. Bu sayfa kendini yeniler.</p>
+              <div className="app-progress big" role="progressbar" aria-label={progress.label} aria-valuemin={0} aria-valuemax={progress.total} aria-valuenow={progress.done}><span style={{ width: `${Math.round((progress.done / progress.total) * 100)}%` }} /></div>
+              <p className="app-note">{progress.grading ? 'Puanlanıyor: ' : ''}{progress.done} / {progress.total} sayfa {progress.verb}. Bu sayfa kendini yeniler.</p>
             </>
           )}
         </section>
@@ -167,7 +166,7 @@ export default function ExamPage({ id }: { id: string }) {
         sub={<><StatusBadge status={job.status} rubricApproved={job.rubricApproved} /><span className="app-meta"><span>{klasik ? 'Klasik' : 'Çoktan seçmeli'}</span><span>{dateTr(job.createdAt, true)}</span></span></>}
         actions={reports || undefined}
       />
-      <Tabs tabs={tabs} value={tabs.some((t) => t.id === tab) ? tab : 'durum'} onChange={setTab} />
+      <Tabs tabs={tabs} value={current} onChange={setTab} />
       <div className="app-tab-body">{body}</div>
     </>
   );

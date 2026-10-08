@@ -74,6 +74,8 @@ export function createReader(opts: { effort?: Effort } = {}): Reader {
     readKey: fallback(reader.readKey, readSpare?.readKey ?? null, 'readKey'),
     readStudent: fallback(reader.readStudent, readSpare?.readStudent ?? null, 'readStudent'),
     readKlasik: cross ? crossReadKlasik(reader, cross) : fallback(reader.readKlasik, readSpare?.readKlasik ?? null, 'readKlasik'),
+    readKlasikKey: fallback(reader.readKlasikKey ?? reader.readKlasik, readSpare ? readSpare.readKlasikKey ?? readSpare.readKlasik : null, 'readKlasikKey'),
+    ...(reader.readRoster ? { readRoster: fallback(reader.readRoster, readSpare?.readRoster ?? null, 'readRoster') } : {}),
     draftRubric: fallback(grader.draftRubric, gradeSpare?.draftRubric ?? null, 'draftRubric'),
     gradeKlasik: fallback(grader.gradeKlasik, gradeSpare?.gradeKlasik ?? null, 'gradeKlasik'),
   };

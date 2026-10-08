@@ -93,7 +93,7 @@ describe('klasik routes', () => {
 
     const empty = await klasikJob(u.id, { status: 'rubric', rubric: { questions: [] } });
     const refused = await approveRubricRoute.POST(req(), ctx(empty.id));
-    expect([refused.status, (await refused.json()).error]).toEqual([400, 'Rubrikte hiç soru yok.']);
+    expect([refused.status, (await refused.json()).error]).toEqual([400, 'Cevap anahtarında hiç soru bulunamadı.']);
 
     expect((await approveRubricRoute.POST(req(), ctx(job.id))).status).toBe(202);
     const [after] = await state.db.select().from(jobs).where(eq(jobs.id, job.id));

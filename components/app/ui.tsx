@@ -68,7 +68,7 @@ export const EXAM_STATUS: Record<string, Meta> = {
   draft: { label: 'Taslak', tone: 'grey', action: 'Yüklemeye devam edin' },
   queued: { label: 'Sırada', tone: 'blue' },
   processing: { label: 'Okunuyor', tone: 'blue' },
-  rubric: { label: 'Ölçüt onayınızı bekliyor', tone: 'amber', action: 'Ölçütleri onaylayın', tab: 'olcutler' },
+  rubric: { label: 'Cevap anahtarı bekleniyor', tone: 'amber', action: 'Cevap anahtarını girin', tab: 'olcutler' },
   review: { label: 'Kontrolünüzü bekliyor', tone: 'amber', action: 'Kâğıtları kontrol edin', tab: 'kontrol' },
   delivering: { label: 'Rapor hazırlanıyor', tone: 'blue' },
   done: { label: 'Tamamlandı', tone: 'green', action: 'Sonuçları görün', tab: 'sonuclar' },
@@ -76,6 +76,15 @@ export const EXAM_STATUS: Record<string, Meta> = {
 };
 export const statusOf = (s: string, rubricApproved = false): Meta =>
   (s === 'processing' && rubricApproved ? { label: 'Puanlanıyor', tone: 'blue' } : EXAM_STATUS[s] ?? { label: s, tone: 'grey' });
+// What a running exam is doing now, for its progress bar: reading the pages,
+// or (klasik, once every page is read) grading them.
+export function progressOf(j: Pick<JobView, 'mode' | 'status' | 'rubricApproved' | 'pages'>) {
+  const read = j.pages.read + j.pages.failed;
+  if (j.mode === 'klasik' && j.status === 'processing' && j.rubricApproved && read >= j.pages.students) {
+    return { grading: true, label: 'Puanlanan sayfa', verb: 'puanlandı', done: j.pages.graded, total: j.pages.read };
+  }
+  return { grading: false, label: 'Okunan sayfa', verb: 'okundu', done: read, total: j.pages.students };
+}
 export const needsTeacher = (j: Pick<JobView, 'status'>) => j.status === 'rubric' || j.status === 'review' || j.status === 'draft';
 export const isActive = (j: Pick<JobView, 'status'>) => ['queued', 'processing', 'delivering'].includes(j.status);
 

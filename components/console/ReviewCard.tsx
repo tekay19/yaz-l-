@@ -5,6 +5,7 @@ import { OPTIONS } from '@/lib/types';
 import type { Api, Correction, Review, ReviewRow } from './api';
 import { flaggedQuestions, keyQuestions, nameFlagged } from './flags';
 import { FailedSheets, NoteBanner } from './ui';
+import RosterPhoto, { mergeNames } from '@/components/upload/RosterPhoto';
 import { ReviewFrame, ReviewPhoto } from './ReviewFrame';
 
 export default function ReviewCard({ api, jobId, onApproved }: { api: Api; jobId: string; onApproved: () => void }) {
@@ -50,6 +51,7 @@ export default function ReviewCard({ api, jobId, onApproved }: { api: Api; jobId
       flagged={flagged} total={data.rows.length} showAll={showAll || !flagged} onShowAll={setShowAll}
       onApprove={approve} approveDisabled={busy}
       roster={roster} onRoster={setRoster} onSaveRoster={saveRoster}
+      rosterExtra={<RosterPhoto api={api} onNames={(names) => setRoster((cur) => mergeNames(cur, names))} />}
       after={<><FailedSheets failed={data.failed} refunded={false} /><NoteBanner note={error ? { ok: false, text: error } : null} /></>}
     >
       {data.keyFlags.length > 0 && data.keyPageId && (

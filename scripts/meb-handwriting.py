@@ -5,6 +5,13 @@ telefonla çekilmiş fotoğraf gibi kaydeder.
   python scripts/meb-handwriting.py --count 50 # her sınavdan 50 öğrenci
   python scripts/meb-handwriting.py --exam tr8 --students t01,t02
   python scripts/meb-handwriting.py --names-on-all-pages --count 6 --out eval/data/meb-elyazisi-isimli
+  python scripts/meb-handwriting.py --difficulty extreme --count 50 --seed 12 --out eval/data/meb-elyazisi-cok-zor
+  python scripts/meb-handwriting.py --difficulty hard --count 50 --names-everywhere --out eval/data/meb-elyazisi-zor-isimli
+
+--difficulty normal|hard|extreme: yazıyı ve fotoğrafı giderek daha kötü yapar
+(eğri, sıkışık, üst üste binen harfler; silik kurşun kalem; mürekkep lekesi;
+bulanık, karanlık, gölgeli, hareketli çekim). Doğru metin hep aynıdır: okunmayan
+yer okuyucu için hata sayılır.
 
 Kaynaklar:
   eval/data/meb/*.pdf                         MEB cevaplı kitapçıkları (cevaplar beyazla kapatılır)
@@ -24,11 +31,15 @@ import os
 import random
 import shutil
 import urllib.request
+from contextlib import contextmanager
 
-import fitz  # PyMuPDF
+try:
+    import pymupdf as fitz  # PyMuPDF
+except ImportError:
+    import fitz
 import numpy as np
 from fontTools.ttLib import TTFont
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'eval', 'data', 'meb-elyazisi')
@@ -80,6 +91,56 @@ CLASS_AT = (205, 165)
 NUMBER_AT = (205, 176)
 
 INKS = [(22, 38, 128), (18, 30, 105), (35, 52, 150), (28, 28, 34), (45, 45, 55)]
+PENCILS = [(88, 88, 98), (110, 110, 120), (70, 72, 82)]  # silik kurşun kalem (zor düzeylerde)
+
+# Zorluk düzeyleri. normal ilk setin değerleridir (aynı tohum aynı görüntü);
+# hard ve extreme yazıyı ve fotoğrafı giderek bozar. Aralıklar (alt, üst).
+#   slant/jitter/wobble: eğim, kelime başına dönme, taban çizgisi kayması
+#   tracking/leading/gap: harf aralığı (eksi: harfler üst üste biner), satır ve kelime aralığı
+#   glyph_rot/glyph_grow/advance: harf harf dönme, büyüme ve ilerleme
+#   dropout: silik çıkan harf oranı; smudge: cevabın sürülme olasılığı; fade: mürekkep koyuluğu
+#   pencil: kurşun kalem kullanma olasılığı; weights: kalem kalınlığı seçenekleri
+#   persp/rot/far/blur/noise/light/shadow/motion/glare/quality: fotoğraf koşulları
+LEVELS = {
+    'normal': dict(
+        slant=(-4, 4), jitter=(2.0, 5.0), wobble=(0.08, 0.2), tracking=(-0.06, 0.05), leading=(0.72, 0.98),
+        gap=(0.7, 1.25), glyph_rot=7, glyph_grow=(0.9, 1.12), advance=(0.93, 1.05), squash=(1, 1), dropout=0,
+        smudge=0, fade=(0.92, 0.92), pencil=0, weights=[0, 0, 0, 1], tiny=0.2, size=(14.5, 19.5),
+        tiny_size=(11, 13.5), persp=(0.035, 0.025), rot=0, far=0.25, blur=(0.5, 1.2), noise=(3, 7),
+        light=(0.12, 0.3), shadow=(0.6, 0.12, 0.25), motion=0, glare=0, quality=(60, 82)),
+    'hard': dict(
+        slant=(-8, 8), jitter=(3.5, 7), wobble=(0.12, 0.28), tracking=(-0.09, 0.04), leading=(0.66, 0.9),
+        gap=(0.55, 1.2), glyph_rot=11, glyph_grow=(0.85, 1.18), advance=(0.9, 1.04), squash=(0.85, 1.15),
+        dropout=0.025, smudge=0.15, fade=(0.8, 0.95), pencil=0.2, weights=[0, 0, 1], tiny=0.3,
+        size=(13.5, 18), tiny_size=(10.5, 12.5), persp=(0.05, 0.035), rot=2.5, far=0.3, blur=(0.6, 1.1),
+        noise=(4, 9), light=(0.18, 0.38), shadow=(0.75, 0.15, 0.3), motion=0.1, glare=0.12, quality=(55, 78)),
+    'extreme': dict(
+        slant=(-14, 14), jitter=(4.5, 9), wobble=(0.18, 0.34), tracking=(-0.12, 0.0), leading=(0.62, 0.82),
+        gap=(0.4, 1.05), glyph_rot=14, glyph_grow=(0.8, 1.26), advance=(0.86, 1.03), squash=(0.75, 1.25),
+        dropout=0.03, smudge=0.3, fade=(0.65, 0.9), pencil=0.35, weights=[0, 0, 1], tiny=0.4,
+        size=(12, 16.5), tiny_size=(10, 12), persp=(0.07, 0.05), rot=4, far=0.4, blur=(0.7, 1.25),
+        noise=(6, 12), light=(0.25, 0.46), shadow=(0.9, 0.2, 0.36), motion=0.2, glare=0.2, quality=(45, 68)),
+}
+L = LEVELS['normal']  # main() seçilen düzeyi buraya koyar
+
+
+@contextmanager
+def level(name):
+    """Geçici olarak başka bir zorluk düzeyinde yazar (isim alanları için)."""
+    global L
+    prev, L = L, LEVELS[name]
+    try:
+        yield
+    finally:
+        L = prev
+
+# Windows'ta DejaVuSans; macOS ve Linux'ta eşdeğer geniş kapsamlı bir font
+FALLBACK_SOURCES = [
+    os.path.join(os.environ.get('WINDIR', 'C:/Windows'), 'Fonts', FALLBACK),
+    '/System/Library/Fonts/Supplemental/Arial Unicode.ttf',
+    '/Library/Fonts/Arial Unicode.ttf',
+    '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+]
 
 
 def ensure_fonts():
@@ -90,7 +151,9 @@ def ensure_fonts():
             urllib.request.urlretrieve('https://github.com/google/fonts/raw/main/' + src, path)
     fb = os.path.join(FONT_DIR, FALLBACK)
     if not os.path.exists(fb):
-        shutil.copy(os.path.join(os.environ.get('WINDIR', 'C:/Windows'), 'Fonts', FALLBACK), fb)
+        src = next((p for p in FALLBACK_SOURCES if os.path.exists(p)), None)
+        assert src, f'{FALLBACK} ya da eşdeğeri bulunamadı: {FALLBACK_SOURCES}'
+        shutil.copy(src, fb)
     for name in FONTS:
         cmap = TTFont(os.path.join(FONT_DIR, name)).getBestCmap()
         missing = [c for c in 'şŞğĞıİçÇöÖüÜ' if ord(c) not in cmap]
@@ -106,13 +169,17 @@ class Pen:
         self.size = size
         self.cmap = TTFont(os.path.join(FONT_DIR, font_name)).getBestCmap()
         self._fonts = {}
-        self.slant = rng.uniform(-4, 4)          # derece; yazının genel eğimi
-        self.jitter = rng.uniform(2.0, 5.0)      # kelime başına dönme (±derece)
-        self.wobble = rng.uniform(0.08, 0.2)     # taban çizgisi kayması (boyutun oranı)
-        self.tracking = rng.uniform(-0.06, 0.05)  # harf aralığı (boyutun oranı)
-        self.leading = rng.uniform(0.72, 0.98)   # satır aralığı; < 1 sıkışık
+        self.slant = rng.uniform(*L['slant'])          # derece; yazının genel eğimi
+        self.jitter = rng.uniform(*L['jitter'])        # kelime başına dönme (±derece)
+        self.wobble = rng.uniform(*L['wobble'])        # taban çizgisi kayması (boyutun oranı)
+        self.tracking = rng.uniform(*L['tracking'])    # harf aralığı (boyutun oranı)
+        self.leading = rng.uniform(*L['leading'])      # satır aralığı; < 1 sıkışık
         self.ink = rng.choice(INKS)
-        self.weight = rng.choice([0, 0, 0, 1])   # bazı öğrenciler kalın basar
+        self.weight = rng.choice(L['weights'])         # bazı öğrenciler kalın basar
+        if L['pencil'] and rng.random() < L['pencil']:  # silik kurşun kalem
+            self.ink = rng.choice(PENCILS)
+        lo, hi = L['fade']
+        self.alpha = lo if lo == hi else rng.uniform(lo, hi)  # mürekkep koyuluğu
 
     def font(self, size, fallback=False):
         key = (int(size), fallback)
@@ -163,23 +230,30 @@ def render_word(pen, word, size):
     width = 0
     for ch, f, _ in pieces:
         width += f.getlength(ch) * (1 + rng.uniform(-0.04, 0.04)) + size * pen.tracking
-    w = int(max(1, width) * 1.15 + size * 0.8)
+    w = int(max(1, width) * max(1.15, L['glyph_grow'][1] + 0.03) + size * 0.8)  # büyüyen harfler kesilmesin
     h = int(size * 2.2)
     base = size * 1.4  # taban çizgisi; üsler bunun üstünde, harfler bunun üzerinde hizalı
     img = Image.new('L', (w, h), 0)
     x = size * 0.2
     for ch, f, dy in pieces:
         # harf harf: boyut, eğim ve yükseklik biraz oynar — elle yazılmış gibi
-        grow = rng.uniform(0.9, 1.12)
+        grow = rng.uniform(*L['glyph_grow'])
         cf = ImageFont.truetype(f.path, max(6, int(f.size * grow)))
         cw = int(cf.getlength(ch)) + int(size * 0.5) + 2
         cimg = Image.new('L', (cw, int(size * 1.9)), 0)
         ImageDraw.Draw(cimg).text((size * 0.2, size * 1.3), ch, font=cf, fill=255, anchor='ls',
                                   stroke_width=pen.weight, stroke_fill=255)
-        cimg = cimg.rotate(rng.uniform(-7, 7), resample=Image.BICUBIC)
+        sx = 1.0
+        if L['squash'][0] != L['squash'][1]:  # harf dar ya da geniş: a/o/e birbirine benzer
+            sx = rng.uniform(*L['squash'])
+            cimg = cimg.resize((max(1, int(cimg.width * sx)), cimg.height), Image.BICUBIC)
+        cimg = cimg.rotate(rng.uniform(-L['glyph_rot'], L['glyph_rot']), resample=Image.BICUBIC)
+        if L['dropout'] and rng.random() < L['dropout']:  # kalem basmadı: harf silik çıkar
+            faint = rng.uniform(0.25, 0.55)
+            cimg = cimg.point(lambda v: int(v * faint))
         y = base - size * 1.3 + dy + rng.uniform(-1, 1) * size * pen.wobble * 0.45
         img.paste(Image.new('L', cimg.size, 255), (int(x - size * 0.2), int(y)), cimg)
-        x += cf.getlength(ch) * rng.uniform(0.93, 1.05) + size * pen.tracking
+        x += cf.getlength(ch) * sx * rng.uniform(*L['advance']) + size * pen.tracking
     angle = pen.slant + rng.uniform(-pen.jitter, pen.jitter)
     return img.rotate(angle, resample=Image.BICUBIC, expand=True), x
 
@@ -224,7 +298,7 @@ def write_answer(page_img, pen, lines, box, scale):
             img, adv = render_word(pen, wd, size)
             yy = y + (x - x0) * drift + pen.rng.uniform(-1, 1) * size * pen.wobble
             ink_layer.paste(Image.new('L', img.size, 255), (int(x), int(yy - size * 0.45)), img)
-            x += adv + size * 0.32 * pen.rng.uniform(0.7, 1.25)
+            x += adv + size * 0.32 * pen.rng.uniform(*L['gap'])
             line_end = x
         if crossed:  # dalgalı bir çizgiyle üstünü çizer
             d = ImageDraw.Draw(ink_layer)
@@ -237,8 +311,17 @@ def write_answer(page_img, pen, lines, box, scale):
             if pen.rng.random() < 0.5:
                 d.line([(p[0], p[1] + size * 0.18) for p in pts], fill=255, width=max(2, int(size * 0.07)))
         y += size * 1.25 * pen.leading
+    if L['smudge'] and pen.rng.random() < L['smudge']:
+        # elle sürülmüş yazı: kaymış, bulanık bir kopya yazının üstüne biner
+        region = (int(x0), int(y0), int(x1), int(y1))
+        sub = ink_layer.crop(region)
+        dx, dy = pen.rng.uniform(-0.7, 0.7) * size, pen.rng.uniform(-0.2, 0.6) * size
+        smear = sub.filter(ImageFilter.GaussianBlur(size * pen.rng.uniform(0.1, 0.25)))
+        smear = smear.transform(sub.size, Image.AFFINE, (1, 0, -dx, 0, 1, -dy), Image.BICUBIC)
+        strength = pen.rng.uniform(0.4, 0.8)
+        ink_layer.paste(ImageChops.lighter(sub, smear.point(lambda v: int(v * strength))), region)
     ink = Image.new('RGB', page_img.size, pen.ink)
-    alpha = ink_layer.point(lambda v: int(v * 0.92))
+    alpha = ink_layer.point(lambda v: int(v * pen.alpha))
     page_img.paste(ink, (0, 0), alpha)
 
 
@@ -260,9 +343,13 @@ def photograph(page, rng, far):
     """Sayfayı masada telefonla çekilmiş gibi yapar."""
     w, h = page.size
     # hafif perspektif: köşeler birkaç yüzde oynar
-    k = 0.035 if not far else 0.025
+    k = L['persp'][1] if far else L['persp'][0]
     src = [(0, 0), (w, 0), (w, h), (0, h)]
     dst = [(x + rng.uniform(-k, k) * w, y + rng.uniform(-k, k) * h) for x, y in src]
+    if L['rot']:  # kâğıt karede eğik durur
+        a = math.radians(rng.uniform(-L['rot'], L['rot']))
+        dst = [(w / 2 + (x - w / 2) * math.cos(a) - (y - h / 2) * math.sin(a),
+                h / 2 + (x - w / 2) * math.sin(a) + (y - h / 2) * math.cos(a)) for x, y in dst]
     if far:
         frame_w, frame_h = int(w * 1.75), int(h * 1.55)  # sayfa karenin ~%35'i
         ox, oy = rng.uniform(0.2, 0.55) * w, rng.uniform(0.15, 0.4) * h
@@ -287,15 +374,25 @@ def photograph(page, rng, far):
     ang = rng.uniform(0, 2 * math.pi)
     grad = (np.cos(ang) * xx / frame_w + np.sin(ang) * yy / frame_h)
     grad = (grad - grad.min()) / max(1e-6, grad.max() - grad.min())
-    light = 1.04 - rng.uniform(0.12, 0.3) * grad
-    if rng.random() < 0.6:  # telefonun / elin gölgesi
+    light = 1.04 - rng.uniform(*L['light']) * grad
+    chance, lo, hi = L['shadow']
+    if rng.random() < chance:  # telefonun / elin gölgesi
         cx, cy = rng.uniform(0.2, 0.8) * frame_w, rng.uniform(0.2, 0.8) * frame_h
         r = rng.uniform(0.18, 0.35) * max(frame_w, frame_h)
-        light *= 1 - rng.uniform(0.12, 0.25) * np.exp(-(((xx - cx) ** 2 + (yy - cy) ** 2) / (2 * r * r)))
+        light *= 1 - rng.uniform(lo, hi) * np.exp(-(((xx - cx) ** 2 + (yy - cy) ** 2) / (2 * r * r)))
     arr *= light[..., None]
-    arr += nprng.normal(0, rng.uniform(3, 7), arr.shape)
+    if L['glare'] and rng.random() < L['glare']:  # flaş ya da lamba yansıması yazıyı eritir
+        cx, cy = rng.uniform(0.25, 0.75) * frame_w, rng.uniform(0.2, 0.8) * frame_h
+        rx, ry = rng.uniform(0.06, 0.14) * frame_w, rng.uniform(0.04, 0.1) * frame_h
+        arr += rng.uniform(70, 130) * np.exp(-(((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2))[..., None]
+    arr += nprng.normal(0, rng.uniform(*L['noise']), arr.shape)
     img = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8))
-    img = img.filter(ImageFilter.GaussianBlur(rng.uniform(0.5, 1.2)))
+    if L['motion'] and rng.random() < L['motion']:  # el titredi: tek yönde çizgi çizgi bulanıklık
+        line = rng.choice([[1 if r == 2 else 0 for r in range(5) for c in range(5)],   # yatay
+                           [1 if c == 2 else 0 for r in range(5) for c in range(5)],   # dikey
+                           [1 if r == c else 0 for r in range(5) for c in range(5)]])  # çapraz
+        img = img.filter(ImageFilter.Kernel((5, 5), line, scale=5))
+    img = img.filter(ImageFilter.GaussianBlur(rng.uniform(*L['blur'])))
     return img
 
 
@@ -331,6 +428,17 @@ def name_variant(rng, full):
     return rng.choice([f'Ad: {full}', full, short, f'Adı: {full}', short])
 
 
+def name_variant_full(rng, full):
+    """--names-everywhere: ad hep tam yazılır (kısaltma yok), yalnız ön ek değişir."""
+    return rng.choice([f'Ad: {full}', full, f'Adı: {full}', full])
+
+
+def name_plan_all(students):
+    """--names-everywhere: herkes bütün sayfalara (ön yüzdeki alana ve 2-4. sayfaların
+    üst kenarına) adını yazar; öğretmen sayfaları isimden eşleyebilsin."""
+    return {s['id']: {'front': True, 'back': [2, 3, 4]} for s in students}
+
+
 def name_plan(students):
     """--names-on-all-pages için kimin hangi sayfaya isim yazdığı: ilk iki öğrenci
     arka sayfalara yazmaz, üçüncüsü 1. sayfadaki isim alanını boş bırakıp 2. sayfaya
@@ -363,8 +471,14 @@ def main():
     ap.add_argument('--seed', type=int, default=7)
     ap.add_argument('--names-on-all-pages', action='store_true',
                     help='öğrenci adını 2-4. sayfaların üst kenarına da yazar (bkz. name_plan)')
+    ap.add_argument('--names-everywhere', action='store_true',
+                    help='her öğrenci her sayfaya tam adını yazar; isimler cevaplardan daha okunaklıdır (bkz. name_plan_all)')
     ap.add_argument('--out', help='çıktı klasörü (varsayılan eval/data/meb-elyazisi)')
+    ap.add_argument('--difficulty', choices=list(LEVELS), default='normal',
+                    help='yazı ve fotoğraf bozukluğu (bkz. LEVELS)')
     args = ap.parse_args()
+    global L
+    L = LEVELS[args.difficulty]
     out_root = os.path.join(ROOT, args.out) if args.out else OUT
     ensure_fonts()
     fonts = list(FONTS)
@@ -381,7 +495,7 @@ def main():
             students = pick_students(students, args.count)
         blank_pages = render_pages(exam)
         out_dir = os.path.join(out_root, name)
-        plan = name_plan(students) if args.names_on_all_pages else {}
+        plan = name_plan_all(students) if args.names_everywhere else name_plan(students) if args.names_on_all_pages else {}
         os.makedirs(out_dir, exist_ok=True)
         manifest_path = os.path.join(out_dir, 'manifest.json')
         manifest = {'exam': name, 'rubric': exam['rubric'], 'students': []}
@@ -390,25 +504,28 @@ def main():
         by_id = {s['id']: s for s in manifest['students']}
         for idx, s in enumerate(students):
             rng = random.Random(f"{args.seed}-{s['id']}")
-            far = rng.random() < 0.25          # dörtte biri uzaktan çekilmiş
-            tiny = rng.random() < 0.2          # beşte biri çok küçük yazar
-            size = (rng.uniform(11, 13.5) if tiny else rng.uniform(14.5, 19.5)) * ZOOM
+            far = rng.random() < L['far']      # normalde dörtte biri uzaktan çekilmiş
+            tiny = rng.random() < L['tiny']    # normalde beşte biri çok küçük yazar
+            size = (rng.uniform(*L['tiny_size']) if tiny else rng.uniform(*L['size'])) * ZOOM
             pen = Pen(rng, rng.choice(fonts), size)
             pages = [p.copy() for p in blank_pages]
             # isim alanı
             first = pages[0]
-            name_pen = Pen(rng, pen.font_name, 20 * ZOOM)
-            name_pen.ink, name_pen.slant = pen.ink, pen.slant
             names = plan.get(s['id'], {'front': True, 'back': []})
-            if names['front']:
-                write_answer(first, name_pen, [s['name']], (NAME_AT[0], NAME_AT[1] - 13, 420, NAME_AT[1] + 6), ZOOM)
             back_names = {}
-            for pn in names['back']:
-                if pn <= len(pages):
-                    back_names[pn] = name_variant(rng, s['name'])
-                    write_answer(pages[pn - 1], name_pen, [back_names[pn]], TOP_NAME, ZOOM)
-            write_answer(first, name_pen, [name[-1] + rng.choice(['-A', '/B', 'C', '-D', '/E'])], (CLASS_AT[0], CLASS_AT[1] - 13, 330, CLASS_AT[1] + 6), ZOOM)
-            write_answer(first, name_pen, [str(rng.randint(100, 999))], (NUMBER_AT[0], NUMBER_AT[1] - 13, 330, NUMBER_AT[1] + 6), ZOOM)
+            # --names-everywhere: isimler öğrencinin cevaplarından daha özenli yazılır
+            with level('normal' if args.names_everywhere else args.difficulty):
+                name_pen = Pen(rng, pen.font_name, 20 * ZOOM)
+                name_pen.ink = pen.ink
+                name_pen.slant = max(-6, min(6, pen.slant)) if args.names_everywhere else pen.slant
+                if names['front']:
+                    write_answer(first, name_pen, [s['name']], (NAME_AT[0], NAME_AT[1] - 13, 420, NAME_AT[1] + 6), ZOOM)
+                for pn in names['back']:
+                    if pn <= len(pages):
+                        back_names[pn] = (name_variant_full if args.names_everywhere else name_variant)(rng, s['name'])
+                        write_answer(pages[pn - 1], name_pen, [back_names[pn]], TOP_NAME, ZOOM)
+                write_answer(first, name_pen, [name[-1] + rng.choice(['-A', '/B', 'C', '-D', '/E'])], (CLASS_AT[0], CLASS_AT[1] - 13, 330, CLASS_AT[1] + 6), ZOOM)
+                write_answer(first, name_pen, [str(rng.randint(100, 999))], (NUMBER_AT[0], NUMBER_AT[1] - 13, 330, NUMBER_AT[1] + 6), ZOOM)
             for a in s['answers']:
                 if not a['lines']:
                     continue
@@ -418,12 +535,13 @@ def main():
             for i, pg in enumerate(pages):
                 photo = photograph(pg, rng, far)
                 fname = f"{s['id']}-p{i + 1}.jpg"
-                photo.save(os.path.join(out_dir, fname), quality=rng.randint(60, 82))
+                photo.save(os.path.join(out_dir, fname), quality=rng.randint(*L['quality']))
                 files.append(fname)
             by_id[s['id']] = {
                 'id': s['id'], 'name': s['name'], 'persona': s.get('persona'), 'pages': files,
                 'style': {'font': pen.font_name, 'size': round(size / ZOOM, 1), 'leading': round(pen.leading, 2),
-                          'slant': round(pen.slant, 1), 'far': far, 'tiny': tiny},
+                          'slant': round(pen.slant, 1), 'far': far, 'tiny': tiny,
+                          'difficulty': args.difficulty, 'pencil': pen.ink in PENCILS, 'ink': round(pen.alpha, 2)},
                 'answers': s['answers'], 'expected': s['expected'],
                 'names': {'front': names['front'], 'back': {str(k): v for k, v in back_names.items()}},
             }

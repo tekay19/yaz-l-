@@ -66,7 +66,7 @@ export async function deliverPending(deps: Deps, now = new Date()): Promise<numb
             ? (byAdmin ? 'Sınavınız destek ekibimiz tarafından kapatıldı. ' : `Sınav ${RESULT_TTL_DAYS} gün içinde tamamlanıp onaylanmadığı için kapatıldı. `)
               + `${refund > 0 ? `Kalan ${refund} sayfa hakkı hesabınıza iade edildi. ` : ''}Fotoğraflarınız ve sınav kayıtları silinecek.`
             : expired
-              ? `Puanlama ölçütleri ${RUBRIC_EXPIRE_DAYS} gün içinde onaylanmadığı için sınav iptal edildi. `
+              ? `Cevap anahtarı ${RUBRIC_EXPIRE_DAYS} gün içinde girilmediği için sınav iptal edildi. `
                 + `Kullanılan ${job.reservedPages} sayfa hakkı hesabınıza iade edildi. Fotoğraflarınız silindi.`
               : 'Cevap anahtarınızın fotoğrafı okunamadığı için kâğıtlar puanlanamadı. '
                 + `Kullanılan ${job.reservedPages} sayfa hakkı hesabınıza iade edildi. Anahtarı daha net çekip sınavı yeniden oluşturabilirsiniz.`,

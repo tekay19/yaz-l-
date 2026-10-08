@@ -384,6 +384,9 @@
 .app .console-text.tall { min-height: 220px; }
 .app-label-note { font-weight: 400; color: var(--ink-soft); margin-left: 4px; }
 .app-row-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.app-table .app-row-actions { justify-content: flex-end; flex-wrap: nowrap; }
+.app-row-delete { color: var(--mark); }
+.app-row-delete:hover { border-color: var(--mark); }
 .app-editor { border-color: var(--board-bright); }
 .app-editor .app-row-actions { margin-top: 18px; }
 
@@ -487,6 +490,9 @@
 .review-sheet-head > * + * { margin-left: 10px; padding-left: 10px; border-left: 1px solid var(--line); }
 .review-score { font-weight: 600; }
 .review-pts { margin-left: 8px; font-weight: 600; color: var(--ink-soft); }
+.review-pts.full { color: var(--green); }
+.review-pts.part { color: var(--amber); }
+.review-pts.zero { color: var(--mark); }
 .app .klasik-q { border-color: var(--line-soft); border-radius: var(--r-ctl); }
 .app .klasik-q.flagged { border-color: var(--red-line); border-left: 3px solid var(--mark); background: #FFFCFB; }
 .app .console-thumb { border-radius: var(--r-ctl); }

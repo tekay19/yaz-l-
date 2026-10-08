@@ -3,6 +3,7 @@ import type { Db } from '@/db/client';
 import { jobs, pages } from '@/db/schema';
 import type { Storage } from '@/lib/storage';
 import { ReadRefused, type Reader } from '@/lib/reader/types';
+import type { KlasikRead } from '@/lib/types';
 import { completePage, failPage, type ClaimedPage } from '@/lib/queue';
 import { maybeCompleteJob } from '@/lib/jobs/progress';
 
@@ -14,14 +15,36 @@ async function keyQuestionCount(db: Db, jobId: string): Promise<number> {
   return key?.result?.type === 'key' ? key.result.read.questionCount : 0;
 }
 
+// A student page with no name whose first question is not the exam's first
+// continues an earlier page, whatever its printed header suggests: an exam's
+// later pages often look like fronts, and taken for one they would start a
+// sheet of their own instead of joining the student's.
+// "Ad: Elif Yıldız" is a label and a name: kept, the label would give one
+// student two names, and two sheets. A label only, with no name after it, stays.
+const NAME_LABEL = /^\s*(?:ad[ıiIİ]?\s+soyad[ıiIİ]?|ad[ıiIİ]?|[iİ]s[iİ]m|öğrenc[iİ])\s*[:\-–.]?\s+(?=\S)/i;
+export function cleanName(read: KlasikRead): KlasikRead {
+  if (read.studentName) read.studentName = read.studentName.replace(NAME_LABEL, '');
+  return read;
+}
+
+export function markContinuation(read: KlasikRead): KlasikRead {
+  const qs = read.answers.map((a) => a.q).filter((q) => q > 0);
+  if (!read.studentName?.trim() && qs.length && Math.min(...qs) > 1) read.isBackSide = true;
+  return read;
+}
+
 export async function processPage({ db, storage, reader }: WorkerDeps, page: ClaimedPage) {
   try {
     if (!page.filePath) throw new ReadRefused('file_missing');
     const image = await storage.read(page.filePath);
     const [job] = await db.select({ mode: jobs.mode, teacherNote: jobs.teacherNote }).from(jobs).where(eq(jobs.id, page.jobId));
     if (job?.mode === 'klasik') {
-      // copied down literally, key or student; the rubric and the grades come later
-      const { read, usage } = await reader.readKlasik(image, job.teacherNote);
+      // copied down literally, key or student; the rubric and the grades come later.
+      // The key also keeps its printed questions and points for the rubric draft.
+      const { read, usage } = page.kind === 'key' && reader.readKlasikKey
+        ? await reader.readKlasikKey(image, job.teacherNote)
+        : await reader.readKlasik(image, job.teacherNote);
+      if (page.kind === 'student') markContinuation(cleanName(read));
       const empty = page.kind === 'key' && !read.answers.some((a) => a.lines.length);
       if (read.unreadable || empty) await failPage(db, page, page.kind === 'key' ? 'key_empty' : 'unreadable', false);
       else await completePage(db, page, { type: page.kind === 'key' ? 'klasik-key' : 'klasik-student', read }, usage);

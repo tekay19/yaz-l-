@@ -54,8 +54,8 @@ export function fromInput(input: RubricInputData): Rubric {
 
 // Why a rubric cannot be approved yet, in Turkish; [] when it can.
 export function rubricProblems(r: Rubric | null): string[] {
-  if (!r?.questions.length) return ['Rubrikte hiç soru yok.'];
-  return r.questions.filter((q) => !q.criteria.length).map((q) => `${q.q}. soruda ölçüt yok.`);
+  if (!r?.questions.length) return ['Cevap anahtarında hiç soru bulunamadı.'];
+  return r.questions.filter((q) => !q.criteria.length).map((q) => `${q.q}. sorunun cevabı anahtarda okunamadı.`);
 }
 
 // Spread criterion weights over the question's maximum in half points; the

@@ -21,6 +21,9 @@ export const StudentReadSchema = z.object({
 // No .optional() anywhere: OpenAI's strict JSON schema needs every property,
 // so "not applicable" is always an explicit null.
 
+// a photographed class list: the students' names, in the order of the list
+export const RosterReadSchema = z.object({ names: z.array(z.string()) });
+
 export const KlasikReadSchema = z.object({
   isBackSide: z.boolean(),
   studentName: z.string().nullable(),

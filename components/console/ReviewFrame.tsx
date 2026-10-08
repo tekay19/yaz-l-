@@ -9,11 +9,11 @@ import { RosterEditor } from './ui';
 // them, and the approve button. The roster is there, folded away.
 export function ReviewFrame({
   summary, flagged, total, showAll, onShowAll, approveLabel = 'Onaylayın, raporu gönderin', onApprove, approveDisabled, hint,
-  roster, onRoster, onSaveRoster, children, after,
+  roster, onRoster, onSaveRoster, rosterExtra, children, after,
 }: {
   summary: React.ReactNode; flagged: number; total: number; showAll: boolean; onShowAll: (all: boolean) => void;
   approveLabel?: string; onApprove: () => void; approveDisabled?: boolean; hint?: React.ReactNode;
-  roster: string; onRoster: (v: string) => void; onSaveRoster: () => void;
+  roster: string; onRoster: (v: string) => void; onSaveRoster: () => void; rosterExtra?: React.ReactNode;
   children: React.ReactNode; after?: React.ReactNode;
 }) {
   return (
@@ -37,6 +37,7 @@ export function ReviewFrame({
         <summary>Sınıf listesi <span className="review-n">{roster.split('\n').filter((l) => l.trim()).length} öğrenci</span></summary>
         <p className="tiny muted">İsimler bu listeyle eşleştirilir. Listeyi düzeltirseniz kâğıtlar yeniden eşleştirilir.</p>
         <RosterEditor value={roster} onChange={onRoster} onSave={onSaveRoster} saveLabel="Listeyi kaydedin ve yeniden eşleştirin" />
+        {rosterExtra}
       </details>
 
       <div className="review-list">{children}</div>

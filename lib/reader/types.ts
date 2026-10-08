@@ -1,11 +1,11 @@
 import type { z } from 'zod';
 import type { KeyRead, KlasikAnswer, KlasikRead, RubricQuestion, StudentRead } from '@/lib/types';
 import {
-  GradeOutputSchema, KeyReadSchema, KlasikReadSchema, RubricDraftSchema, StudentReadSchema,
+  GradeOutputSchema, KeyReadSchema, KlasikReadSchema, RosterReadSchema, RubricDraftSchema, StudentReadSchema,
   type GradeOutput, type RubricDraft,
 } from './schemas';
 import { KEY_SYSTEM, KEY_USER, STUDENT_SYSTEM, studentUser } from './prompts';
-import { GRADE_SYSTEM, KLASIK_READ_SYSTEM, KLASIK_READ_USER, RUBRIC_SYSTEM, gradeUser, rubricUser, teacherNote } from './klasik-prompts';
+import { GRADE_SYSTEM, KLASIK_READ_SYSTEM, KLASIK_READ_USER, KLASIK_KEY_USER, ROSTER_SYSTEM, ROSTER_USER, RUBRIC_SYSTEM, gradeUser, rubricUser, teacherNote } from './klasik-prompts';
 import { effortFor, type CallKind, type Effort } from './config';
 
 export type { Effort } from './config';
@@ -16,6 +16,10 @@ export type Reader = {
   // klasik: copy a page down, draft a rubric from the key, judge answers;
   // `note` is the teacher's own note on the exam, if any
   readKlasik(image: Buffer, note?: string): Promise<{ read: KlasikRead; usage: Usage }>;
+  // the teacher's key: also keeps each printed question and its points
+  readKlasikKey?(image: Buffer, note?: string): Promise<{ read: KlasikRead; usage: Usage }>;
+  // a photographed class list: the students' names
+  readRoster?(image: Buffer): Promise<{ read: { names: string[] }; usage: Usage }>;
   draftRubric(input: { keyText: string; maxPoints: number[]; note?: string }): Promise<{ read: RubricDraft; usage: Usage }>;
   gradeKlasik(input: { questions: RubricQuestion[]; answers: KlasikAnswer[]; images: Buffer[]; note?: string }): Promise<{ read: GradeOutput; usage: Usage }>;
 };
@@ -42,6 +46,9 @@ export function buildReader(ask: Ask, opts: { effort?: Effort } = {}): Reader {
       ask(STUDENT_SYSTEM, [{ image }, { text: studentUser(questionCount) }], StudentReadSchema, 'student_sheet', effort('optik')),
     readKlasik: (image, note) =>
       ask(KLASIK_READ_SYSTEM, [{ image }, { text: KLASIK_READ_USER + teacherNote(note) }], KlasikReadSchema, 'klasik_page', effort('klasik-read')),
+    readRoster: (image) => ask(ROSTER_SYSTEM, [{ image }, { text: ROSTER_USER }], RosterReadSchema, 'class_list', effort('optik')),
+    readKlasikKey: (image, note) =>
+      ask(KLASIK_READ_SYSTEM, [{ image }, { text: KLASIK_KEY_USER + teacherNote(note) }], KlasikReadSchema, 'klasik_key', effort('klasik-read')),
     draftRubric: ({ keyText, maxPoints, note }) =>
       ask(RUBRIC_SYSTEM, [{ text: rubricUser(keyText, maxPoints) + teacherNote(note) }], RubricDraftSchema, 'klasik_rubric', effort('klasik-grade')),
     gradeKlasik: ({ questions, answers, images, note }) =>

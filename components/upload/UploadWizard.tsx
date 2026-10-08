@@ -114,6 +114,9 @@ export default function UploadWizard() {
   function go(next: Step) {
     setError(null);
     setStep(next);
+    // the balance may have changed since this page opened (a grant, a payment
+    // in another tab): the last step must not offer packages on a stale number
+    if (next === 4) void loadMe();
     if (draft) router.replace(`/yukle?sinav=${draft.id}&adim=${next}`, { scroll: false });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -182,6 +185,15 @@ export default function UploadWizard() {
     setError(r.error);
   }
 
+  // the class list given at the last step, typed or read from a photo
+  async function saveRosterText(text: string) {
+    if (!draft) return;
+    const r = await api.setRoster(draft.id, text);
+    if (!r.ok) { setError(r.error); return; }
+    setRoster(text);
+    setDraft({ ...draft, roster: parseRoster(text) });
+  }
+
   async function buy(name: PackName) {
     if (!draft) return;
     choosePlan(name);
@@ -221,7 +233,7 @@ export default function UploadWizard() {
       <div className="wizard-sent">
         <p>
           {sent} sayfa hakkı ayrıldı. Kâğıtlar şimdi okunuyor.
-          {klasik ? ' Önce cevap anahtarınızdan puanlama ölçütleri hazırlanır ve onayınıza sunulur.' : ' Bitince size e-posta gelir.'}
+          {klasik ? ' Puanlama cevap anahtarınızdan hazırlanır; bitince kontrolünüz için size e-posta gelir.' : ' Bitince size e-posta gelir.'}
           {' '}Okunamayan sayfaların hakkı iade edilir.
         </p>
         <Link href={`/hesap/sinav/${draft.id}`} className="btn btn-primary">Sınavı takip edin</Link>
@@ -229,7 +241,7 @@ export default function UploadWizard() {
     );
   } else if (step === 1) {
     body = (
-      <ExamStep showMode={me.klasik} mode={mode} setMode={setMode} created={Boolean(draft)} title={title} setTitle={setTitle}
+      <ExamStep api={api} showMode={me.klasik} mode={mode} setMode={setMode} created={Boolean(draft)} title={title} setTitle={setTitle}
         classes={classes} roster={roster} setRoster={setRoster} saveAs={saveAs} setSaveAs={setSaveAs} />
     );
   } else if (step === 2) {
@@ -241,7 +253,7 @@ export default function UploadWizard() {
     body = <StudentsStep uploading={uploading} onPick={(f) => photos.add(f, 'student')} grid={grid('student')} names={names} need={need} />;
   } else {
     body = (
-      <ReviewStep title={draft?.title ?? ''} klasik={klasik} keyCount={keyPages.length} need={need} balance={balance} names={names}
+      <ReviewStep api={api} onSaveRoster={saveRosterText} title={draft?.title ?? ''} klasik={klasik} keyCount={keyPages.length} need={need} balance={balance} names={names}
         noRoster={noRoster} setNoRoster={setNoRoster} note={note} setNote={setNote} consent={consent} setConsent={setConsent}
         onAddPages={() => go(3)} onBuy={buy} />
     );
