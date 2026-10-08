@@ -15,7 +15,7 @@ import { amendRubric } from '@/lib/klasik/rubric';
 import { jobs, pages, users } from '@/db/schema';
 import type { Reader } from '@/lib/reader/types';
 import type { GradeOutput, RubricDraft } from '@/lib/reader/schemas';
-import type { KlasikAnswer, KlasikRead, RubricQuestion } from '@/lib/types';
+import type { KlasikAnswer, KlasikRead, QuestionGrade, RubricQuestion } from '@/lib/types';
 
 const ln = (...t: string[]) => t.map((text) => ({ text, crossed: false }));
 const PAGES: Record<string, KlasikRead> = {
@@ -281,6 +281,22 @@ describe('klasik worker', () => {
     expect(mailer.sent[0].subject).toBe('10-A Karma: sınav iptal edildi');
     expect((await db.select().from(users).where(eq(users.id, u.id)))[0].pageBalance).toBe(2);
     expect(storage.files.size).toBe(0);
+  });
+
+  it('grades every answer twice when KLASIK_DOUBLE_GRADE is on, and keeps the second grade', async () => {
+    process.env.KLASIK_DOUBLE_GRADE = 'true';
+    try {
+      const { db, storage } = await submitted({ key: 'key', students: ['front1', 'back1'] });
+      const r = reader();
+      await drain(db, storage, r);
+      await draftPendingRubrics({ db, storage, reader: r });
+      expect(await gradePending({ db, storage, reader: r }, 10)).toBe(1);
+      expect(r.calls.grade).toHaveLength(2);
+      const [sheet] = (await db.select().from(pages).where(eq(pages.seq, 1))).filter((p: { kind: string }) => p.kind === 'student');
+      expect(sheet.grade!.questions.every((q: QuestionGrade) => q.second && q.second.q === q.q)).toBe(true);
+    } finally {
+      delete process.env.KLASIK_DOUBLE_GRADE;
+    }
   });
 
   it('never sends a klasik report without the teacher', async () => {

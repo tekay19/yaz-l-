@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { scoreQuestion, scoreSheet, attentionFlags } from '@/lib/klasik/score';
+import { finalNumbers, scoreQuestion, scoreSheet, attentionFlags } from '@/lib/klasik/score';
 import type { KlasikAnswer, QuestionGrade, RubricQuestion, Verdict } from '@/lib/types';
 
 // 2x + 3 = 11, işlemleriyle: setup 3 + steps 3 + result 4
@@ -251,5 +251,67 @@ describe('scoreSheet', () => {
       override: {}, grade: null,
     });
     expect(noGrade.pending).toBe(2);
+  });
+});
+
+describe('the result checked against the key by its numbers', () => {
+  it('reads the numbers of the final answer, never splitting "<=" or ">="', () => {
+    expect(finalNumbers('6 * 10^6 + 5000 * 10^6 = 5006 * 10^6\nK = 5006')).toEqual(['5006']);
+    expect(finalNumbers('|x - 32| <= 3')).toEqual(['32', '3']);
+    expect(finalNumbers('A ∩ B = [800, 1200]')).toEqual(['800', '1200']);
+    expect(finalNumbers('Uzunluk 2,5 cm => 2,5')).toEqual(['2.5']);
+    expect(finalNumbers('A∩B=[800,1200]')).toEqual(['800', '1200']);
+    expect(finalNumbers('x = 5 ya da x = -5')).toEqual(['-5']);
+    expect(finalNumbers('|x - 3| ≤ 32')).toEqual(['3', '32']);
+    expect(finalNumbers('sıfat-fiil')).toEqual([]);
+  });
+
+  it('a result called right whose numbers are not the key\'s goes to the teacher', () => {
+    const s = scoreQuestion(islem(), answer('2x = 11 - 3', '2x = 8', 'x = 5'), grade({
+      criteria: [v('c1', 'met', '2x = 11 - 3'), v('c2', 'met', '2x = 8'), v('c3', 'met', 'x = 5')], resultCorrect: true, resultPath: 'valid',
+    }));
+    expect(attentionFlags(s)).toContain('result_mismatch');
+  });
+
+  it('a result called wrong that has exactly the key\'s numbers goes to the teacher', () => {
+    const s = scoreQuestion(islem(), solved, grade({ criteria: allMet, resultCorrect: false, resultPath: 'valid' }));
+    expect(attentionFlags(s)).toContain('result_mismatch');
+  });
+
+  it('takes the key\'s result from the result criterion, and swapped numbers are not the same', () => {
+    const q = islem({ answer: 'Bahçenin kenarları 6∛10 m ve 2∛10 m olduğundan çevresi 2(2∛10 + ∛10) = 6∛10 m bulunur ve böylece' });
+    q.criteria[2] = { ...q.criteria[2], text: 'Sonuç doğru ve öğrencinin kendi geçerli adımlarından çıkıyor: 6∛10 m' };
+    const right = scoreQuestion(q, answer('Ç = 2(2∛10 + ∛10) = 6∛10 m'), grade({ criteria: allMet, resultCorrect: true, resultPath: 'valid' }));
+    expect(right.flags).not.toContain('result_mismatch');
+    const ineq = islem({ answer: '|x - 32| ≤ 3' });
+    const swapped = scoreQuestion(ineq, answer('|x - 3| ≤ 32'), grade({ criteria: [v('c3', 'not_met')], resultCorrect: false, resultPath: 'none' }));
+    expect(swapped.flags).not.toContain('result_mismatch');
+  });
+
+  it('agreement, an equivalent form and an answer without numbers stay quiet', () => {
+    expect(scoreQuestion(islem(), solved, grade({ criteria: allMet, resultCorrect: true, resultPath: 'valid' })).flags).not.toContain('result_mismatch');
+    // 4 among other numbers still covers the key
+    const longer = scoreQuestion(islem(), answer('2x = 8', 'x = 8 / 2 = 4'), grade({ criteria: allMet, resultCorrect: true, resultPath: 'valid' }));
+    expect(longer.flags).not.toContain('result_mismatch');
+    const words = scoreQuestion(islem({ answer: 'sıfat-fiil' }), answer('sıfat fiil'), grade({ criteria: [v('c3', 'met', 'sıfat fiil')], resultCorrect: false, resultPath: 'none' }));
+    expect(words.flags).not.toContain('result_mismatch');
+  });
+});
+
+describe('graded twice', () => {
+  it('two clearly different points go to the teacher with the second one shown', () => {
+    const second = grade({ criteria: [v('c1', 'met', '2x = 11 - 3'), v('c2', 'not_met'), v('c3', 'not_met')], resultCorrect: true, resultPath: 'valid' });
+    const s = scoreQuestion(islem(), solved, grade({ criteria: allMet, resultCorrect: true, resultPath: 'valid', second }));
+    expect(s.points).toBe(10);
+    expect(s.altPoints).toBe(3);
+    expect(attentionFlags(s)).toContain('unstable_grade');
+  });
+
+  it('the same points, or a small difference, stay quiet', () => {
+    const same = scoreQuestion(islem(), solved, grade({ criteria: allMet, resultCorrect: true, resultPath: 'valid', second: grade({ criteria: allMet, resultCorrect: true, resultPath: 'valid' }) }));
+    expect(same.flags).not.toContain('unstable_grade');
+    expect(same.altPoints).toBeUndefined();
+    const half = grade({ criteria: [v('c1', 'met', '2x = 11 - 3'), v('c2', 'partial', '2x = 8'), v('c3', 'met', 'x = 4')], resultCorrect: true, resultPath: 'valid' });
+    expect(scoreQuestion(islem(), solved, grade({ criteria: allMet, resultCorrect: true, resultPath: 'valid', second: half })).flags).not.toContain('unstable_grade');
   });
 });

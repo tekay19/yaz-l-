@@ -289,6 +289,9 @@ function QuestionBlock({ id, api, jobId, pageId, question: q, onChanged }: {
       <div className="review-q-sec">
         <p className="review-q-label">Yapay zekânın değerlendirmesi</p>
         {q.note ? <p className="small">{q.note}</p> : <p className="small muted">Açıklama yok.</p>}
+        {q.altPoints !== undefined && (
+          <p className="small review-q-alt">İkinci değerlendirme bu cevaba {pts(q.altPoints)} / {q.max} puan verdi; ikisi uyuşmuyor, karar sizin.</p>
+        )}
         {q.firstError && <p className="tiny muted">İlk hatalı adım: {q.firstError}</p>}
         {info.length > 0 && <p className="tiny muted">{info.map((n) => n.text).join('; ')}</p>}
         {q.criteria.some((c) => c.verdict) && (

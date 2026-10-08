@@ -80,6 +80,8 @@ export type QuestionGrade = {
   note: string;
   failed: boolean; // grading gave up; the teacher enters the points
   textOnly: boolean; // a figure question graded without its photo
+  // KLASIK_DOUBLE_GRADE: the same answer graded a second time, to compare
+  second?: QuestionGrade | null;
 };
 export type KlasikGrade = { questions: QuestionGrade[] };
 

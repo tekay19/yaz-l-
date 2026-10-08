@@ -553,6 +553,7 @@
 .review-q-label { margin: 0 0 4px; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-faint); }
 .review-q-actions { padding-top: 10px; border-top: 1px solid var(--line-soft); }
 .klasik-crit-quote { display: block; margin-top: 3px; font-size: 12.5px; color: var(--ink-faint); }
+.review-q-alt { margin-top: 6px; padding: 6px 10px; border-radius: var(--r-ctl); background: var(--amber-bg); color: var(--amber); }
 .klasik-verdict { font-weight: 600; }
 .klasik-verdict.met { color: var(--green); }
 .klasik-verdict.partial { color: var(--amber); }

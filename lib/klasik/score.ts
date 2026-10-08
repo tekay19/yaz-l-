@@ -15,7 +15,8 @@ import { answerText } from './sheets';
 export type ScoreFlag =
   | KlasikFlag
   | 'evidence_unverified' | 'figure' | 'text_only' | 'low_confidence'
-  | 'missing' | 'grading_failed' | 'pending';
+  | 'missing' | 'grading_failed' | 'pending'
+  | 'result_mismatch' | 'unstable_grade';
 
 export const FLAG_TEXT: Record<ScoreFlag, string> = {
   alternative_path: 'Anahtardan farklı bir yöntem',
@@ -36,6 +37,8 @@ export const FLAG_TEXT: Record<ScoreFlag, string> = {
   missing: 'Kâğıtta bulunamadı',
   grading_failed: 'Puanlanamadı, puanı elle girin',
   pending: 'Puanlanıyor',
+  result_mismatch: 'Sonuç anahtarla çelişiyor, kontrol edin',
+  unstable_grade: 'İki değerlendirme farklı puan verdi, kontrol edin',
 };
 
 // Flags that explain the points without asking the teacher to act: each is
@@ -60,6 +63,8 @@ export type QuestionScore = {
   flags: ScoreFlag[];
   criteria: ScoredCriterion[];
   grade: QuestionGrade | null;
+  // graded twice and the two disagree: the second grade's points
+  altPoints?: number;
 };
 export type SheetScore = { total: number; max: number; percent: number; questions: QuestionScore[]; pending: number };
 
@@ -73,6 +78,26 @@ function describe(rq: RubricQuestion, grade: QuestionGrade | null): ScoredCriter
     const v = grade?.criteria.find((x) => x.id === c.id);
     return { id: c.id, text: c.text, points: c.points, role: c.role, verdict: v?.verdict ?? null, evidence: v?.evidence ?? '', earned: 0, counted: false };
   });
+}
+
+// The numbers of a final answer — its last line, after the last "=" (never
+// the "=" of "<=" or ">="), "⇒" or "→" — in order, as written: a comma is a
+// decimal one only before one to three digits ("5,006", "2,5"; "[800,1200]"
+// is two numbers), and a minus is a sign only right before a number ("x = -5").
+export function finalNumbers(text: string): string[] {
+  const line = text.replace(/−/g, '-').split('\n').map((l) => l.trim()).filter(Boolean).pop() ?? '';
+  const tail = line.split(/(?<![<>≤≥!])=(?!>)|⇒|=>|→|->/).pop() ?? '';
+  return (tail.match(/(?:(?<=^|[\s=(\[;:])-)?\d+(?:[.,]\d{1,3}(?!\d))?/g) ?? [])
+    .map((n) => n.replace(',', '.').replace(/^(-?)0+(?=\d)/, '$1'));
+}
+
+// The key's final answer: the value its result criterion names ("Sonuç doğru
+// …: K = 5006"), else the key's answer when it ends in an expression; a key
+// written as prose gives none, and the question is not checked.
+function keyFinal(rq: RubricQuestion): string {
+  const named = rq.criteria.find((c) => c.role === 'result')?.text.match(/sonuç[^:]*:\s*(.+)$/i)?.[1];
+  if (named) return named;
+  return /[=≤≥<>]/.test(rq.answer) || rq.answer.length <= 40 ? rq.answer : '';
 }
 
 export function scoreQuestion(
@@ -98,6 +123,21 @@ export function scoreQuestion(
   if (g.confidence === 'low') flags.add('low_confidence');
 
   const hasResult = rq.type !== 'yorum';
+  // the result against the key, by its numbers: a result the model calls right
+  // whose numbers are not the key's, or one it calls wrong that has exactly
+  // the key's numbers, is a contradiction the teacher should see
+  if (hasResult && g.resultCorrect !== null) {
+    const key = finalNumbers(keyFinal(rq));
+    const mine = finalNumbers(text);
+    if (key.length && mine.length) {
+      // "right" needs every key number somewhere in the result (an equal form
+      // may add some); "wrong" is contradicted only by the very same numbers
+      // in the same order (|x - 3| ≤ 32 is not |x - 32| ≤ 3)
+      const covered = key.every((n) => mine.includes(n));
+      const same = key.length === mine.length && key.every((n, i) => n === mine[i]);
+      if (g.resultCorrect ? !covered : same) flags.add('result_mismatch');
+    }
+  }
   const path = g.resultPath;
   const correct = g.resultCorrect === true;
   // bare: only the result is written. Written steps that do not lead to the
@@ -156,7 +196,13 @@ export function scoreQuestion(
     // "correct" without a met result criterion: the model contradicts itself
     else if (!flags.has('evidence_unverified')) flags.add('low_confidence');
   }
-  return { ...base, points: clamp(halfPoints(points), 0, max), status: 'graded', flags: [...flags], criteria };
+  const scored: QuestionScore = { ...base, points: clamp(halfPoints(points), 0, max), status: 'graded', flags: [...flags], criteria };
+  // graded twice: two clearly different points mean an unsure judgment
+  if (g.second && !g.second.failed && g.second.rev === g.rev) {
+    const alt = scoreQuestion(rq, answer, { ...g.second, second: null }).points;
+    if (Math.abs(alt - scored.points) >= Math.max(2, 0.15 * max)) return { ...scored, flags: [...scored.flags, 'unstable_grade'], altPoints: alt };
+  }
+  return scored;
 }
 
 export function scoreSheet(

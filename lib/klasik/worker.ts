@@ -24,6 +24,9 @@ export const RUBRIC_MAX_ATTEMPTS = 3;
 export const RUBRIC_RETRY_MS = LEASE_MS;
 export const GRADE_MAX_ATTEMPTS = 3;
 export const RUBRIC_EXPIRE_DAYS = 7;
+// KLASIK_DOUBLE_GRADE=true: every answer is graded twice; clearly different
+// points send it to the teacher (lib/klasik/score.ts)
+const doubleGrade = () => process.env.KLASIK_DOUBLE_GRADE === 'true';
 
 type Deps = { db: Db; storage: Storage; reader: Reader };
 // Proof that an attempt still holds a sheet. The attempt counter alone is not
@@ -210,13 +213,22 @@ async function gradeSheet({ db, storage, reader }: Deps, job: Job, sheet: Sheet,
     if (todo.length) {
       const answers = todo.map((rq) => sheet.read.answers.find((a) => a.q === rq.q)!);
       const images = answers.some((a) => a.hasFigure) ? await loadPhotos(storage, sheet.filePaths) : [];
-      const out = await gradeInChunks(reader, { questions: todo, answers, images, note: job.teacherNote });
+      const input = { questions: todo, answers, images, note: job.teacherNote };
+      // the second grading is a check: when it fails, the first stands alone
+      const [out, again] = await Promise.all([
+        gradeInChunks(reader, input),
+        doubleGrade() ? gradeInChunks(reader, input).catch(() => null) : Promise.resolve(null),
+      ]);
       fresh = todo.map((rq, i) => {
         const o = out.read.questions.find((x) => x.q === rq.q);
         if (!o) throw new Error(`grade_missing_q${rq.q}`); // retried: a partial answer is not a grade
-        return toGrade(rq, o, answers[i].hasFigure && !images.length);
+        const textOnly = answers[i].hasFigure && !images.length;
+        const o2 = again?.read.questions.find((x) => x.q === rq.q);
+        return { ...toGrade(rq, o, textOnly), ...(o2 ? { second: toGrade(rq, o2, textOnly) } : {}) };
       });
-      usage = out.usage;
+      usage = again
+        ? { inputTokens: out.usage.inputTokens + again.usage.inputTokens, outputTokens: out.usage.outputTokens + again.usage.outputTokens }
+        : out.usage;
     }
     await settle(db, job, sheet, hold, fresh, usage);
   } catch (e) {
