@@ -30,6 +30,17 @@ describe('claude reader', () => {
     expect(sent.output_config.format).toBeDefined();
   });
 
+  it('asks for a fallback model only where the model supports one', async () => {
+    const answer = { questionCount: 1, answers: [{ q: 1, option: 'A' }] };
+    const opus = fakeClient([reply(answer)]);
+    await createClaudeReader(opus, { model: 'claude-opus-5-5' }).readKey(Buffer.from('jpg'));
+    expect(opus.calls[0]).toMatchObject({ fallbacks: 'default', betas: ['server-side-fallback-2026-07-01'] });
+    const haiku = fakeClient([reply(answer)]);
+    await createClaudeReader(haiku, { model: 'claude-haiku-5-5' }).readKey(Buffer.from('jpg'));
+    expect(haiku.calls[0].fallbacks).toBeUndefined();
+    expect(haiku.calls[0].betas).toBeUndefined();
+  });
+
   it('throws ReadRefused on a refusal', async () => {
     const client = fakeClient([{ stop_reason: 'refusal', content: [], usage: { input_tokens: 0, output_tokens: 0 } }]);
     await expect(createClaudeReader(client).readKey(Buffer.from('jpg'))).rejects.toBeInstanceOf(ReadRefused);

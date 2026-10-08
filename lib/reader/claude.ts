@@ -8,6 +8,10 @@ export type MessagesClient = { beta: { messages: { create(params: any): Promise<
 
 export const graderModel = () => process.env.GRADER_MODEL || 'claude-opus-5';
 
+// Models that can retry a policy decline on a fallback model inside the same
+// call; others (Claude Haiku 5.5) reject the parameter, so it is not sent.
+const fallbackCapable = (model: string) => /^claude-(fable-5-1|opus-5-5|opus-5|sonnet-5-5)$/.test(model);
+
 const transport = (client: MessagesClient, model: string): Ask => async (system, parts, schema, _name, effort) => {
   const res = await client.beta.messages.create({
     model,
@@ -15,8 +19,7 @@ const transport = (client: MessagesClient, model: string): Ask => async (system,
     thinking: { type: 'adaptive' },
     output_config: { effort, format: betaZodOutputFormat(schema) },
     // on a policy decline the API retries on a fallback model in the same call
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
+    ...(fallbackCapable(model) ? { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' } : {}),
     system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
     messages: [{
       role: 'user',
