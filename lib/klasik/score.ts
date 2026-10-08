@@ -100,10 +100,16 @@ export function scoreQuestion(
   const hasResult = rq.type !== 'yorum';
   const path = g.resultPath;
   const correct = g.resultCorrect === true;
-  const bare = path === 'none' || path === 'unsupported';
+  // bare: only the result is written. Written steps that do not lead to the
+  // result ("unsupported") never stand in for it, whether or not the work was
+  // asked for: the paper shows a reason that is not one.
+  const bare = path === 'none';
   const resultAllowed = correct && (path === 'valid' || (!rq.policy.workRequired && bare));
   if (hasResult && correct && path === 'invalid') flags.add('invalid_path');
-  if (hasResult && correct && bare && rq.policy.workRequired) flags.add('unsupported_result');
+  if (hasResult && correct && (path === 'unsupported' || (bare && rq.policy.workRequired))) flags.add('unsupported_result');
+  // where no work was asked for, that reason now costs the result: the teacher
+  // sees it, since a step the reading missed looks the same
+  if (hasResult && correct && path === 'unsupported' && !rq.policy.workRequired) flags.add('wrong_justification');
 
   // resultCorrect is one answer for the whole question; with several result
   // criteria (a kisa question in parts) it only contradicts a sheet where

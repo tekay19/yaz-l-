@@ -85,6 +85,16 @@ describe('scoreQuestion — the agreed case table', () => {
     expect(s.flags).not.toContain('unsupported_result');
   });
 
+  it('where only the result was asked for, a reason that does not lead to it still costs the result', () => {
+    const q = islem({ policy: { workRequired: false, carryForward: true, wrongInfoPenalty: false } });
+    const s = scoreQuestion(q, answer('2000 - 800 = 1200 olduğundan', 'x = 4'), grade({
+      criteria: [v('c3', 'met', 'x = 4')], resultCorrect: true, resultPath: 'unsupported',
+    }));
+    expect(s.points).toBe(0);
+    expect(s.flags).toContain('unsupported_result');
+    expect(attentionFlags(s)).toContain('wrong_justification'); // the teacher checks it
+  });
+
   it('a bare result is not given full marks unless the paper shows it', () => {
     const q = islem({ policy: { workRequired: false, carryForward: true, wrongInfoPenalty: false } });
     // the model says the result is right but did not meet the result criterion
