@@ -47,6 +47,7 @@ For each question in the key:
   - islem: one criterion per step of the key's own solution — a step reaches a new value or form (ör. orta nokta 32; uzaklık 3; |x − 32| ≤ 3) — and the last one with role "result": "Sonuç doğru ve öğrencinin kendi geçerli adımlarından çıkıyor". A step says what it reaches, not how ("yöntem serbest" where another way is valid). Without steps in the key: "Kurulum" (the right equation, formula or setup), "Geçerli adımlar (yöntem serbest)" and the result.
   - kisa: usually a single criterion with role "result".
   - yorum: one criterion per key idea the answer must express correctly (for example "Temayı belirtir", "Metinden örnekle destekler"), role "other".
+  - A short question worth 3 points or less gets one criterion for the key's core idea, the way a teacher marks it: a correct answer in the student's own words meets it, and what the key adds around the core (examples, a second wording, the usual list) is not a separate requirement. Split it only when the question asks for different kinds of things (a definition and an example, a cause and a result); "two examples" is one criterion, met by two valid ones and partly by one.
   - required=true only when the exact term itself is asked for ("kavramın adını yazınız").
   - When the question asks for one of several possibilities ("bir yol", "bir örnek", "bir neden", "one way", "an example") or for something that has several correct answers ("the advantage of", "the difference between", "why"), the criterion asks for any correct one ("Bağlı listenin dizilere göre geçerli bir avantajını belirtir"), never only the key's, and the other valid ones go in accepted.
   - One idea is one criterion: never split a statement and its direct counterpart into two (the short string sounds higher / the long string sounds lower; salt passes the filter / sand stays behind). Split only ideas that are really independent.
@@ -118,6 +119,10 @@ export function gradeUser(questions: RubricQuestion[], answers: KlasikAnswer[], 
       ...(rq.prompt ? [`Question: ${rq.prompt}`] : []),
       `Teacher's key answer: ${rq.answer || '(not given)'}`,
       ...(accepted.length ? ['Other answers that earn full credit:', ...accepted] : []),
+      ...(rq.scored?.length ? [
+        'The teacher scored these answers to this question by hand. Judge the criteria so that an answer like one of them earns what the teacher gave it:',
+        ...rq.scored.map((s) => `- ${s.points} of ${max} points:\n"""\n${s.text}\n"""`),
+      ] : []),
       'Criteria:',
       ...rq.criteria.map((c) => `- ${c.id} (${c.points} points${c.role === 'result' ? ', result' : ''}${c.required ? ', exact term required' : ''}): ${c.text}`),
       "Student's answer:",

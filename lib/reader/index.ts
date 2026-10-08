@@ -18,14 +18,18 @@ import { crossReadKlasik } from './cross';
 //                                            graded again). It also drafts the
 //                                            rubric: one call per exam whose every
 //                                            point split reaches every sheet
-// Providers: "anthropic" (default), "openai", "gemini". With only GRADER_* set
-// one model does everything, as before. A call that fails on one provider
-// (an outage, an exhausted quota) is retried once on the other one.
+// Providers: "anthropic" (default), "openai", "gemini". By default Claude Haiku
+// 5.5 reads and grades and Claude Sonnet 5.5 is the stronger model: the best of
+// the configurations measured on 2026-10-08 (eval/README.md). ESCALATE_PROVIDER=
+// none turns the stronger model off. A call that fails on one provider (an
+// outage, an exhausted quota) is retried once on the other one.
 
 type Provider = 'anthropic' | 'openai' | 'gemini';
 const DEFAULT_MODEL: Record<Provider, string> = {
-  anthropic: 'claude-opus-5', openai: 'gpt-5.6-terra', gemini: 'gemini-3.8-flash',
+  anthropic: 'claude-haiku-5-5', openai: 'gpt-5.6-terra', gemini: 'gemini-3.8-flash',
 };
+// what a Haiku grader escalates to when ESCALATE_* names nothing
+const DEFAULT_ESCALATE = 'claude-sonnet-5-5';
 const asProvider = (p: string | undefined): Provider | null => (p === 'openai' || p === 'gemini' || p === 'anthropic' ? p : null);
 
 type Role = { provider: Provider; model: string };
@@ -41,7 +45,10 @@ export function roles(env: Record<string, string | undefined> = process.env) {
     ? { provider: readerProvider, model: env.READER_MODEL || (readerProvider === graderProvider ? grader.model : DEFAULT_MODEL[readerProvider]) }
     : grader;
   const cross = optional(env.CROSS_READ_PROVIDER, env.CROSS_READ_MODEL);
-  const escalate = optional(env.ESCALATE_PROVIDER, env.ESCALATE_MODEL);
+  const haiku = graderProvider === 'anthropic' && /haiku/.test(grader.model);
+  const escalate = env.ESCALATE_PROVIDER === 'none' ? null
+    : optional(env.ESCALATE_PROVIDER, env.ESCALATE_MODEL)
+      ?? (haiku ? { provider: 'anthropic' as const, model: env.ESCALATE_MODEL || DEFAULT_ESCALATE } : null);
   return { reader, grader, cross, escalate };
 }
 

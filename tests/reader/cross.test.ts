@@ -55,11 +55,16 @@ describe('model roles', () => {
       reader: { provider: 'openai', model: 'gpt-x' }, grader: { provider: 'openai', model: 'gpt-x' }, cross: null, escalate: null,
     });
   });
-  it('adds a stronger model for second looks only when one is named', () => {
-    const r = roles({ GRADER_MODEL: 'claude-haiku-5-5', ESCALATE_PROVIDER: 'anthropic', ESCALATE_MODEL: 'claude-sonnet-5-5' });
+  it('reads and grades with Haiku and escalates to Sonnet by default, the measured best', () => {
+    const r = roles({});
     expect(r.grader).toEqual({ provider: 'anthropic', model: 'claude-haiku-5-5' });
     expect(r.escalate).toEqual({ provider: 'anthropic', model: 'claude-sonnet-5-5' });
-    expect(roles({ ESCALATE_MODEL: 'claude-sonnet-5-5' }).escalate).toBeNull(); // no provider, no second look
+    expect(roles({ ESCALATE_PROVIDER: 'none' }).escalate).toBeNull();
+    expect(roles({ ESCALATE_MODEL: 'claude-opus-5-5' }).escalate).toEqual({ provider: 'anthropic', model: 'claude-opus-5-5' });
+    // a strong grader has nothing to escalate to by default; one can still be named
+    expect(roles({ GRADER_MODEL: 'claude-opus-5-5' }).escalate).toBeNull();
+    expect(roles({ GRADER_MODEL: 'claude-opus-5-5', ESCALATE_PROVIDER: 'anthropic', ESCALATE_MODEL: 'claude-fable-5-1' }).escalate)
+      .toEqual({ provider: 'anthropic', model: 'claude-fable-5-1' });
   });
   it('splits reading, grading and the second reading', () => {
     const r = roles({ READER_PROVIDER: 'gemini', GRADER_PROVIDER: 'openai', GRADER_MODEL: 'gpt-x', CROSS_READ_PROVIDER: 'openai' });

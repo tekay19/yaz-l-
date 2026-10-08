@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { GRADING_STYLES, type AcceptedPath, type GradingStyle, type Rubric, type RubricQuestion } from '@/lib/types';
+import { GRADING_STYLES, type AcceptedPath, type GradingStyle, type Rubric, type RubricQuestion, type ScoredExample } from '@/lib/types';
 import type { RubricDraft } from '@/lib/reader/schemas';
 import { halfPoints } from './score';
 
@@ -7,6 +7,7 @@ export const DEFAULT_MAX = 10;
 export const MAX_QUESTIONS = 50;
 export const MAX_CRITERIA = 8;
 export const MAX_ACCEPTED = 20;
+export const MAX_SCORED = 10;
 
 // What the rubric editor may send. The limits keep a hostile body from
 // storing megabytes in a JSONB column.
@@ -127,5 +128,14 @@ export function amendRubric(r: Rubric, q: number, path: AcceptedPath): Rubric {
     questions: r.questions.map((x) => (x.q !== q ? x : {
       ...x, rev: x.rev + 1, accepted: [...x.accepted, path].slice(-MAX_ACCEPTED),
     })),
+  };
+}
+
+// "Grade the others like this": the answers the teacher scored by hand become
+// the question's examples (full, partial or no credit), and its new revision
+// sends it back for grading on every sheet they have not scored.
+export function scoreLike(r: Rubric, q: number, scored: ScoredExample[]): Rubric {
+  return {
+    questions: r.questions.map((x) => (x.q !== q ? x : { ...x, rev: x.rev + 1, scored: scored.slice(-MAX_SCORED) })),
   };
 }

@@ -8,8 +8,8 @@ import { addSheet, checkKey, checkStudent, emptyTotals, summarize, type Truth } 
 // <name>.json pairs.
 const dir = process.argv[2] || 'eval/data';
 const prices = {
-  inPerM: Number(process.env.PRICE_IN_PER_M || 5),    // USD per 1M input tokens
-  outPerM: Number(process.env.PRICE_OUT_PER_M || 25), // USD per 1M output tokens
+  inPerM: Number(process.env.PRICE_IN_PER_M || 0.1),  // USD per 1M input tokens (Claude Haiku 5.5, the default)
+  outPerM: Number(process.env.PRICE_OUT_PER_M || 0.5), // USD per 1M output tokens
 };
 
 // No top-level await: without "type": "module" tsx runs this file as CommonJS.

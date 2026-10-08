@@ -10,10 +10,11 @@ export const clientOptions = () => ({ timeout: readerTimeoutMs(), maxRetries: 0 
 
 // GRADER_EFFORT sets every call; the klasik steps can be tuned on their own:
 // copying handwriting down and judging it against a rubric differ in how much
-// reasoning pays off.
+// reasoning pays off. Unset, grading thinks hard and the rest at medium: more
+// effort in the reading "corrected" the students' own mistakes (2026-10).
 export type CallKind = 'optik' | 'klasik-read' | 'klasik-grade';
 export function effortFor(kind: CallKind): Effort {
   const specific = kind === 'klasik-read' ? process.env.KLASIK_READ_EFFORT
     : kind === 'klasik-grade' ? process.env.KLASIK_GRADE_EFFORT : undefined;
-  return (specific || process.env.GRADER_EFFORT || 'medium') as Effort;
+  return (specific || process.env.GRADER_EFFORT || (kind === 'klasik-grade' ? 'high' : 'medium')) as Effort;
 }

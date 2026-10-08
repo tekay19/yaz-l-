@@ -99,5 +99,13 @@ describe('gradeUser', () => {
     expect(text).toContain('2. x = 4');
     expect(text).not.toContain('photo of the sheet');
     expect(gradeUser([rq], [], true)).toContain('(no answer)');
+    expect(text).not.toContain('scored these answers');
+  });
+
+  it('shows the answers the teacher scored by hand as the standard to follow', () => {
+    const text = gradeUser([{ ...rq, scored: [{ text: 'x = 4 buldum', points: 2 }, { text: 'bilmiyorum', points: 0 }] }], [answer], false);
+    expect(text).toContain('The teacher scored these answers to this question by hand');
+    expect(text).toContain('- 2 of 5 points:\n"""\nx = 4 buldum');
+    expect(text).toContain('- 0 of 5 points:\n"""\nbilmiyorum');
   });
 });

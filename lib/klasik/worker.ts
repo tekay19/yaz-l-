@@ -25,9 +25,9 @@ export const RUBRIC_MAX_ATTEMPTS = 3;
 export const RUBRIC_RETRY_MS = LEASE_MS;
 export const GRADE_MAX_ATTEMPTS = 3;
 export const RUBRIC_EXPIRE_DAYS = 7;
-// KLASIK_DOUBLE_GRADE=true: every answer is graded twice; clearly different
-// points send it to the teacher (lib/klasik/score.ts)
-const doubleGrade = () => process.env.KLASIK_DOUBLE_GRADE === 'true';
+// Every answer is graded twice and clearly different points send it to the
+// teacher (lib/klasik/score.ts); KLASIK_DOUBLE_GRADE=false grades once.
+const doubleGrade = () => process.env.KLASIK_DOUBLE_GRADE !== 'false';
 // ESCALATE_GRADING=true: the stronger model (ESCALATE_*) also grades again
 // what this grading is unsure of. Off by default: measured on 50 math and 50
 // Turkish sheets (2026-10-08) it asked the teacher 3-5 points less often but

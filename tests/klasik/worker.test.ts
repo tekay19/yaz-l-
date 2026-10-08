@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { and, eq } from 'drizzle-orm';
 import { testDb, makeUser } from '../helpers/db';
 import { memoryStorage } from '../helpers/storage';
@@ -93,6 +93,10 @@ const approve = (db: any, id: string) =>
   db.update(jobs).set({ rubricApprovedAt: new Date(), rubricRev: 1, status: 'processing' }).where(eq(jobs.id, id));
 
 describe('klasik worker', () => {
+  // the call counts below are for one grading per answer; double grading has its own test
+  beforeEach(() => { process.env.KLASIK_DOUBLE_GRADE = 'false'; });
+  afterEach(() => { delete process.env.KLASIK_DOUBLE_GRADE; });
+
   it('reads every page at once, drafts the rubric from the key and starts grading without asking', async () => {
     const { db, storage, id } = await submitted({ key: 'key', students: ['front1', 'back1'] });
     const r = reader();
@@ -283,8 +287,8 @@ describe('klasik worker', () => {
     expect(storage.files.size).toBe(0);
   });
 
-  it('grades every answer twice when KLASIK_DOUBLE_GRADE is on, and keeps the second grade', async () => {
-    process.env.KLASIK_DOUBLE_GRADE = 'true';
+  it('grades every answer twice by default, and keeps the second grade', async () => {
+    delete process.env.KLASIK_DOUBLE_GRADE;
     try {
       const { db, storage } = await submitted({ key: 'key', students: ['front1', 'back1'] });
       const r = reader();

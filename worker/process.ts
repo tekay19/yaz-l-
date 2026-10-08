@@ -21,9 +21,14 @@ async function keyQuestionCount(db: Db, jobId: string): Promise<number> {
 // sheet of their own instead of joining the student's.
 // "Ad: Elif Yıldız" is a label and a name: kept, the label would give one
 // student two names, and two sheets. A label only, with no name after it, stays.
+// A number alone ("Öğrenci 17", a school number in the name field) names no
+// one: names are matched by their letters, so it would group nothing, while
+// counting as a name it kept every page a front of its own. Without it the
+// page joins its student by its questions, as an unnamed one does.
 const NAME_LABEL = /^\s*(?:ad[ıiIİ]?\s+soyad[ıiIİ]?|ad[ıiIİ]?|[iİ]s[iİ]m|öğrenc[iİ])\s*[:\-–.]?\s+(?=\S)/i;
 export function cleanName(read: KlasikRead): KlasikRead {
   if (read.studentName) read.studentName = read.studentName.replace(NAME_LABEL, '');
+  if (read.studentName && !/\p{L}/u.test(read.studentName)) read.studentName = null;
   return read;
 }
 

@@ -37,6 +37,9 @@ export type KlasikRead = {
 export type QuestionType = 'islem' | 'kisa' | 'yorum';
 export type Criterion = { id: string; text: string; points: number; role: 'result' | 'other'; required: boolean };
 export type AcceptedPath = { text: string; example: string | null; by: 'ai' | 'teacher' };
+// An answer the teacher scored by hand, kept as an example of their standard
+// for the rest of the class ("grade the others like this").
+export type ScoredExample = { text: string; points: number };
 // How generously answers are judged, set by the teacher for the exam:
 // strict — only a precise, complete idea is met; balanced — the default;
 // lenient — a relevant answer that shows some correct understanding gets
@@ -55,6 +58,7 @@ export type RubricQuestion = {
   criteria: Criterion[]; // the question is worth the sum of its criteria
   accepted: AcceptedPath[];
   policy: QuestionPolicy;
+  scored?: ScoredExample[];
 };
 export type Rubric = { questions: RubricQuestion[] };
 
@@ -80,7 +84,7 @@ export type QuestionGrade = {
   note: string;
   failed: boolean; // grading gave up; the teacher enters the points
   textOnly: boolean; // a figure question graded without its photo
-  // KLASIK_DOUBLE_GRADE: the same answer graded a second time, to compare
+  // the same answer graded a second time, to compare (off with KLASIK_DOUBLE_GRADE=false)
   second?: QuestionGrade | null;
   // ESCALATE_*: a stronger model's grade of an answer this grading was unsure
   // of; its verdicts decide the points (lib/klasik/score.ts)

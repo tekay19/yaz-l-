@@ -13,8 +13,8 @@ import { asAnswer, klasikCriteria, klasikSummary, type KlasikResult, type Klasik
 //   npx tsx --tsconfig tsconfig.json scripts/eval-klasik.ts [eval/klasik/cases.json]
 
 const prices = {
-  inPerM: Number(process.env.PRICE_IN_PER_M || 5), // USD per 1M input tokens (Claude Opus 5)
-  outPerM: Number(process.env.PRICE_OUT_PER_M || 25),
+  inPerM: Number(process.env.PRICE_IN_PER_M || 0.1), // USD per 1M input tokens (Claude Haiku 5.5, the default grader)
+  outPerM: Number(process.env.PRICE_OUT_PER_M || 0.5),
 };
 
 // No top-level await: without "type": "module" tsx runs this file as CommonJS.

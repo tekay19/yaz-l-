@@ -29,7 +29,7 @@ Cevap anahtarı:
 ANTHROPIC_API_KEY=... npx tsx --tsconfig tsconfig.json scripts/eval-reader.ts eval/data
 ```
 
-Fiyat varsayılanları Claude Opus 5'e göredir (girdi $5, çıktı $25 / 1M token). Başka bir model ölçülüyorsa `PRICE_IN_PER_M` ve `PRICE_OUT_PER_M` ile verilir. Model `GRADER_MODEL`, efor `GRADER_EFFORT` ile seçilir.
+Fiyat varsayılanları varsayılan modele, Claude Haiku 5.5'e göredir (girdi $0,10, çıktı $0,50 / 1M token). Haiku'nun emin olmadığı sayfaları yeniden okuyan ve anahtarı hazırlayan Claude Sonnet 5.5'in payı ($2 / $10) bu tek fiyatta ayrıca hesaplanmaz; gerçek maliyet biraz daha yüksektir. Başka bir model ölçülüyorsa `PRICE_IN_PER_M` ve `PRICE_OUT_PER_M` ile verilir. Model `GRADER_MODEL`, efor `GRADER_EFFORT` ile seçilir.
 
 ## 3. Kabul ölçütleri (ürün sahibi değiştirebilir)
 
@@ -56,7 +56,7 @@ Diğer ölçütler tutmuyorsa sıra şudur: önce prompt düzeltilip tekrar öl�
 
 ## Klasik (açık uçlu) puanlama
 
-**Durum: HENÜZ ÖLÇÜLMEDİ.** `KLASIK_ENABLED=true`, bu ölçüm gerçek modelle geçmeden açılmaz.
+**Durum: ÖLÇÜLDÜ (2026-10-08), kabul ölçütleri henüz tam karşılanmıyor.** Varsayılan yapılandırma bu ölçümlerin en iyisidir: Claude Haiku 5.5 okur ve her cevabı iki kez puanlar (puanlar uyuşmazsa öğretmene sorar); Claude Sonnet 5.5 Haiku'nun emin olmadığı sayfaları yeniden okur ve puanlama anahtarını hazırlar (puanlar anahtardaki çözüm adımlarına eşit bölünür, 3 puan ve altı kısa sorularda tek, geniş ölçüt). Sonnet'in puanları yeniden değerlendirmesi (`ESCALATE_GRADING`) ölçümde doğruluğu artırmadı ve maliyeti ikiye katladı; kapalı. Öğretmen birkaç cevabı elle puanlayıp "Diğerlerini de böyle puanla" dediğinde soru, sınıfın geri kalanında onun ölçüsüne göre yeniden puanlanır. Gerçek kâğıtta en büyük kazanç bu oldu. `KLASIK_ENABLED=true`, bu ölçüm gerçek modelle geçmeden açılmaz.
 
 Klasik iki ayrı adımda ölçülür:
 
@@ -84,4 +84,9 @@ Kabul ölçütleri (ürün sahibi değiştirebilir):
 
 | Tarih | Veri seti | `GRADER_MODEL` | Efor | avgDeviationPct | silentUnderRate | silentOverRate | usdPerAnswer | Karar |
 |---|---|---|---|---|---|---|---|---|
+| 2026-10-08 | MEB 9. sınıf Matematik ortak yazılı, sentetik zor el yazısı, 50 öğrenci × 4 sayfa; okuma + anahtar + puanlama uçtan uca | Haiku 5.5; yeniden okuma ve anahtar Sonnet 5.5 | okuma `medium`, puanlama `high`, çift puanlama | %10,1 | %2,9 | %4,0 | ~$0,005 | Seçildi, varsayılan. İşaretlenen %49, uyarısız 5+ puan hata %3,7, temiz okunan cevap %63 → %72. Aynı anahtar her çalıştırmada farklı bölünüyordu (15 / 7+8 / 5+10); adımlara eşit bölme kuralıyla sabitlendi. |
+| 2026-10-08 | MEB 8. sınıf Türkçe ortak yazılı, sentetik zor, 50 × 4 | aynı | aynı | %8,1 | %0,9 | %2,6 | ~$0,005 | Seçildi. İşaretlenen %59. Sonnet'in yeniden puanlaması işaretlemeyi %59 → %54 indirdi ama ±3 içindeki oranı %87 → %83 düşürdü. |
+| 2026-10-08 | Gerçek: Mendeley "Digitized Student Examination Papers" (CC BY 4.0), İngilizce Veri Bilimi, 50 öğrenci, 750 iki puanlık kısa cevap, öğretmen puanı | aynı | aynı; `balanced` | %24,9 | %9,9 | %1,1 | — | Okuma iyi: test harfleri %97,5, yazılan cevapların %97'si bulundu. Puanlama bu öğretmenden sert (öğretmen cevapların %54'üne tam puan vermiş): öğrenci toplamı 30 üzerinden −6,0. |
+| 2026-10-08 | Aynı set, öğretmenin elle puanladığı 5 kâğıt dışındaki 45 öğrenci | aynı | `lenient`, kısa soruda tek ölçüt, 5 kâğıt "Diğerlerini de böyle puanla" | %18,4 | %5,3 | %1,5 | — | Birebir uyum %53 → %66, öğrenci toplamı −6,0 → −3,2. İşaretlenen %77, hâlâ çok yüksek. |
+| 2026-10-08 | Gerçek: CHECK-MAT (Rusya üniversite sınavı, 122 el yazısı çözüm, uzman puanı 0–4, düşük çözünürlüklü tarama) | aynı | `balanced` | %26,3 | %0,0 | %0,8 | — | Yarım puan içinde %63; neredeyse her şey işaretli (%95), yani öğretmen kontrol ediyor ama sessiz hata yok denecek kadar az. |
 

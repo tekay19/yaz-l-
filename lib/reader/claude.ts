@@ -6,7 +6,7 @@ import { OutputTruncated, ReadRefused, buildReader, type Ask, type Reader } from
 // The slice of the SDK we use, so tests can hand in a fake.
 export type MessagesClient = { beta: { messages: { create(params: any): Promise<any> } } };
 
-export const graderModel = () => process.env.GRADER_MODEL || 'claude-opus-5';
+export const graderModel = () => process.env.GRADER_MODEL || 'claude-haiku-5-5';
 
 // Models that can retry a policy decline on a fallback model inside the same
 // call; others (Claude Haiku 5.5) reject the parameter, so it is not sent.

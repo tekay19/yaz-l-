@@ -357,6 +357,13 @@ describe('cleanName', () => {
     expect(name('Ad:')).toBe('Ad:');
     expect(name(null)).toBeNull();
   });
+  it('reads a number alone as no name, so the page joins its student by its questions', () => {
+    expect(name('Öğrenci 17')).toBeNull();
+    expect(name('1101901107')).toBeNull();
+    expect(name('Elif Yıldız 9/A')).toBe('Elif Yıldız 9/A');
+    const back = markContinuation(cleanName({ isBackSide: false, studentName: '17', nameConfidence: 'high', unreadable: false, answers: [{ q: 4, lines: [{ text: 'x = 2', crossed: false }], unclear: false, hasFigure: false }] }));
+    expect(back.isBackSide).toBe(true);
+  });
 });
 
 describe('nameFixes', () => {

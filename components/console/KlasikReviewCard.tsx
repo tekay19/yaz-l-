@@ -254,6 +254,11 @@ function QuestionBlock({ id, api, jobId, pageId, question: q, onChanged }: {
     done(await api.regrade(jobId, pageId), 'Yeniden deneniyor.');
   }
 
+  async function follow() {
+    const r = await api.followTeacher(jobId, q.q);
+    done(r, r.ok ? `Bu soru ${r.data.regrading} kâğıtta sizin puanlamanıza göre yeniden değerlendiriliyor.` : '');
+  }
+
   return (
     <article id={id} className={`review-q${attention.length ? ' flagged' : ''}`}>
       <header className="review-q-head">
@@ -328,6 +333,12 @@ function QuestionBlock({ id, api, jobId, pageId, question: q, onChanged }: {
           <span className="small muted">/ {q.max}</span>
           <button type="button" className="btn btn-ghost btn-sm" onClick={() => savePoints(parsePoints(points))}>Puanı kaydet</button>
           {q.status === 'teacher' && <button type="button" className="console-link" onClick={() => savePoints(null)}>öneriye dön</button>}
+          {q.status === 'teacher' && (
+            <button type="button" className="btn btn-ghost btn-sm" onClick={follow}
+              title="Bu soruya elle verdiğiniz puanlar örnek olur; soru, elle puanlamadığınız kâğıtlarda bu örneklere göre yeniden değerlendirilir">
+              Diğerlerini de böyle puanla
+            </button>
+          )}
           {q.lines.some((l) => !l.crossed) && q.status !== 'teacher' && (
             <button type="button" className="btn btn-ghost btn-sm" onClick={accept} title="Bu çözüm yolu bütün sınıfta tam puan alır">Bu cevap da doğru</button>
           )}

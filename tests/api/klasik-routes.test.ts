@@ -21,6 +21,7 @@ import * as keyText from '@/app/api/jobs/[id]/key-text/route';
 import * as rubricRoute from '@/app/api/jobs/[id]/rubric/route';
 import * as approveRubricRoute from '@/app/api/jobs/[id]/rubric/approve/route';
 import * as acceptRoute from '@/app/api/jobs/[id]/rubric/accept/route';
+import * as scoredRoute from '@/app/api/jobs/[id]/rubric/scored/route';
 import * as pageRoute from '@/app/api/jobs/[id]/pages/[pageId]/route';
 import * as reviewRoute from '@/app/api/jobs/[id]/review/route';
 import * as approveRoute from '@/app/api/jobs/[id]/approve/route';
@@ -130,6 +131,23 @@ describe('klasik routes', () => {
     expect([early.status, (await early.json()).error]).toEqual([409, 'Yeniden puanlama sürüyor; birkaç saniye sonra tekrar deneyin.']);
     await state.db.update(pages).set({ gradedRev: 2 }).where(and(eq(pages.jobId, job.id), eq(pages.kind, 'student')));
     expect((await approveRoute.POST(req(), ctx(job.id))).status).toBe(202);
+  });
+
+  it('grades the others like the teacher: their own points become the question\'s examples', async () => {
+    const u = await signIn();
+    const job = await klasikJob(u.id, { status: 'review', rubric, rubricRev: 1, rubricApprovedAt: new Date(), roster: ['Elif', 'Mert'] });
+    const other = { ...sheet, read: { ...sheet.read, studentName: 'Mert', answers: [{ q: 1, lines: [{ text: 'x = 3', crossed: false }], unclear: false, hasFigure: false }] } };
+    const [a] = await state.db.insert(pages).values({ jobId: job.id, kind: 'student', seq: 1, status: 'read', result: sheet, gradedRev: 1 }).returning();
+    await state.db.insert(pages).values({ jobId: job.id, kind: 'student', seq: 2, status: 'read', result: other, gradedRev: 1 });
+    // nothing scored by hand yet: nothing to follow
+    expect((await scoredRoute.POST(req({ q: 1 }), ctx(job.id))).status).toBe(400);
+    expect((await pageRoute.PATCH(req({ points: [{ q: 1, points: 6 }] }, 'PATCH'), ctx(job.id, a.id))).status).toBe(200);
+    const res = await scoredRoute.POST(req({ q: 1 }), ctx(job.id));
+    expect([res.status, await res.json()]).toEqual([202, { examples: 1, regrading: 1 }]);
+    const [after] = await state.db.select().from(jobs).where(eq(jobs.id, job.id));
+    expect(after.rubricRev).toBe(2);
+    expect(after.rubric.questions[0]).toMatchObject({ rev: 2, scored: [{ text: 'x = (11 - 3) / 2 = 4', points: 6 }] });
+    expect((await scoredRoute.POST(req({ q: 'bir' }), ctx(job.id))).status).toBe(400);
   });
 
   it('shows the klasik review screen', async () => {
