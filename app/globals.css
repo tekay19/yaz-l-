@@ -600,7 +600,13 @@ section { padding: clamp(56px, 8vw, 104px) 0; }
 .klasik-crit-edit { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
 .klasik-policies { margin-top: 10px; }
 .klasik-answer { margin-top: 8px; padding: 8px 10px; border-left: 3px solid var(--line); background: var(--canvas); font-size: 14.5px; }
-.klasik-line { white-space: pre-wrap; }
+.klasik-line { white-space: pre-wrap; overflow-wrap: anywhere; }
+/* typeset mathematics in a reading: a little smaller than KaTeX's default,
+   and a long line scrolls rather than pushing the paper off the screen */
+.math .katex { font-size: 1.08em; }
+.klasik-crit-quote .math .katex { font-size: 1.2em; }
+.klasik-answer, .klasik-crit-quote { overflow-x: auto; }
+.math-preview { margin: 6px 0 8px; padding: 6px 10px; border-left: 3px solid var(--line); background: var(--canvas); font-size: 14.5px; }
 .klasik-line.crossed { text-decoration: line-through; color: var(--ink-faint); }
 .klasik-crit { width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 14px; }
 .klasik-crit td { padding: 6px 8px 6px 0; border-top: 1px solid var(--line-soft); vertical-align: top; }

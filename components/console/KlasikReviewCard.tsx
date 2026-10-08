@@ -10,6 +10,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Api, KlasikReview, ReviewQuestion, ReviewSheet } from './api';
 import { FailedSheets, NoteBanner } from './ui';
 import RosterPhoto, { mergeNames } from '@/components/upload/RosterPhoto';
+import MathText, { MathPreview } from './MathText';
+import { plainMath } from '@/lib/klasik/math';
 import { ReviewFrame, ReviewPhoto } from './ReviewFrame';
 
 const VERDICT: Record<string, string> = { met: 'Karşılandı', partial: 'Kısmen', not_met: 'Karşılanmadı' };
@@ -266,6 +268,8 @@ function QuestionBlock({ id, api, jobId, pageId, question: q, onChanged }: {
         {editing ? (
           <>
             <textarea className="console-text klasik-short" value={text} onChange={(e) => setText(e.target.value)} aria-label="Okumayı düzeltin" />
+            <p className="tiny muted">Kök: sqrt(5) ya da √5, üs: x^2, kesir: (a+b)/2, çarpma: *</p>
+            <MathPreview text={text} />
             <div className="console-row">
               <button type="button" className="btn btn-ghost btn-sm" onClick={saveText}>Okumayı kaydet</button>
               <button type="button" className="console-link" onClick={() => setEditing(false)}>vazgeç</button>
@@ -274,11 +278,12 @@ function QuestionBlock({ id, api, jobId, pageId, question: q, onChanged }: {
         ) : (
           <div className="klasik-answer">
             {q.lines.length ? q.lines.map((l, i) => (
-              <div key={i} className={l.crossed ? 'klasik-line crossed' : 'klasik-line'}>{l.text}</div>
+              // a crossed-out line stays plain text, so the strike shows through
+              <div key={i} className={l.crossed ? 'klasik-line crossed' : 'klasik-line'}>{l.crossed ? plainMath(l.text) : <MathText text={l.text} />}</div>
             )) : <div className="klasik-line muted">(cevap yok)</div>}
             {q.altText !== null && q.altText !== undefined && (
               <div className="tiny muted" style={{ marginTop: 6 }}>
-                İkinci okuma{q.altText ? `: ${q.altText}` : ' bu cevabı görmedi'} — fotoğrafa bakıp gerekirse okumayı düzeltin.
+                İkinci okuma{q.altText ? <>: <MathText text={q.altText} /></> : ' bu cevabı görmedi'} — fotoğrafa bakıp gerekirse okumayı düzeltin.
               </div>
             )}
             <button type="button" className="console-link" onClick={() => setEditing(true)}>okumayı düzelt</button>
@@ -288,11 +293,11 @@ function QuestionBlock({ id, api, jobId, pageId, question: q, onChanged }: {
 
       <div className="review-q-sec">
         <p className="review-q-label">Yapay zekânın değerlendirmesi</p>
-        {q.note ? <p className="small">{q.note}</p> : <p className="small muted">Açıklama yok.</p>}
+        {q.note ? <p className="small"><MathText text={q.note} /></p> : <p className="small muted">Açıklama yok.</p>}
         {q.altPoints !== undefined && (
-          <p className="small review-q-alt">İkinci değerlendirme bu cevaba {pts(q.altPoints)} / {q.max} puan verdi; ikisi uyuşmuyor, karar sizin.</p>
+          <p className="small review-q-alt">Diğer değerlendirme bu cevaba {pts(q.altPoints)} / {q.max} puan verdi; ikisi uyuşmuyor, karar sizin.</p>
         )}
-        {q.firstError && <p className="tiny muted">İlk hatalı adım: {q.firstError}</p>}
+        {q.firstError && <p className="tiny muted">İlk hatalı adım: <MathText text={q.firstError} /></p>}
         {info.length > 0 && <p className="tiny muted">{info.map((n) => n.text).join('; ')}</p>}
         {q.criteria.some((c) => c.verdict) && (
           <details className="klasik-why" open={attention.length > 0}>
@@ -302,8 +307,8 @@ function QuestionBlock({ id, api, jobId, pageId, question: q, onChanged }: {
                 {q.criteria.map((c) => (
                   <tr key={c.id}>
                     <td>
-                      {c.text}{c.role === 'result' ? ' (sonuç)' : ''}
-                      {c.evidence && <span className="klasik-crit-quote">“{c.evidence}”</span>}
+                      <MathText text={c.text} />{c.role === 'result' ? ' (sonuç)' : ''}
+                      {c.evidence && <span className="klasik-crit-quote">“<MathText text={c.evidence} />”</span>}
                       {c.verdict && c.verdict !== 'not_met' && !c.counted && <span className="klasik-crit-quote">Sayılmadı</span>}
                     </td>
                     <td className={`nowrap klasik-verdict ${c.verdict ?? ''}`}>{c.verdict ? VERDICT[c.verdict] : '—'}</td>

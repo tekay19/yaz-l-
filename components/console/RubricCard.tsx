@@ -10,6 +10,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Criterion, QuestionType, Rubric, RubricQuestion, GradingStyle } from '@/lib/types';
 import type { Api, RubricView } from './api';
+import { MathPreview } from './MathText';
 import { NoteBanner } from './ui';
 
 const TYPES: { value: QuestionType; label: string }[] = [
@@ -169,6 +170,7 @@ export default function RubricCard({ api, jobId, onChanged }: Props) {
             <label className="small klasik-label">Anahtardaki cevap
               <textarea className="console-text klasik-short" value={q.answer} onChange={(e) => setQ(q.q, (x) => ({ ...x, answer: e.target.value }))} />
             </label>
+            <MathPreview text={q.answer} />
 
             <p className="small klasik-label">Ölçütler</p>
             {q.criteria.map((c) => (
