@@ -256,7 +256,9 @@ function QuestionBlock({ id, api, jobId, pageId, question: q, onChanged }: {
 
   async function follow() {
     const r = await api.followTeacher(jobId, q.q);
-    done(r, r.ok ? `Bu soru ${r.data.regrading} kâğıtta sizin puanlamanıza göre yeniden değerlendiriliyor.` : '');
+    const lean = r.ok && r.data.style === 'lenient' ? ' Düzeltmeleriniz daha cömert olduğu için cömert tarzda.'
+      : r.ok && r.data.style === 'strict' ? ' Düzeltmeleriniz daha katı olduğu için katı tarzda.' : '';
+    done(r, r.ok ? `Bu soru ${r.data.regrading} kâğıtta sizin puanlamanıza göre yeniden değerlendiriliyor.${lean}` : '');
   }
 
   return (

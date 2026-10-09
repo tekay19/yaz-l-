@@ -143,7 +143,7 @@ describe('klasik routes', () => {
     expect((await scoredRoute.POST(req({ q: 1 }), ctx(job.id))).status).toBe(400);
     expect((await pageRoute.PATCH(req({ points: [{ q: 1, points: 6 }] }, 'PATCH'), ctx(job.id, a.id))).status).toBe(200);
     const res = await scoredRoute.POST(req({ q: 1 }), ctx(job.id));
-    expect([res.status, await res.json()]).toEqual([202, { examples: 1, regrading: 1 }]);
+    expect([res.status, await res.json()]).toEqual([202, { examples: 1, regrading: 1, style: null }]); // one correction shows no direction
     const [after] = await state.db.select().from(jobs).where(eq(jobs.id, job.id));
     expect(after.rubricRev).toBe(2);
     expect(after.rubric.questions[0]).toMatchObject({ rev: 2, scored: [{ text: 'x = (11 - 3) / 2 = 4', points: 6 }] });

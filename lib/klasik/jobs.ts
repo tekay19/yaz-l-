@@ -3,12 +3,12 @@ import { and, asc, count, eq, inArray, lt } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Db } from '@/db/client';
 import { jobs, pages } from '@/db/schema';
-import type { KlasikLine, PageOverride, Rubric } from '@/lib/types';
+import type { GradingStyle, KlasikLine, PageOverride, Rubric } from '@/lib/types';
 import { normalizeName } from '@/lib/grading/names';
 import { failReason } from '@/lib/report/common';
 import { rubricOf, sheetStudent } from '@/lib/report/klasik';
 import { answerText, mergeSheets, type Sheet, strayWriting } from './sheets';
-import { FLAG_TEXT, INFO_FLAGS, attentionFlags, scoreSheet, type QuestionScore, type ScoreFlag } from './score';
+import { FLAG_TEXT, INFO_FLAGS, attentionFlags, questionMax, scoreQuestion, scoreSheet, type QuestionScore, type ScoreFlag } from './score';
 import { RubricInput, amendRubric, fromInput, rubricProblems, scoreLike } from './rubric';
 import { MAX_KEY_TEXT, MAX_TEACHER_NOTE } from '@/lib/limits';
 
@@ -93,20 +93,45 @@ async function findSheet(db: Db, job: JobRef, pageId: string): Promise<Sheet> {
 // question become examples of their standard, and the question goes back for
 // grading on every sheet they have not scored — the other students' answers
 // are judged against the teacher's own points, not only against the key.
-export async function followTeacher(db: Db, job: Job, q: number): Promise<{ examples: number; regrading: number }> {
+export async function followTeacher(db: Db, job: Job, q: number): Promise<{ examples: number; regrading: number; style: GradingStyle | null }> {
   if (job.status !== 'review') fail(409, 'Sınav kontrol aşamasında değil.');
   const { sheets } = await sheetsOf(db, job);
   const text = (s: Sheet) => answerText(s.read.answers.find((a) => a.q === q)).trim();
   const byTeacher = (s: Sheet) => s.override.points?.find((p) => p.q === q)?.points;
   const scored = sheets.flatMap((s) => (byTeacher(s) === undefined || !text(s) ? [] : [{ text: text(s).slice(0, 1500), points: byTeacher(s)! }]));
   if (!scored.length) fail(400, 'Bu soruda elle puan verdiğiniz bir cevap yok.');
+  const style = teacherLean(rubricOf(job), sheets);
   await db.transaction(async (tx) => {
     const [locked] = await tx.select().from(jobs).where(eq(jobs.id, job.id)).for('update');
     if (locked.status !== 'review' || !locked.rubric) fail(409, 'Sınav kontrol aşamasında değil.');
     if (!locked.rubric!.questions.some((x) => x.q === q)) fail(400, 'Sınavda böyle bir soru yok.');
-    await tx.update(jobs).set({ rubric: scoreLike(locked.rubric!, q, scored), rubricRev: locked.rubricRev + 1 }).where(eq(jobs.id, job.id));
+    await tx.update(jobs).set({ rubric: scoreLike(locked.rubric!, q, scored, style ?? undefined), rubricRev: locked.rubricRev + 1 }).where(eq(jobs.id, job.id));
   });
-  return { examples: scored.length, regrading: sheets.filter((s) => byTeacher(s) === undefined && text(s)).length };
+  return { examples: scored.length, regrading: sheets.filter((s) => byTeacher(s) === undefined && text(s)).length, style };
+}
+
+// How the teacher marks against the system, from every answer they scored by
+// hand in this exam: points clearly above the suggestions on average (a tenth
+// of the question's points or more) are a more generous marker than the key's
+// balanced reading, clearly below a stricter one. Measured on real sheets, a
+// generous teacher's own examples closed the gap only with the lenient style
+// (2026-10-08). Too few corrections, or no clear direction, change nothing.
+export const LEAN_MIN = 3;
+export const LEAN_THRESHOLD = 0.1;
+export function teacherLean(rubric: Rubric, sheets: Sheet[]): GradingStyle | null {
+  const offsets = sheets.flatMap((s) => (s.override.points ?? []).flatMap((p) => {
+    const rq = rubric.questions.find((x) => x.q === p.q);
+    const g = s.grade?.questions.find((x) => x.q === p.q);
+    if (!rq || !g || g.failed || !questionMax(rq)) return [];
+    // the system's own suggestion for this answer; a followed question has a
+    // newer revision since, but its verdicts on this sheet are still the ones
+    // the teacher corrected
+    const suggested = scoreQuestion(rq, s.read.answers.find((a) => a.q === p.q), { ...g, rev: rq.rev }).points;
+    return [(p.points - suggested) / questionMax(rq)];
+  }));
+  if (offsets.length < LEAN_MIN) return null;
+  const lean = offsets.reduce((a, b) => a + b, 0) / offsets.length;
+  return lean >= LEAN_THRESHOLD ? 'lenient' : lean <= -LEAN_THRESHOLD ? 'strict' : null;
 }
 
 // "Accept this answer": the answer becomes an example of full credit for its

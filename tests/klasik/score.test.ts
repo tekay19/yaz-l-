@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { finalNumbers, gradeDoubts, scoreQuestion, scoreSheet, attentionFlags } from '@/lib/klasik/score';
+import { teacherLean } from '@/lib/klasik/jobs';
 import type { KlasikAnswer, QuestionGrade, RubricQuestion, Verdict } from '@/lib/types';
 
 // 2x + 3 = 11, işlemleriyle: setup 3 + steps 3 + result 4
@@ -351,5 +352,22 @@ describe('looked at again by a stronger model', () => {
     expect(gradeDoubts(islem(), { ...solved, unclear: true }, full())).toEqual([]);
     expect(gradeDoubts(islem(), { ...solved, hasFigure: true }, full())).toEqual([]);
     expect(gradeDoubts(islem(), { ...solved, unclear: true }, grade({ ...full(), flags: ['unclear_reading'] }))).toEqual(['unclear_reading']);
+  });
+});
+
+describe('the teacher\'s lean, from their own corrections', () => {
+  const setupOnly = grade({ criteria: [v('c1', 'met', '2x = 11 - 3'), v('c2', 'not_met'), v('c3', 'not_met')], resultCorrect: true, resultPath: 'valid' }); // 3 of 10
+  const full = grade({ criteria: allMet, resultCorrect: true, resultPath: 'valid' }); // 10 of 10
+  const sheet = (g: QuestionGrade, teacher: number) => ({ read: { answers: [solved] }, grade: { questions: [g] }, override: { points: [{ q: 1, points: teacher }] } }) as any;
+  const rubric = { questions: [islem()] };
+
+  it('reads clearly higher points than the suggestions as a generous marker, clearly lower as a strict one', () => {
+    expect(teacherLean(rubric, [sheet(setupOnly, 6), sheet(setupOnly, 7), sheet(setupOnly, 5)])).toBe('lenient');
+    expect(teacherLean(rubric, [sheet(full, 7), sheet(full, 8), sheet(full, 6)])).toBe('strict');
+  });
+
+  it('changes nothing with too few corrections or no clear direction', () => {
+    expect(teacherLean(rubric, [sheet(setupOnly, 9), sheet(setupOnly, 9)])).toBeNull();
+    expect(teacherLean(rubric, [sheet(full, 10), sheet(full, 9), sheet(setupOnly, 3)])).toBeNull();
   });
 });
