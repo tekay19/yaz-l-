@@ -124,6 +124,9 @@ export function scoreQuestion(
   if (answer.unclear) flags.add('unclear_reading');
   if (g.textOnly) flags.add('text_only');
   if (g.confidence === 'low') flags.add('low_confidence');
+  // the code's own finding that the verdicts contradict each other, unlike the
+  // model's doubt, is never settled by a second grading
+  let contradiction = false;
 
   const hasResult = rq.type !== 'yorum';
   // the result against the key, by its numbers: a result the model calls right
@@ -182,6 +185,7 @@ export function scoreQuestion(
         if (verdict === 'met' && g.resultCorrect === false && allResultsMet) {
           counted = false;
           flags.add('low_confidence');
+          contradiction = true;
         }
       } else if (!resultAllowed) counted = false;
     }
@@ -197,7 +201,7 @@ export function scoreQuestion(
     const shown = criteria.some((c) => c.role === 'result' && c.counted && c.verdict === 'met');
     if (shown) points = max;
     // "correct" without a met result criterion: the model contradicts itself
-    else if (!flags.has('evidence_unverified')) flags.add('low_confidence');
+    else if (!flags.has('evidence_unverified')) { flags.add('low_confidence'); contradiction = true; }
   }
   const scored: QuestionScore = { ...base, points: clamp(halfPoints(points), 0, max), status: 'graded', flags: [...flags], criteria };
   const apart = (a: number, b: number) => Math.abs(a - b) >= Math.max(2, 0.15 * max);
@@ -218,6 +222,14 @@ export function scoreQuestion(
     return { ...decided, flags: [...decided.flags, 'unstable_grade'], altPoints: other };
   }
   if (alt !== undefined && apart(alt, scored.points)) return { ...scored, flags: [...scored.flags, 'unstable_grade'], altPoints: alt };
+  // two gradings that agree on nothing or on full marks settle the model's own
+  // doubt: it no longer asks the teacher. Measured on 700 answers (2026-10-09):
+  // 4-6 points fewer questions asked for one more answer off by 5+ points
+  // unflagged; settling it on any agreement quieted answers that were off by
+  // 2+ points more than half the time, so partial credit keeps asking.
+  if (alt !== undefined && g.confidence === 'low' && !contradiction && (scored.points === 0 || scored.points === max)) {
+    return { ...scored, flags: scored.flags.filter((f) => f !== 'low_confidence') };
+  }
   return scored;
 }
 

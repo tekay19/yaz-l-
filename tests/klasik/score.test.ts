@@ -308,6 +308,18 @@ describe('graded twice', () => {
     expect(attentionFlags(s)).toContain('unstable_grade');
   });
 
+  it('two gradings agreeing on full marks or on nothing settle the model\'s own doubt; partial credit keeps asking', () => {
+    const full = { criteria: allMet, resultCorrect: true, resultPath: 'valid' as const };
+    const none = { criteria: [v('c1', 'not_met'), v('c2', 'not_met'), v('c3', 'not_met')], resultCorrect: false, resultPath: 'valid' as const };
+    expect(attentionFlags(scoreQuestion(islem(), solved, grade({ ...full, confidence: 'low', second: grade(full) })))).toEqual([]);
+    const wrong = answer('2x + 3 = 11', '2x = 14', 'x = 7');
+    expect(attentionFlags(scoreQuestion(islem(), wrong, grade({ ...none, confidence: 'low', second: grade(none) })))).toEqual([]);
+    const half = { criteria: [v('c1', 'met', '2x = 11 - 3'), v('c2', 'met', '2x = 8'), v('c3', 'not_met')], resultCorrect: true, resultPath: 'valid' as const };
+    expect(attentionFlags(scoreQuestion(islem(), solved, grade({ ...half, confidence: 'low', second: grade(half) })))).toContain('low_confidence');
+    // graded once, the doubt still asks
+    expect(attentionFlags(scoreQuestion(islem(), solved, grade({ ...full, confidence: 'low' })))).toContain('low_confidence');
+  });
+
   it('the same points, or a small difference, stay quiet', () => {
     const same = scoreQuestion(islem(), solved, grade({ criteria: allMet, resultCorrect: true, resultPath: 'valid', second: grade({ criteria: allMet, resultCorrect: true, resultPath: 'valid' }) }));
     expect(same.flags).not.toContain('unstable_grade');
