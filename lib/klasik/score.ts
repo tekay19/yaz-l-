@@ -226,8 +226,10 @@ export function scoreQuestion(
   // doubt: it no longer asks the teacher. Measured on 700 answers (2026-10-09):
   // 4-6 points fewer questions asked for one more answer off by 5+ points
   // unflagged; settling it on any agreement quieted answers that were off by
-  // 2+ points more than half the time, so partial credit keeps asking.
-  if (alt !== undefined && g.confidence === 'low' && !contradiction && (scored.points === 0 || scored.points === max)) {
+  // 2+ points more than half the time, so partial credit keeps asking. Both
+  // land on the same end: on a two-point question full marks against one
+  // point is not "apart", yet it is the very doubt the teacher should see.
+  if (alt !== undefined && alt === scored.points && g.confidence === 'low' && !contradiction && (scored.points === 0 || scored.points === max)) {
     return { ...scored, flags: scored.flags.filter((f) => f !== 'low_confidence') };
   }
   return scored;

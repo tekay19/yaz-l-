@@ -320,6 +320,16 @@ describe('graded twice', () => {
     expect(attentionFlags(scoreQuestion(islem(), solved, grade({ ...full, confidence: 'low' })))).toContain('low_confidence');
   });
 
+  it('full marks against partial credit is no agreement, though not apart on a two-point question', () => {
+    const short = { ...yorum(), type: 'kisa' as const, criteria: [{ id: 'c1', text: 'Etiketli veriyle eğitildiğini belirtir', points: 2, role: 'other' as const, required: false }] };
+    const said = answer('Etiketli veriyle eğitilir');
+    const s = scoreQuestion(short, said, grade({ criteria: [v('c1', 'met', 'Etiketli veriyle')], confidence: 'low', second: grade({ criteria: [v('c1', 'partial', 'Etiketli')] }) }));
+    expect([s.points, s.flags.includes('unstable_grade')]).toEqual([2, false]);
+    expect(attentionFlags(s)).toContain('low_confidence');
+    const both = scoreQuestion(short, said, grade({ criteria: [v('c1', 'met', 'Etiketli veriyle')], confidence: 'low', second: grade({ criteria: [v('c1', 'met', 'Etiketli veriyle')] }) }));
+    expect(attentionFlags(both)).toEqual([]);
+  });
+
   it('the same points, or a small difference, stay quiet', () => {
     const same = scoreQuestion(islem(), solved, grade({ criteria: allMet, resultCorrect: true, resultPath: 'valid', second: grade({ criteria: allMet, resultCorrect: true, resultPath: 'valid' }) }));
     expect(same.flags).not.toContain('unstable_grade');
