@@ -160,6 +160,41 @@ describe('klasik routes', () => {
     expect((await (await reviewRoute.GET(req(undefined, 'GET'), ctx(job.id))).json()).calibration).toEqual({ sheets: [], done: true });
   });
 
+  it('after the class is graded the teacher\'s way, shows the best answers of the questions without a full-credit example, then follows them', async () => {
+    const u = await signIn();
+    const partly = { questions: [{ q: 1, rev: 1, criteria: [{ id: 'c1', verdict: 'met', evidence: 'x = (11 - 3) / 2' }, { id: 'c2', verdict: 'partial', evidence: '= 4' }],
+      resultCorrect: true, resultPath: 'valid', firstError: null, errorKind: null, flags: [], confidence: 'high', note: '', failed: false, textOnly: false }] };
+    const job = await klasikJob(u.id, { status: 'review', rubric: { ...rubric, calibratedAt: '2026-10-12T11:00:00.000Z' }, rubricRev: 1, rubricApprovedAt: new Date(), roster: ['Elif', 'Mert', 'Ada'] });
+    const ids: string[] = [];
+    for (const [i, name] of ['Elif', 'Mert', 'Ada'].entries()) {
+      const [p] = await state.db.insert(pages).values({ jobId: job.id, kind: 'student', seq: i + 1, status: 'read', gradedRev: 1, grade: partly,
+        result: { ...sheet, read: { ...sheet.read, studentName: name } } }).returning();
+      ids.push(p.id);
+    }
+    // the first sheet was checked at partial credit: no example of full marks yet
+    expect((await pageRoute.PATCH(req({ points: [{ q: 1, points: 6 }] }, 'PATCH'), ctx(job.id, ids[0]))).status).toBe(200);
+    const view = await (await reviewRoute.GET(req(undefined, 'GET'), ctx(job.id))).json();
+    expect(view.bestAnswers).toEqual([{ q: 1, pageIds: [ids[1], ids[2]] }]);
+    // one of them earns full marks from the teacher, and the question follows
+    expect((await pageRoute.PATCH(req({ points: [{ q: 1, points: 10 }] }, 'PATCH'), ctx(job.id, ids[1]))).status).toBe(200);
+    const res = await scoredRoute.POST(req({ qs: [1] }), ctx(job.id));
+    expect([res.status, await res.json()]).toEqual([202, { examples: 2, questions: 1, regrading: 1, style: null }]);
+    const [after] = await state.db.select().from(jobs).where(eq(jobs.id, job.id));
+    expect([after.rubricRev, after.rubric.questions[0].rev]).toEqual([2, 2]);
+    expect(after.rubric.bestAnswersAt).toMatch(/^2\d{3}-/);
+    expect((await (await reviewRoute.GET(req(undefined, 'GET'), ctx(job.id))).json()).bestAnswers).toEqual([]);
+  });
+
+  it('the best-answers step can be skipped: nothing is graded again', async () => {
+    const u = await signIn();
+    const job = await klasikJob(u.id, { status: 'review', rubric: { ...rubric, calibratedAt: '2026-10-12T11:00:00.000Z' }, rubricRev: 1, rubricApprovedAt: new Date(), roster: ['Elif'] });
+    const res = await scoredRoute.POST(req({ qs: [] }), ctx(job.id));
+    expect([res.status, await res.json()]).toEqual([202, { examples: 0, questions: 0, regrading: 0, style: null }]);
+    const [after] = await state.db.select().from(jobs).where(eq(jobs.id, job.id));
+    expect([after.rubricRev, Boolean(after.rubric.bestAnswersAt)]).toEqual([1, true]);
+    expect((await scoredRoute.POST(req({ qs: ['bir'] }), ctx(job.id))).status).toBe(400);
+  });
+
   it('leaves a test question out of the whole-class follow, but follows it when asked for by itself', async () => {
     const u = await signIn();
     const withTest: Rubric = normalizeDraft({ questions: [

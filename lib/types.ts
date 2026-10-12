@@ -63,6 +63,7 @@ export type RubricQuestion = {
 export type Rubric = {
   questions: RubricQuestion[];
   calibratedAt?: string; // when the teacher's way was applied to the whole class, after the first sheets
+  bestAnswersAt?: string; // when the teacher judged the best answers of the questions still without a full-credit example
 };
 
 export const KLASIK_FLAGS = [

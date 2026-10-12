@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { pickCalibration } from '@/lib/klasik/calibrate';
+import { pickBestAnswers, pickCalibration } from '@/lib/klasik/calibrate';
 import { normalizeDraft } from '@/lib/klasik/rubric';
 import type { Rubric } from '@/lib/types';
 
@@ -40,5 +40,21 @@ describe('the first sheets to check', () => {
 
   it('gives every answering sheet of a small class, and never an empty one', () => {
     expect(pickCalibration(rubric, [sheet(1, [1, 2], 10), sheet(2, [], 0), sheet(3, [1], 0)])).toEqual(['p3', 'p1']);
+  });
+});
+
+describe('the best answers to look at', () => {
+  it('lists, for a question without a full-credit example, the highest-scored answers the teacher has not scored', () => {
+    const sheets = [
+      sheet(1, [1, 2], 20, [{ q: 1, points: 10 }, { q: 2, points: 5 }]), // checked: full marks on q1, half on q2
+      sheet(2, [1, 2], 10), sheet(3, [1, 2], 20), sheet(4, [1, 2], 20), sheet(5, [1, 2], 0),
+    ];
+    expect(pickBestAnswers(rubric, sheets)).toEqual([{ q: 2, pageIds: ['p3', 'p4'] }]);
+  });
+
+  it('skips test questions, and answers the teacher already scored', () => {
+    const r = { questions: [rubric.questions[0], { ...rubric.questions[1], answer: 'B' }] };
+    const sheets = [sheet(1, [1, 2], 20, [{ q: 1, points: 5 }, { q: 2, points: 5 }]), sheet(2, [1, 2], 20)];
+    expect(pickBestAnswers(r, sheets)).toEqual([{ q: 1, pageIds: ['p2'] }]);
   });
 });

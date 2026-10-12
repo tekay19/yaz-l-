@@ -41,7 +41,8 @@ export default function KlasikReviewCard({ api, jobId, onApproved }: Props) {
   const [showAll, setShowAll] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [query, setQuery] = useState('');
-  const [followed, setFollowed] = useState<{ regrading: number; style: GradingStyle | null } | null>(null);
+  const [followed, setFollowed] = useState<{ scope: 'all' | 'best'; regrading: number; questions: number; style: GradingStyle | null } | null>(null);
+  const [jump, setJump] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const r = await api.klasikReview(jobId);
@@ -60,6 +61,15 @@ export default function KlasikReviewCard({ api, jobId, onApproved }: Props) {
     const t = setInterval(load, 4000);
     return () => clearInterval(t);
   }, [data?.pending, load]);
+
+  // a chip names a question on another sheet: open the sheet, then land on the question
+  useEffect(() => {
+    if (!jump) return;
+    const el = document.getElementById(jump);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setJump(null);
+  }, [jump, selected, data]);
 
   const flagged = data ? data.sheets.filter(needs).length : 0;
   const all = showAll || !flagged;
@@ -97,7 +107,21 @@ export default function KlasikReviewCard({ api, jobId, onApproved }: Props) {
       setError(r.error);
       return;
     }
-    setFollowed({ regrading: r.data.regrading, style: r.data.style });
+    setFollowed({ scope: 'all', regrading: r.data.regrading, questions: r.data.questions, style: r.data.style });
+    load();
+  }
+
+  // the best answers of the questions without a full-credit example were judged
+  // (or skipped): those questions are graded again on the rest of the class
+  async function followBest(qs: number[]) {
+    setBusy(true);
+    const r = await api.followTeacher(jobId, qs);
+    setBusy(false);
+    if (!r.ok) {
+      setError(r.error);
+      return;
+    }
+    if (qs.length) setFollowed({ scope: 'best', regrading: r.data.regrading, questions: r.data.questions, style: r.data.style });
     load();
   }
 
@@ -109,6 +133,13 @@ export default function KlasikReviewCard({ api, jobId, onApproved }: Props) {
     : data.calibration.sheets.flatMap((id) => data.sheets.filter((s) => s.pageId === id));
   const checkedCount = firstSheets.filter(checked).length;
   const calibrating = (s: ReviewSheet) => firstSheets.some((x) => x.pageId === s.pageId);
+  // then the answers to look at for the questions still without a full-credit example
+  const best = data.bestAnswers.map((b) => ({
+    q: b.q,
+    answers: b.pageIds.flatMap((id) => data.sheets.filter((s) => s.pageId === id))
+      .flatMap((sheet) => { const question = sheet.questions.find((x) => x.q === b.q); return question ? [{ sheet, question }] : []; }),
+  }));
+  const judged = best.filter((b) => b.answers.some((a) => a.question.status === 'teacher')).length;
   const go = (i: number) => {
     const s = list[i];
     if (!s) return;
@@ -141,9 +172,34 @@ export default function KlasikReviewCard({ api, jobId, onApproved }: Props) {
             <span className="tiny muted">{checkedCount} / {firstSheets.length} kâğıt kontrol edildi</span>
           </div>
         </div>
+      ) : best.length > 0 ? (
+        <div className="review-calibrate">
+          <p className="small"><strong>{best.length} soruda tam puan verdiğiniz bir cevap yok.</strong> Sistemin en yüksek puan verdiği cevaplara bakın:
+            tam puanı hak ediyorsa tam puan verin, değilse puanı kaydedin. Sonra bu sorular sınıfın kalanında yeniden puanlanır.</p>
+          {best.map((b) => (
+            <div key={b.q} className="review-best">
+              <strong>{b.q}. soru</strong>
+              {b.answers.map(({ sheet, question }) => (
+                <button key={sheet.pageId} type="button" className={`review-qchip${question.status === 'teacher' ? ' full' : ''}`}
+                  onClick={() => { setSelected(sheet.pageId); setJump(`q-${sheet.pageId}-${b.q}`); }}>
+                  {question.status === 'teacher' ? '✓ ' : ''}{sheet.student || `Kâğıt ${sheet.seqs[0]}`} · {pts(question.points)}/{question.max}
+                </button>
+              ))}
+            </div>
+          ))}
+          <div className="console-row">
+            <button type="button" className="btn btn-primary btn-sm" disabled={!judged || busy} onClick={() => followBest(best.map((b) => b.q))}>
+              Bu soruları yeniden puanla
+            </button>
+            <span className="tiny muted">{judged} / {best.length} soruya bakıldı</span>
+            <button type="button" className="console-link" disabled={busy} onClick={() => followBest([])}>bu adımı atla</button>
+          </div>
+        </div>
       ) : followed ? (
         <p className="review-calibrate small">
-          {followed.regrading} kâğıt sizin puanlamanıza göre yeniden {data.pending > 0 ? 'puanlanıyor' : 'puanlandı'}.{leanText(followed.style)}
+          {followed.scope === 'all'
+            ? <>{followed.regrading} kâğıt sizin puanlamanıza göre yeniden {data.pending > 0 ? 'puanlanıyor' : 'puanlandı'}.{leanText(followed.style)}</>
+            : <>{followed.questions} soru {followed.regrading} kâğıtta yeniden {data.pending > 0 ? 'puanlanıyor' : 'puanlandı'}.</>}
         </p>
       ) : null}
     >

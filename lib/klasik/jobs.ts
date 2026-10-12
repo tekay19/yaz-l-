@@ -10,7 +10,7 @@ import { rubricOf, sheetStudent } from '@/lib/report/klasik';
 import { answerText, mergeSheets, type Sheet, strayWriting } from './sheets';
 import { FLAG_TEXT, INFO_FLAGS, attentionFlags, questionMax, scoreQuestion, scoreSheet, type QuestionScore, type ScoreFlag } from './score';
 import { RubricInput, amendRubric, fromInput, isChoice, rubricProblems, scoreLike } from './rubric';
-import { pickCalibration } from './calibrate';
+import { pickBestAnswers, pickCalibration, type BestAnswers } from './calibrate';
 import { MAX_KEY_TEXT, MAX_TEACHER_NOTE } from '@/lib/limits';
 
 // What the klasik screens can do to a job. Every function checks the job's
@@ -96,10 +96,14 @@ async function findSheet(db: Db, job: JobRef, pageId: string): Promise<Sheet> {
 // only against the key, and in their direction when their corrections show
 // one. `all` does it for every question at once, after the first sheets were
 // checked, and marks the rubric so the screen stops asking; a question then
-// without examples follows the direction alone. A test question is left out
-// of `all`: its examples would only repeat the key, and the direction was not
-// measured on it. Asked for by itself, it takes the examples, not the style.
-export async function followTeacher(db: Db, job: Job, which: number | 'all'): Promise<{
+// without examples follows the direction alone. A list of questions is the
+// step after that — the best answers of the questions still without a
+// full-credit example, judged — and marks the rubric again; an empty list
+// only marks it, the teacher having skipped the step. A test question is left
+// out of both: its examples would only repeat the key, and the direction was
+// not measured on it. Asked for by itself, it takes the examples, not the style.
+export type Follow = number | 'all' | number[];
+export async function followTeacher(db: Db, job: Job, which: Follow): Promise<{
   examples: number; questions: number; regrading: number; style: GradingStyle | null;
 }> {
   if (job.status !== 'review') fail(409, 'Sınav kontrol aşamasında değil.');
@@ -111,19 +115,22 @@ export async function followTeacher(db: Db, job: Job, which: number | 'all'): Pr
     sheets.flatMap((s) => (byTeacher(s, q) === undefined || !text(s, q) ? [] : [{ text: text(s, q).slice(0, 1500), points: byTeacher(s, q)! }]));
   const style = teacherLean(rubric, sheets);
   const choice = new Set(rubric.questions.filter(isChoice).map((x) => x.q));
-  const plan = (which === 'all' ? rubric.questions.filter((x) => !choice.has(x.q)).map((x) => x.q) : [which])
-    .map((q) => ({ q, scored: examplesOf(q) }))
-    .filter((x) => x.scored.length || (which === 'all' && style));
-  if (!plan.some((x) => x.scored.length)) {
+  const step = Array.isArray(which);
+  const wanted = which === 'all' ? rubric.questions.filter((x) => !choice.has(x.q)).map((x) => x.q)
+    : step ? [...new Set(which)].filter((q) => rubric.questions.some((x) => x.q === q) && !choice.has(q))
+    : [which];
+  const plan = wanted.map((q) => ({ q, scored: examplesOf(q) })).filter((x) => x.scored.length || (which === 'all' && style));
+  if (!step && !plan.some((x) => x.scored.length)) {
     fail(400, which === 'all' ? 'Henüz elle puan verdiğiniz ya da onayladığınız bir cevap yok.' : 'Bu soruda elle puan verdiğiniz bir cevap yok.');
   }
   await db.transaction(async (tx) => {
     const [locked] = await tx.select().from(jobs).where(eq(jobs.id, job.id)).for('update');
     if (locked.status !== 'review' || !locked.rubric) fail(409, 'Sınav kontrol aşamasında değil.');
-    if (which !== 'all' && !locked.rubric!.questions.some((x) => x.q === which)) fail(400, 'Sınavda böyle bir soru yok.');
+    if (typeof which === 'number' && !locked.rubric!.questions.some((x) => x.q === which)) fail(400, 'Sınavda böyle bir soru yok.');
     const followed = plan.reduce((r, x) => scoreLike(r, x.q, x.scored, choice.has(x.q) ? undefined : style ?? undefined), locked.rubric!);
-    const next = which === 'all' ? { ...followed, calibratedAt: new Date().toISOString() } : followed;
-    await tx.update(jobs).set({ rubric: next, rubricRev: locked.rubricRev + 1 }).where(eq(jobs.id, job.id));
+    const at = new Date().toISOString();
+    const next = which === 'all' ? { ...followed, calibratedAt: at } : step ? { ...followed, bestAnswersAt: at } : followed;
+    await tx.update(jobs).set({ rubric: next, rubricRev: locked.rubricRev + (plan.length ? 1 : 0) }).where(eq(jobs.id, job.id));
   });
   const changed = plan.map((x) => x.q);
   return {
@@ -264,6 +271,9 @@ export type KlasikReview = {
   failed: { seq: number; reason: string }[]; pending: number;
   // the sheets to check first, and whether the teacher's way has been applied
   calibration: { sheets: string[]; done: boolean };
+  // then, once the class is graded their way: the answers to look at for the
+  // questions still without a full-credit example
+  bestAnswers: BestAnswers;
 };
 
 export async function klasikReviewView(db: Db, job: Job): Promise<KlasikReview> {
@@ -298,10 +308,11 @@ export async function klasikReviewView(db: Db, job: Job): Promise<KlasikReview> 
     if (k && s.student !== `Kâğıt ${s.seqs[0]}`) byName.set(k, [...(byName.get(k) ?? []), s]);
   }
   for (const group of byName.values()) if (group.length > 1) for (const s of group) s.nameFlags.unshift('İsim başka bir kâğıtta da var');
+  const pending = await regradesPending(db, job);
   return {
     mode: 'klasik', roster: job.roster, rubric, sheets: view,
-    failed: failed.map((p) => ({ seq: p.seq, reason: failReason(p.error) })),
-    pending: await regradesPending(db, job),
+    failed: failed.map((p) => ({ seq: p.seq, reason: failReason(p.error) })), pending,
     calibration: { sheets: rubric.calibratedAt ? [] : pickCalibration(rubric, sheets), done: Boolean(rubric.calibratedAt) },
+    bestAnswers: rubric.calibratedAt && !rubric.bestAnswersAt && !pending ? pickBestAnswers(rubric, sheets) : [],
   };
 }
