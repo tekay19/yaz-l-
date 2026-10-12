@@ -193,8 +193,11 @@ export function scoreQuestion(
     points += earned;
     return { id: c.id, text: c.text, points: c.points, role: c.role, verdict, evidence, earned, counted };
   });
-  // a bare answer to a question that asks for the work earns nothing ...
-  if (hasResult && rq.policy.workRequired && path === 'none') points = 0;
+  // a bare answer to a question that asks for the work earns nothing — a
+  // result with nothing behind it, not work that never reached one: the model
+  // reports no path for both, and the steps of an unfinished answer are paid
+  // for like any other ...
+  if (hasResult && rq.policy.workRequired && path === 'none' && g.resultCorrect !== null) points = 0;
   // ... and full marks when only the result was asked for — but only for a
   // result the paper shows: the result criterion met, with its quote found
   if (hasResult && !rq.policy.workRequired && correct && bare) {

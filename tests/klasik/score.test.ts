@@ -71,6 +71,13 @@ describe('scoreQuestion — the agreed case table', () => {
     expect(s.flags).toEqual(expect.arrayContaining(['compensating_errors', 'invalid_path']));
   });
 
+  it('work that never reached a result keeps its step points', () => {
+    const s = scoreQuestion(islem(), answer('2x + 3 = 11', '2x = 11 - 3', 'sonra süre yetmedi'), grade({
+      criteria: [v('c1', 'met', '2x = 11 - 3'), v('c2', 'not_met'), v('c3', 'not_met')], resultCorrect: null, resultPath: 'none',
+    }));
+    expect([s.points, attentionFlags(s)]).toEqual([3, []]);
+  });
+
   it('a bare result where the work was asked for: 0 and a flag', () => {
     const s = scoreQuestion(islem(), answer('x = 4'), grade({
       criteria: [v('c1', 'met', 'x = 4'), v('c3', 'met', 'x = 4')], resultCorrect: true, resultPath: 'none',
