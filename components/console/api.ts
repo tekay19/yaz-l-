@@ -111,8 +111,9 @@ export function createApi(fetchImpl: typeof fetch = (input, init) => fetch(input
       call<{ ok: true }>(`/api/jobs/${id}/pages/${pageId}`, withJson('PATCH', patch)),
     acceptAnswer: (id: string, pageId: string, q: number, note: string) =>
       call<{ ok: true }>(`/api/jobs/${id}/rubric/accept`, withJson('POST', { pageId, q, note })),
-    followTeacher: (id: string, q: number) =>
-      call<{ examples: number; regrading: number; style: 'strict' | 'balanced' | 'lenient' | null }>(`/api/jobs/${id}/rubric/scored`, withJson('POST', { q })),
+    followTeacher: (id: string, q: number | 'all') =>
+      call<{ examples: number; questions: number; regrading: number; style: 'strict' | 'balanced' | 'lenient' | null }>(
+        `/api/jobs/${id}/rubric/scored`, withJson('POST', q === 'all' ? { all: true } : { q })),
     regrade: (id: string, pageId: string) => post(`/api/jobs/${id}/pages/${pageId}/regrade`),
     // the teacher's panel
     results: (id: string) => call<ExamResults>(`/api/jobs/${id}/results`),

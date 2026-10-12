@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { quoteFound } from '@/lib/klasik/evidence';
 import { answerText, mergeSheets, nameFixes, type SheetPage } from '@/lib/klasik/sheets';
-import { RubricInput, amendRubric, fromInput, normalizeDraft, rubricProblems, splitPoints } from '@/lib/klasik/rubric';
+import { RubricInput, amendRubric, fromInput, isChoice, normalizeDraft, rubricProblems, scoreLike, splitPoints } from '@/lib/klasik/rubric';
 import { failedGrade, toGrade } from '@/lib/klasik/grade';
 import type { KlasikRead, RubricQuestion } from '@/lib/types';
 import { keyPointsOf } from '@/lib/klasik/worker';
@@ -229,6 +229,20 @@ describe('rubric', () => {
     expect(amended.questions.map((q) => q.rev)).toEqual([2, 1, 1]);
     expect(amended.questions[0].accepted).toHaveLength(1);
     expect(r.questions[0].rev).toBe(1); // the original is untouched
+  });
+
+  it('keeps the rubric\'s own marks when a question changes', () => {
+    const r = { ...normalizeDraft(draft, []), calibratedAt: '2026-10-12T11:00:00.000Z' };
+    expect(amendRubric(r, 1, { text: 'kabul', example: null, by: 'teacher' }).calibratedAt).toBe(r.calibratedAt);
+    expect(scoreLike(r, 1, [{ text: 'x = 4', points: 5 }], 'lenient').calibratedAt).toBe(r.calibratedAt);
+  });
+
+  it('tells a test question by its one-letter key', () => {
+    const q = normalizeDraft(draft, []).questions[0];
+    const yes = ['B', ' c ', '(D)', 'E)', 'a.', 'Y', 'B (False)', 'D (Doğru)', 'Yanlış'];
+    expect(yes.filter((answer) => !isChoice({ ...q, answer }))).toEqual([]);
+    const no = ['x = 4', 'Kloroplast', 'AB', 'F', 'B şıkkı, çünkü...', 'a) 12 b) 15', 'A (çünkü toplam 180 derecedir ve iç açılar eşittir)'];
+    expect(no.filter((answer) => isChoice({ ...q, answer }))).toEqual([]);
   });
 });
 

@@ -60,7 +60,10 @@ export type RubricQuestion = {
   policy: QuestionPolicy;
   scored?: ScoredExample[];
 };
-export type Rubric = { questions: RubricQuestion[] };
+export type Rubric = {
+  questions: RubricQuestion[];
+  calibratedAt?: string; // when the teacher's way was applied to the whole class, after the first sheets
+};
 
 export const KLASIK_FLAGS = [
   'alternative_path', 'alternative_answer', 'invalid_path', 'compensating_errors', 'unsupported_result', 'unclear_reading',

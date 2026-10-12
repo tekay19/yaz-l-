@@ -471,6 +471,10 @@
 .review-bar-text.attn strong { color: var(--mark); }
 .review-bar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .review-hint { flex-basis: 100%; }
+/* the first sheets to check before the rest is graded the teacher's way */
+.review-calibrate { margin: 0 0 14px; padding: 12px 14px; border: 1.5px solid var(--board); border-radius: 10px; background: var(--canvas); }
+.review-calibrate .console-row { margin-top: 8px; flex-wrap: wrap; }
+.review-confirm { margin: 6px 0 10px; }
 .review-switch { display: inline-flex; padding: 2px; border-radius: 8px; background: var(--canvas); border: 1px solid var(--line-soft); }
 .review-switch button { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border-radius: var(--r-ctl); font-size: 14px; font-weight: 500; color: var(--ink-soft); }
 .review-switch button.on { background: var(--paper); color: var(--ink); font-weight: 600; box-shadow: 0 0 0 1px var(--line); }

@@ -125,17 +125,26 @@ export function normalizeDraft(draft: RubricDraft, maxPoints: number[], style: G
 // the teacher has not scored by hand.
 export function amendRubric(r: Rubric, q: number, path: AcceptedPath): Rubric {
   return {
+    ...r,
     questions: r.questions.map((x) => (x.q !== q ? x : {
       ...x, rev: x.rev + 1, accepted: [...x.accepted, path].slice(-MAX_ACCEPTED),
     })),
   };
 }
 
+// A test question: its key is a single choice (A–E, or D/Y for true or
+// false), at most with the option's word, as in "B (False)". Its answers are
+// right or wrong with nothing to weigh, so they show nothing of how
+// generously a teacher marks.
+export const isChoice = (rq: RubricQuestion) =>
+  /^(\(?[a-ey]\)?\.?(\s*\([^()]{1,20}\))?|doğru|yanlış|true|false)$/i.test(rq.answer.trim());
+
 // "Grade the others like this": the answers the teacher scored by hand become
 // the question's examples (full, partial or no credit), and its new revision
 // sends it back for grading on every sheet they have not scored.
 export function scoreLike(r: Rubric, q: number, scored: ScoredExample[], style?: GradingStyle): Rubric {
   return {
+    ...r,
     questions: r.questions.map((x) => (x.q !== q ? x : {
       ...x, rev: x.rev + 1, scored: scored.slice(-MAX_SCORED), policy: style ? { ...x.policy, style } : x.policy,
     })),

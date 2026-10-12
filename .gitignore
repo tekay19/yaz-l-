@@ -8,3 +8,4 @@ next-env.d.ts
 eval/data/
 dist/
 backups/
+.DS_Store

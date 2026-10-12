@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Api, KlasikReview, ReviewQuestion, ReviewSheet } from './api';
+import type { GradingStyle } from '@/lib/types';
 import { FailedSheets, NoteBanner } from './ui';
 import RosterPhoto, { mergeNames } from '@/components/upload/RosterPhoto';
 import MathText, { MathPreview } from './MathText';
@@ -22,8 +23,13 @@ const STATUS: Record<string, string> = {
 type Props = { api: Api; jobId: string; onApproved: () => void };
 
 const needs = (s: ReviewSheet) => s.attention + s.nameFlags.length > 0;
+// every answer on it carries the teacher's own points (checked or corrected)
+const checked = (s: ReviewSheet) => !s.questions.some((q) => q.status === 'graded' || q.status === 'pending' || q.status === 'failed');
 const pts = (n: number) => n.toLocaleString('tr-TR', { maximumFractionDigits: 1 });
 const tone = (points: number, max: number) => (points >= max ? 'full' : points > 0 ? 'part' : 'zero');
+const leanText = (style: GradingStyle | null) =>
+  style === 'lenient' ? ' Puanlamanız sistemden daha cömert çıktı; kalanlar da cömert tarzda.'
+    : style === 'strict' ? ' Puanlamanız sistemden daha katı çıktı; kalanlar da katı tarzda.' : '';
 const byName = (a: ReviewSheet, b: ReviewSheet) =>
   (a.student ? 0 : 1) - (b.student ? 0 : 1) || a.student.localeCompare(b.student, 'tr') || a.seqs[0] - b.seqs[0];
 
@@ -35,6 +41,7 @@ export default function KlasikReviewCard({ api, jobId, onApproved }: Props) {
   const [showAll, setShowAll] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [query, setQuery] = useState('');
+  const [followed, setFollowed] = useState<{ regrading: number; style: GradingStyle | null } | null>(null);
 
   const load = useCallback(async () => {
     const r = await api.klasikReview(jobId);
@@ -81,9 +88,27 @@ export default function KlasikReviewCard({ api, jobId, onApproved }: Props) {
     else setError(r.error);
   }
 
+  // the first sheets are checked: the rest of the class is graded again the teacher's way
+  async function followAll() {
+    setBusy(true);
+    const r = await api.followTeacher(jobId, 'all');
+    setBusy(false);
+    if (!r.ok) {
+      setError(r.error);
+      return;
+    }
+    setFollowed({ regrading: r.data.regrading, style: r.data.style });
+    load();
+  }
+
   if (!data) return error ? <p className="console-banner err">{error}</p> : <p className="empty">Kontrol verisi yükleniyor…</p>;
 
   const attention = data.sheets.reduce((s, x) => s + x.attention, 0);
+  // first check a few sheets, then let the system grade the rest that way
+  const firstSheets = data.calibration.done || data.sheets.length <= data.calibration.sheets.length ? []
+    : data.calibration.sheets.flatMap((id) => data.sheets.filter((s) => s.pageId === id));
+  const checkedCount = firstSheets.filter(checked).length;
+  const calibrating = (s: ReviewSheet) => firstSheets.some((x) => x.pageId === s.pageId);
   const go = (i: number) => {
     const s = list[i];
     if (!s) return;
@@ -95,11 +120,32 @@ export default function KlasikReviewCard({ api, jobId, onApproved }: Props) {
       summary={<>{data.sheets.length} kâğıt · {attention} işaretli soru · puanlar onayınıza kadar öneridir</>}
       flagged={flagged} total={data.sheets.length} showAll={all} onShowAll={setShowAll}
       onApprove={approve} approveDisabled={busy || data.pending > 0}
-      hint={data.pending > 0 ? `${data.pending} kâğıt yeniden puanlanıyor; bitince onaylayabilirsiniz.` : undefined}
+      hint={data.pending > 0 ? `${data.pending} sayfa yeniden puanlanıyor; bitince onaylayabilirsiniz.` : undefined}
       roster={roster} onRoster={setRoster} onSaveRoster={saveRoster}
       rosterExtra={<RosterPhoto api={api} onNames={(names) => setRoster((cur) => mergeNames(cur, names))} />}
       bodyClassName="review-split"
       after={<><FailedSheets failed={data.failed} refunded /><NoteBanner note={error ? { ok: false, text: error } : null} /></>}
+      notice={firstSheets.length > 0 ? (
+        <div className="review-calibrate">
+          <p className="small"><strong>Önce şu {firstSheets.length} kâğıdı kontrol edin.</strong> Puanlar doğruysa kâğıdı onaylayın, yanlış olan puanı düzeltin.
+            Sonra sistem kalan kâğıtları sizin puanlamanıza göre yeniden puanlar.</p>
+          <div className="console-row">
+            {firstSheets.map((s) => (
+              <button key={s.pageId} type="button" className={`review-qchip${checked(s) ? ' full' : ''}`} onClick={() => setSelected(s.pageId)}>
+                {checked(s) ? '✓ ' : ''}{s.student || `Kâğıt ${s.seqs[0]}`}
+              </button>
+            ))}
+            <button type="button" className="btn btn-primary btn-sm" disabled={!checkedCount || busy || data.pending > 0} onClick={followAll}>
+              Kalanları benim puanlamama göre puanla
+            </button>
+            <span className="tiny muted">{checkedCount} / {firstSheets.length} kâğıt kontrol edildi</span>
+          </div>
+        </div>
+      ) : followed ? (
+        <p className="review-calibrate small">
+          {followed.regrading} kâğıt sizin puanlamanıza göre yeniden {data.pending > 0 ? 'puanlanıyor' : 'puanlandı'}.{leanText(followed.style)}
+        </p>
+      ) : null}
     >
       <nav className="review-students" aria-label="Öğrenciler">
         <input className="review-search" type="search" value={query} onChange={(e) => setQuery(e.target.value)}
@@ -124,7 +170,7 @@ export default function KlasikReviewCard({ api, jobId, onApproved }: Props) {
       </nav>
       <section id="review-detail" className="review-detail">
         {current
-          ? <SheetCard key={current.pageId} api={api} jobId={jobId} sheet={current} onChanged={load}
+          ? <SheetCard key={current.pageId} api={api} jobId={jobId} sheet={current} onChanged={load} calibrating={calibrating(current)}
             position={`${at + 1} / ${list.length}`} onPrev={at > 0 ? () => go(at - 1) : undefined}
             onNext={at < list.length - 1 ? () => go(at + 1) : undefined} />
           : <p className="empty">Gösterilecek kâğıt yok.</p>}
@@ -136,8 +182,9 @@ export default function KlasikReviewCard({ api, jobId, onApproved }: Props) {
 // an empty field is not 0, and Turkish keyboards type "2,5"
 const parsePoints = (s: string) => (s.trim() ? Number(s.trim().replace(',', '.')) : NaN);
 
-function SheetCard({ api, jobId, sheet, onChanged, position, onPrev, onNext }: {
+function SheetCard({ api, jobId, sheet, onChanged, position, onPrev, onNext, calibrating }: {
   api: Api; jobId: string; sheet: ReviewSheet; onChanged: () => void; position: string; onPrev?: () => void; onNext?: () => void;
+  calibrating?: boolean;
 }) {
   const [name, setName] = useState(sheet.student);
   useEffect(() => setName(sheet.student), [sheet.student]);
@@ -150,6 +197,15 @@ function SheetCard({ api, jobId, sheet, onChanged, position, onPrev, onNext }: {
     if (r.ok) onChanged();
   }
   const anchor = (q: number) => `q-${sheet.pageId}-${q}`;
+
+  // "these points are right": the suggestions the teacher did not change become their own
+  async function confirmSheet() {
+    const points = sheet.questions.filter((q) => q.status === 'graded').map((q) => ({ q: q.q, points: q.points }));
+    if (!points.length) return;
+    const r = await api.correctKlasik(jobId, sheet.pageId, { points });
+    setNote(r.ok ? { ok: true, text: 'Kâğıt onaylandı.' } : { ok: false, text: r.error });
+    if (r.ok) onChanged();
+  }
 
   return (
     <div className="review-sheet">
@@ -168,6 +224,18 @@ function SheetCard({ api, jobId, sheet, onChanged, position, onPrev, onNext }: {
         </div>
       </header>
 
+      {calibrating && (
+        <div className="console-row review-confirm">
+          {checked(sheet)
+            ? <span className="small">✓ Bu kâğıt kontrol edildi</span>
+            : <>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={confirmSheet} disabled={sheet.pending > 0}>Bu kâğıdı onayla</button>
+              <span className="tiny muted">
+                {sheet.pending > 0 ? 'Bu kâğıt puanlanıyor; bitince onaylayın.' : 'Önce yanlış bulduğunuz puanları düzeltin; onay, kalan puanları doğru kabul eder.'}
+              </span>
+            </>}
+        </div>
+      )}
       {sheet.nameFlags.length > 0 && <ul className="review-q-flags">{sheet.nameFlags.map((f) => <li key={f}>{f}</li>)}</ul>}
       <details className="review-name-edit" open={sheet.nameFlags.length > 0}>
         <summary>İsmi düzeltin</summary>

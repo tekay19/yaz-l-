@@ -9,7 +9,7 @@ import { RosterEditor } from './ui';
 // them, and the approve button. The roster is there, folded away.
 export function ReviewFrame({
   summary, flagged, total, showAll, onShowAll, approveLabel = 'Onaylayın, raporu gönderin', onApprove, approveDisabled, hint,
-  roster, onRoster, onSaveRoster, rosterExtra, bodyClassName = 'review-list', children, after,
+  roster, onRoster, onSaveRoster, rosterExtra, bodyClassName = 'review-list', children, after, notice,
 }: {
   summary: React.ReactNode; flagged: number; total: number; showAll: boolean; onShowAll: (all: boolean) => void;
   approveLabel?: string; onApprove: () => void; approveDisabled?: boolean; hint?: React.ReactNode;
@@ -17,6 +17,8 @@ export function ReviewFrame({
   // the klasik screen lays its body out as a class list beside one paper
   bodyClassName?: string;
   children: React.ReactNode; after?: React.ReactNode;
+  // shown above the papers, e.g. which sheets to check first
+  notice?: React.ReactNode;
 }) {
   // what sticks under the bar (the class list, the photos) and where a jump
   // to a question lands follow its real height, which wraps on narrow screens
@@ -55,6 +57,7 @@ export function ReviewFrame({
         {rosterExtra}
       </details>
 
+      {notice}
       <div className={bodyClassName}>{children}</div>
       {after}
     </div>

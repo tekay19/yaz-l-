@@ -392,4 +392,14 @@ describe('the teacher\'s lean, from their own corrections', () => {
     expect(teacherLean(rubric, [sheet(setupOnly, 9), sheet(setupOnly, 9)])).toBeNull();
     expect(teacherLean(rubric, [sheet(full, 10), sheet(full, 9), sheet(setupOnly, 3)])).toBeNull();
   });
+
+  it('leaves test questions out: a confirmed letter does not water a lean down', () => {
+    const test = { ...islem(), q: 2, type: 'kisa' as const, answer: 'B', policy: { workRequired: false, carryForward: true, wrongInfoPenalty: false },
+      criteria: [{ id: 'c1', text: 'Doğru seçeneği (B) belirtir', points: 1, role: 'other' as const, required: false }] };
+    const letter = { ...answer('B'), q: 2 };
+    const right = grade({ q: 2, criteria: [v('c1', 'met', 'B')] });
+    // 1.5 of 10 above the suggestion on the written answer, the letter confirmed
+    const checked = () => ({ read: { answers: [solved, letter] }, grade: { questions: [setupOnly, right] }, override: { points: [{ q: 1, points: 4.5 }, { q: 2, points: 1 }] } }) as any;
+    expect(teacherLean({ questions: [islem(), test] }, [checked(), checked(), checked()])).toBe('lenient');
+  });
 });

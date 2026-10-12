@@ -33,10 +33,11 @@ const ctx = (id: string, pageId?: string) => ({ params: Promise.resolve({ id, pa
 const req = (body?: unknown, method = 'POST') =>
   new Request('http://sinavoku.test/x', { method, headers: { 'content-type': 'application/json' }, body: body === undefined ? undefined : JSON.stringify(body) });
 
-const rubric: Rubric = normalizeDraft({ questions: [
-  { q: 1, type: 'islem', prompt: null, answer: 'x = 4', workRequired: true, accepted: [],
-    criteria: [{ text: 'Kurulum', points: 1, role: 'other', required: false }, { text: 'Sonuç', points: 1, role: 'result', required: false }] },
-] }, [10]);
+const equation = {
+  q: 1, type: 'islem' as const, prompt: null, answer: 'x = 4', workRequired: true, accepted: [],
+  criteria: [{ text: 'Kurulum', points: 1, role: 'other' as const, required: false }, { text: 'Sonuç', points: 1, role: 'result' as const, required: false }],
+};
+const rubric: Rubric = normalizeDraft({ questions: [equation] }, [10]);
 const sheet = { type: 'klasik-student' as const, read: { isBackSide: false, studentName: 'Elif', nameConfidence: 'high' as const, unreadable: false,
   answers: [{ q: 1, lines: [{ text: 'x = (11 - 3) / 2 = 4', crossed: false }], unclear: false, hasFigure: false }] } };
 
@@ -143,11 +144,55 @@ describe('klasik routes', () => {
     expect((await scoredRoute.POST(req({ q: 1 }), ctx(job.id))).status).toBe(400);
     expect((await pageRoute.PATCH(req({ points: [{ q: 1, points: 6 }] }, 'PATCH'), ctx(job.id, a.id))).status).toBe(200);
     const res = await scoredRoute.POST(req({ q: 1 }), ctx(job.id));
-    expect([res.status, await res.json()]).toEqual([202, { examples: 1, regrading: 1, style: null }]); // one correction shows no direction
+    expect([res.status, await res.json()]).toEqual([202, { examples: 1, questions: 1, regrading: 1, style: null }]); // one correction shows no direction
     const [after] = await state.db.select().from(jobs).where(eq(jobs.id, job.id));
     expect(after.rubricRev).toBe(2);
     expect(after.rubric.questions[0]).toMatchObject({ rev: 2, scored: [{ text: 'x = (11 - 3) / 2 = 4', points: 6 }] });
     expect((await scoredRoute.POST(req({ q: 'bir' }), ctx(job.id))).status).toBe(400);
+    // one question followed is not the whole class graded the teacher's way
+    expect((await (await reviewRoute.GET(req(undefined, 'GET'), ctx(job.id))).json()).calibration.done).toBe(false);
+    // after the first sheets: every question at once
+    const all = await scoredRoute.POST(req({ all: true }), ctx(job.id));
+    expect([all.status, await all.json()]).toEqual([202, { examples: 1, questions: 1, regrading: 1, style: null }]);
+    const [again] = await state.db.select().from(jobs).where(eq(jobs.id, job.id));
+    expect([again.rubricRev, again.rubric.questions[0].rev]).toEqual([3, 3]);
+    expect(again.rubric.calibratedAt).toMatch(/^2\d{3}-/);
+    expect((await (await reviewRoute.GET(req(undefined, 'GET'), ctx(job.id))).json()).calibration).toEqual({ sheets: [], done: true });
+  });
+
+  it('leaves a test question out of the whole-class follow, but follows it when asked for by itself', async () => {
+    const u = await signIn();
+    const withTest: Rubric = normalizeDraft({ questions: [
+      equation,
+      { q: 2, type: 'kisa', prompt: null, answer: 'B', workRequired: false, accepted: [], criteria: [{ text: 'Doğru seçeneği (B) belirtir', points: 1, role: 'other', required: false }] },
+    ] }, [10, 1]);
+    const job = await klasikJob(u.id, { status: 'review', rubric: withTest, rubricRev: 1, rubricApprovedAt: new Date(), roster: ['Elif'] });
+    const both = { ...sheet, read: { ...sheet.read, answers: [...sheet.read.answers, { q: 2, lines: [{ text: 'B', crossed: false }], unclear: false, hasFigure: false }] } };
+    const [a] = await state.db.insert(pages).values({ jobId: job.id, kind: 'student', seq: 1, status: 'read', result: both, gradedRev: 1 }).returning();
+    expect((await pageRoute.PATCH(req({ points: [{ q: 1, points: 6 }, { q: 2, points: 1 }] }, 'PATCH'), ctx(job.id, a.id))).status).toBe(200);
+    const all = await scoredRoute.POST(req({ all: true }), ctx(job.id));
+    expect([all.status, await all.json()]).toEqual([202, { examples: 1, questions: 1, regrading: 0, style: null }]);
+    const [after] = await state.db.select().from(jobs).where(eq(jobs.id, job.id));
+    expect(after.rubric.questions[0]).toMatchObject({ rev: 2, scored: [{ text: 'x = (11 - 3) / 2 = 4', points: 6 }] });
+    expect(after.rubric.questions[1]).toMatchObject({ rev: 1 });
+    expect(after.rubric.questions[1].scored).toBeUndefined();
+    const one = await scoredRoute.POST(req({ q: 2 }), ctx(job.id));
+    expect([one.status, await one.json()]).toEqual([202, { examples: 1, questions: 1, regrading: 0, style: null }]);
+    const [again] = await state.db.select().from(jobs).where(eq(jobs.id, job.id));
+    expect(again.rubric.questions[1]).toMatchObject({ rev: 2, scored: [{ text: 'B', points: 1 }] });
+  });
+
+  it('shows which sheets to check first until the teacher\'s way is applied', async () => {
+    const u = await signIn();
+    const job = await klasikJob(u.id, { status: 'review', rubric, rubricRev: 1, roster: ['Elif', 'Mert', 'Ada', 'Can'] });
+    for (const [i, name] of ['Elif', 'Mert', 'Ada', 'Can'].entries()) {
+      await state.db.insert(pages).values({ jobId: job.id, kind: 'student', seq: i + 1, status: 'read', gradedRev: 1,
+        result: { ...sheet, read: { ...sheet.read, studentName: name } } });
+    }
+    const view = await (await reviewRoute.GET(req(undefined, 'GET'), ctx(job.id))).json();
+    expect(view.calibration.done).toBe(false);
+    expect(view.calibration.sheets).toHaveLength(3);
+    expect((await scoredRoute.POST(req({ all: true }), ctx(job.id))).status).toBe(400); // nothing checked yet
   });
 
   it('shows the klasik review screen', async () => {
